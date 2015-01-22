@@ -28,14 +28,19 @@ io.on('connection', function (socket) {
   socket.on('attemptlogin', function (username, password) {
     var shadowclient = new ShadowClient(username, password);
 
+    // we store the username in the socket session for this client
+    socket.username = username;
+    socket.shadowclient = shadowclient;
+
+    socket.on('send', function (text) {
+      shadowclient.write(text + '\r\n');
+    });
+
     shadowclient.on('connect', function() {
       console.log('server connected, attempting login for ' + username);
     });
 
 
-    // we store the username in the socket session for this client
-    socket.username = username;
-    socket.shadowclient = shadowclient;
 
     shadowclient.on('login success', function() {
       console.log('login success for user ' + username);
