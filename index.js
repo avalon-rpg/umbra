@@ -55,6 +55,11 @@ io.on('connection', function (socket) {
       socket.emit('tell from', who, text);
     });
 
+    shadowclient.on('line', function (text) {
+      console.log("line: " + line);
+      socket.emit('line', line);
+    });
+
     socket.on('new message', function (text) {
       shadowclient.write(text + '\r\n');
     });

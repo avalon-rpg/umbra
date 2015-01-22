@@ -182,6 +182,11 @@ $(function() {
     addTell(whofrom, message);
   });
 
+
+  socket.on('line', function (line) {
+    log(line);
+  });
+
   // Whenever the server emits 'user joined', log it in the chat body
   socket.on('user joined', function (data) {
     log(data.username + ' is in the land');
