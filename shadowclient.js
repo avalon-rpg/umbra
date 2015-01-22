@@ -119,7 +119,7 @@ ShadowClient.prototype.init = function(user, pass) {
 
   this.conn.pipe(parser);
 
-  this.conn.on('close' function (had_error) {
+  this.conn.on('close', function (had_error) {
     this.connected = false;
     self.emit('avalon disconnected', had_error);
   });
