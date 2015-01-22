@@ -50,18 +50,8 @@ io.on('connection', function (socket) {
       });
     });
 
-    shadowclient.on('tell', function (who, text) {
-      console.log("tell from: " + who + ' with text "' + text + '"');
-      socket.emit('tell from', who, text);
-    });
-
-    shadowclient.on('line', function (line) {
-      console.log("line: " + line);
-      socket.emit('line', line);
-    });
-
-    socket.on('new message', function (text) {
-      shadowclient.write(text + '\r\n');
+    shadowclient.on('input', function (data) {
+      socket.emit('input', data);
     });
 
     // when the user disconnects.. perform this

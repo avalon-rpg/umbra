@@ -173,20 +173,6 @@ $(function() {
     log(message, { prepend: true });
   });
 
-  // Whenever the server emits 'new message', update the chat body
-  socket.on('new message', function (data) {
-    addChatMessage(data);
-  });
-
-  socket.on('tell from', function (whofrom, message) {
-    addTell(whofrom, message);
-  });
-
-
-  socket.on('line', function (line) {
-    log(line);
-  });
-
   // Whenever the server emits 'user joined', log it in the chat body
   socket.on('user joined', function (data) {
     log(data.username + ' is in the land');
@@ -196,6 +182,26 @@ $(function() {
   socket.on('user left', function (data) {
     log(data.username + ' departed to walk the void');
     removeChatTyping(data);
+  });
+
+  socket.on('avalon disconnected', function (data) {
+    log('*** AVALON DISCONNECTED, PLEASE LOG IN AGAIN ***');
+  });
+
+  socket.on('disconnect', function () {
+    log('*** WEBSOCKET DISCONNECTED, PLEASE LOG IN AGAIN ***');
+  });
+
+  socket.on('input', function (data) {
+    if(data.qual == 'calling') {
+      log("call from: " + data.who + ' to ' + data.list + ' with text "' + data.text + '"');
+    } else if(data.qual == 'tell from') {
+      addTell(data.who, data.msg);
+    } else if(data.qual == 'tell to') {
+      log("You tell " + data.who + ', "' + data.msg + '"');
+    } else if(data.qual == 'unparsed') {
+      log(data.text);  
+    }
   });
 
 });

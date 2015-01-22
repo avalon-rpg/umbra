@@ -49,27 +49,44 @@ ShadowClient.prototype.init = function(user, pass) {
     {
       regex: /^(\S+) calls to (.+): ".*"$/,
       func: function(match) {
-        var who = match[1];
-        var list = match[2];
-        var text = match[3];
-        self.emit('calling', who, list, text);
+        self.emit('input', {
+          qual: 'calling',
+          who:  match[1],
+          list: match[2],
+          text: match[3]
+        });
       }
     },{
       regex: /^###prefix (.*) ###name (.*) ###suffix (.*) ###msg$/,
       func: function(match) {
-        var prefix = match[1];
+        //var prefix = match[1];
         var name = match[2];
-        var suffix = match[3];
+        //var suffix = match[3];
         msgFrom = name;
       }
     },{
       regex: /^tells you, "(.*)"$/,
       func: function(match) {
-        var text = match[1];
-        self.emit('tell', msgFrom, text);
+        self.emit('input', {
+          qual: 'tell from',
+          who:  msgFrom,
+          msg:  match[1]
+        });
         msgFrom = "";
       }
+    },{
+      regex: /^You tell (.*), "(.*)"$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'tell to',
+          who:  match[1],
+          msg:  match[2]
+        });
+      }
     }
+
+
+
   ];
 
   var onLine = function (line) {
@@ -95,6 +112,10 @@ ShadowClient.prototype.init = function(user, pass) {
 
     //default fallback
     self.emit('line', line);
+    self.emit('input', {
+      qual: 'unparsed',
+      text: line
+    });
   }
 
   var onPrompt = function (prompt) {

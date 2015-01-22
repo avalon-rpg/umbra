@@ -11,22 +11,26 @@ client.on('login success', function() {
   client.write('who\r\n');
 });
 
-client.on('line', function (line) {
-  console.log("line: " + line);
+client.on('avalon disconnected', function (had_error) {
+  console.log('avalon disconnected);
 });
 
 client.on('user', function (user) {
   console.log("user: " + user);
 });
 
-client.on('calling', function (who, list, text) {
-  console.log("call from: " + who + ' to ' + list + ' with text "' + text + '"');
+client.on('input', function (data) {
+  if(data.qual == 'calling') {
+  	console.log("call from: " + data.who + ' to ' + data.list + ' with text "' + data.text + '"');
+  } else if(data.qual == 'tell from') {
+  	console.log("tell from: " + data.who + ' with text "' + data.msg + '"');
+  } else if(data.qual == 'tell to') {
+  	console.log("tell to: " + data.who + ' with text "' + data.msg + '"');
+  } else if(data.qual == 'unparsed') {
+  	console.log("unparsed input: " + data.text);
+  }
 });
 
-client.on('tell', function (who, text) {
-  console.log("tell from: " + who + ' with text "' + text + '"');
-});
 
-client.on('avalon disconnected', function (had_error) {
-  console.log('avalon disconnected);
-});
+
+
