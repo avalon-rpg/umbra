@@ -37,7 +37,7 @@ ShadowClient.prototype.init = function(user, pass) {
   this.pass = pass;
 
   this.conn = net.connect({port: 23, host: '184.173.130.145'}, function() {
-    this.connected = true;
+    self.connected = true;
     this.emit('connect');
   });
 
@@ -120,7 +120,7 @@ ShadowClient.prototype.init = function(user, pass) {
   this.conn.pipe(parser);
 
   this.conn.on('close', function (had_error) {
-    this.connected = false;
+    self.connected = false;
     self.emit('avalon disconnected', had_error);
   });
 
