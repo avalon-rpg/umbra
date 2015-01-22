@@ -1,0 +1,14 @@
+{
+  "name": "avalon-rpg.shadow-client",
+  "version": "0.0.0",
+  "description": "A simple web client for Avalon's shadow protocol",
+  "main": "index.js",
+  "author": "Kevin Wright",
+  "private": true,
+  "license": "avalon-rpg",
+  "dependencies": {
+    "express": "3.4.8",
+    "binary": "0.3.0",
+    "socket.io": "1.3.2"
+  }
+}
