@@ -61,6 +61,7 @@ io.on('connection', function (socket) {
 
     // when the user disconnects.. perform this
     socket.on('disconnect', function () {
+      console.log('websocket disconnected for ' + username);
       if(shadowclient.connected) {
         shadowclient.write('QQ\r\n');
       }
@@ -68,6 +69,7 @@ io.on('connection', function (socket) {
 
         // when the user disconnects.. perform this
     shadowclient.on('avalon disconnected', function (had_error) {
+      console.log('avalon disconnected for ' + username)
       socket.emit('avalon disconnected', had_error);
     });
   });
