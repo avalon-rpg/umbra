@@ -21,6 +21,7 @@ if (typeof RegExp.prototype.withMatch != 'function') {
 
 function ShadowClient(user, pass) {
   var conn;
+  var loggingIn = false;
   var loggedIn = false;
   var connected = false;
   this.init(user, pass);
@@ -87,14 +88,16 @@ ShadowClient.prototype.init = function(user, pass) {
 
   var onLine = function (line) {
     if(!this.loggedIn) {
-      if(line.startsWith('###ACK LOGIN OK')) {
-        this.loggedIn = true;
-        self.emit('login success');
-      } else if (line.startsWith('"SHADOW" linelogout')) {
-        this.loggedIn = true;
-        self.emit('login success');
+      if(this.loggingIn) {
+        if(line.startsWith('###ACK LOGIN OK')) {
+          this.loggedIn = true;
+          this.loggingIn = false;
+          self.emit('login success');
+        } else {
+          console.log('Unexpected login response: ' + line);
+        }
       } else {
-        console.log('Unexpected login response: ' + line);
+        //skip line, not logging in
       }
 
       return;
@@ -128,6 +131,7 @@ ShadowClient.prototype.init = function(user, pass) {
 
   var onPrompt = function (prompt) {
     if(prompt.indexOf('What is the name of your character?') == 0) {
+      self.loggingIn = true;
       self.conn.write('###ack login ' + user + ' ' + pass + '\r\n');
     }
   }
