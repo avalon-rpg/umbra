@@ -195,9 +195,13 @@ $(function() {
     } else if(data.qual == 'novice-calling to') {
       addTell('You (' + data.chan + ') => Novices', data.msg);
     } else if(data.qual == 'tell from') {
-      addTell(data.who, data.msg);
+      addTell(data.who + ' => You', data.msg);
     } else if(data.qual == 'tell to') {
       addTell('You => ' + data.who, data.msg);
+    } else if(data.qual == 'speech') {
+      addTell(data.who, data.msg);
+    } else if(data.qual == 'rune-bug') {
+      addTell('Rune-Bug', data.msg);
     } else if(data.qual == 'msg') {
       console.log(data.lines.reduce(function (a,b) { a + '\r\n' + b }));
     } else if(data.qual == 'unparsed') {

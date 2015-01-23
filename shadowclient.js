@@ -47,6 +47,9 @@ ShadowClient.prototype.init = function(user, pass) {
   var GA  = 249;
   var gaSeq = new Buffer([IAC,GA]);
 
+
+
+
   var sequences = [
 
     {
@@ -105,8 +108,29 @@ ShadowClient.prototype.init = function(user, pass) {
           msg:  match[2]
         });
       }
+    },{
+      regex: /^(.+) [asks|says], "(.+)"$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'speech',
+          who:  match[1],
+          msg:  match[2]
+        });
+      }
+    },{
+      regex: /^Your rune-bug picks up words: (.+)$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'rune-bug',
+          msg:  match[1]
+        });
+      }
     }
   ];
+
+
+// Your rune-bug picks up words: Billum asks, "Did you find an emerald?"
+// Your rune-bug picks up words: Satsuki answers Craftmaster Billum Submerged Involved, "Thank you."
 
   var onLine = function (line) {
     if(!self.loggedIn) {

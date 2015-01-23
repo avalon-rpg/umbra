@@ -116,6 +116,27 @@ data fields:
 * msg: String = The contents of the tell
 
 
+####speech
+
+_When someone speaks in your current location_
+
+data fields:
+
+* qual: String = 'speech'
+* who: String = The (simple) name of the user who spoke
+* msg: String = What they said
+
+
+####rune-bug
+
+_When a rune-bug picks up speech_
+
+data fields:
+
+* qual: String = 'rune-bug'
+* msg: String = What was picked up
+
+
 ####msg
 
 _A dedicated message sent by avalon, to display as-is_
