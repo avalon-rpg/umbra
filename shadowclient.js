@@ -109,20 +109,20 @@ ShadowClient.prototype.init = function(user, pass) {
         });
       }
     },{
+      regex: /^Your rune-bug picks up words: (.+)$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'rune-bug',
+          msg:  match[1]
+        });
+      }
+    },{
       regex: /^(.+) (asks|says), "(.+)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'speech',
           who:  match[1],
           msg:  match[3]
-        });
-      }
-    },{
-      regex: /^Your rune-bug picks up words: (.+)$/,
-      func: function(match) {
-        self.emit('input', {
-          qual: 'rune-bug',
-          msg:  match[1]
         });
       }
     }
