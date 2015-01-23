@@ -33,7 +33,7 @@ io.on('connection', function (socket) {
   socket.on('attempt login', function (username, password) {
     username = username;
     shadowclient = new ShadowClient(username, password);
-    wireShadowEvents();
+    wireShadowEvents(username);
   });
 
   socket.on('confirm login', function (username, password) {
@@ -41,7 +41,7 @@ io.on('connection', function (socket) {
       username = username;
       shadowclient = new ShadowClient(username, password);
     }
-    wireShadowEvents();
+    wireShadowEvents(username);
   });
 
   socket.on('send', function (text) {    
@@ -56,14 +56,14 @@ io.on('connection', function (socket) {
   socket.on('disconnect', function () {
     console.log('websocket disconnected for ' + username);
     if(shadowclient && shadowclient.connected) {
-      socket.shadowclient.write('QQ\r\n');
+      shadowclient.write('QQ\r\n');
     }
   });
 
   //////////////////
   // CLIENT EVENTS 
 
-  function wireShadowEvents() {
+  function wireShadowEvents(username) {
     shadowclient.on('avalon connected', function() {
       console.log('avalon connected, attempting login for ' + username);
     });
