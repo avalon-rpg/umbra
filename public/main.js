@@ -78,7 +78,7 @@ $(function() {
   }
 
   function addTell (whofrom, message, options) {
-    var $usernameDiv = $('<span class="username"/>').text(whofrom + ' tells you').css('color', getUsernameColor(whofrom));
+    var $usernameDiv = $('<span class="username"/>').text(whofrom + ': ').css('color', getUsernameColor(whofrom));
     var $messageBodyDiv = $('<span class="messageBody">').text(message);
     var $messageDiv = $('<li class="message"/>').data('username', whofrom).append($usernameDiv, $messageBodyDiv);
 

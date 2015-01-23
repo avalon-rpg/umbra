@@ -31,7 +31,6 @@ util.inherits(ShadowClient, EventEmitter);
 ShadowClient.prototype.init = function(user, pass) {
   var self = this;
   var inWhoList = false;
-  var msgFrom = "";
 
   this.user = user;
   this.pass = pass;
@@ -57,22 +56,13 @@ ShadowClient.prototype.init = function(user, pass) {
         });
       }
     },{
-      regex: /^###prefix (.*) ###name (.*) ###suffix (.*) ###msg$/,
-      func: function(match) {
-        //var prefix = match[1];
-        var name = match[2];
-        //var suffix = match[3];
-        msgFrom = name;
-      }
-    },{
-      regex: /^tells you, "(.*)"$/,
+      regex: /^(.*) tells you, "(.*)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'tell from',
-          who:  msgFrom,
-          msg:  match[1]
+          who:  match[1],
+          msg:  match[2]
         });
-        msgFrom = "";
       }
     },{
       regex: /^You tell (.*), "(.*)"$/,
