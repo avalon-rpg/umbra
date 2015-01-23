@@ -44,15 +44,26 @@ ShadowClient.prototype.init = function(user, pass) {
   var GA  = 249;
   var gaSeq = new Buffer([IAC,GA]);
 
+You call to the Craftmasters Guild: "I get the impression that's you've already decided."
+
   var sequences = [
     {
       regex: /^(\S+) calls to (.+): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
-          qual: 'calling',
+          qual: 'calling from',
           who:  match[1],
           chan: match[2],
           msg: match[3]
+        });
+      }
+    },{
+      regex: /^You call to (.+): "(.*)"$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'calling to',
+          chan: match[1],
+          msg: match[2]
         });
       }
     },{

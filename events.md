@@ -47,7 +47,7 @@ data fields:
 *who: String - The user's (full) name
 
 
-###calling
+###calling from
 
 _When someone has called on a channel_
 
@@ -55,6 +55,17 @@ data fields:
 
 *qual: String = 'calling'
 *who: String = The (simple) name of the user who made the call
+*chan: String = The name of the channel called to
+*msg: String = The contents of the call
+
+
+###calling to
+
+_When Avalon confirms you called on a channel_
+
+data fields:
+
+*qual: String = 'calling'
 *chan: String = The name of the channel called to
 *msg: String = The contents of the call
 

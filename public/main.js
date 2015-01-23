@@ -183,18 +183,21 @@ $(function() {
     log('*** WEBSOCKET DISCONNECTED, PLEASE LOG IN AGAIN ***');
   });
 
-  socket.on('input', function (data) {
-    console.log('input: ' + JSON.stringify(data));
+  socket.on('input', function (data) {    
     if(data.qual == 'user') {
       log(data.who + ' is in the land');      
-    } else if(data.qual == 'calling') {
+    } else if(data.qual == 'calling from') {
       addTell(data.who + ' @ ' + data.chan, data.msg);
+    } else if(data.qual == 'calling to') {
+      addTell('You => ' + data.chan, data.msg);
     } else if(data.qual == 'tell from') {
       addTell(data.who, data.msg);
     } else if(data.qual == 'tell to') {
       addTell('You => ' + data.who, data.msg);
     } else if(data.qual == 'unparsed') {
-      log(data.line);  
+      console.log(data.line);  
+    } else {
+      console.log('input: ' + JSON.stringify(data));
     }
   });
 

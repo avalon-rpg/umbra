@@ -20,8 +20,10 @@ client.on('avalon disconnected', function (had_error) {
 client.on('input', function (data) {
   if(data.qual == 'user') {
     console.log("user: " + data.who);
-  } else if(data.qual == 'calling') {
+  } else if(data.qual == 'calling from') {
   	console.log("call from: " + data.who + ' to ' + data.chan + ' with text "' + data.msg + '"');
+  } else if(data.qual == 'calling to') {
+  	console.log("call to: " + data.chan + ' with text "' + data.msg + '"');
   } else if(data.qual == 'tell from') {
   	console.log("tell from: " + data.who + ' with text "' + data.msg + '"');
   } else if(data.qual == 'tell to') {
