@@ -68,7 +68,7 @@ io.on('connection', function (socket) {
 
     shadowclient.on('login success', function() {
       console.log('login success for ' + username);
-      socket.emit('login success', { numUsers: numUsers });
+      socket.emit('login success');
       shadowclient.write('who\r\n');
     });
 

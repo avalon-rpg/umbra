@@ -162,7 +162,7 @@ $(function() {
   // Socket events
 
   // Whenever the server emits 'login', log the login message
-  socket.on('login success', function (data) {
+  socket.on('login success', function () {
     connected = true;
     // Display the welcome message
     var message = "Welcome to Avalon shadow-Chat";
