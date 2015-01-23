@@ -172,7 +172,7 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     }
 
-    if(inMsg) {
+    if(inNotification) {
       notificationLines.push(line);
       return;
     }
