@@ -19,7 +19,7 @@ app.use(express.static(__dirname + '/public'));
 io.on('connection', function (socket) {
 
   var shadowclient = null;
-  var username = "undefined"
+  var username = "undefined";
 
   console.log('Websocket connected');
 
@@ -31,20 +31,22 @@ io.on('connection', function (socket) {
   // SOCKET EVENTS 
 
   socket.on('attempt login', function (username, password) {
+    username = username;
     shadowclient = new ShadowClient(username, password);
     wireShadowEvents();
   });
 
   socket.on('confirm login', function (username, password) {
     if(!shadowclient || !shadowclient.connected || shadowclient.user != username) {
+      username = username;
       shadowclient = new ShadowClient(username, password);
     }
     wireShadowEvents();
   });
 
   socket.on('send', function (text) {    
-    if(socket.shadowclient) {
-      socket.shadowclient.write(text + '\r\n');
+    if(shadowclient) {
+      shadowclient.write(text + '\r\n');
     } else {
       console.log(username + ' can\'t send to disconnected socket: ' + text);
     }
