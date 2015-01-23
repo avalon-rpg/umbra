@@ -221,7 +221,7 @@ $(function() {
       for(var i = 0; i < data.lines.length; i++) {
         if(i == 0) {
           block = data.lines[0];
-        else {
+        } else {
           block = block + '\r\n' + data.lines[i];
         }
       }
