@@ -62,7 +62,7 @@ $(function() {
     addMessageElement($el, options);
   }
 
-  function log (message, options) {
+  function notify (message, options) {
     var $el = $('<li>').addClass('notification').text(message);
     addMessageElement($el, options);
   }
