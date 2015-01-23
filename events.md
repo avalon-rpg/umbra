@@ -116,15 +116,25 @@ data fields:
 * msg: String = The contents of the tell
 
 
-####speech
+####speech from
 
 _When someone speaks in your current location_
 
 data fields:
 
-* qual: String = 'speech'
+* qual: String = 'speech from'
 * who: String = The (simple) name of the user who spoke
 * msg: String = What they said
+
+
+####speech to
+
+_When you speak in your current location_
+
+data fields:
+
+* qual: String = 'speech to'
+* msg: String = What you said
 
 
 ####rune-bug

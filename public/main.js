@@ -198,8 +198,10 @@ $(function() {
       addTell(data.who + ' => You', data.msg);
     } else if(data.qual == 'tell to') {
       addTell('You => ' + data.who, data.msg);
-    } else if(data.qual == 'speech') {
+    } else if(data.qual == 'speech from') {
       addTell(data.who, data.msg);
+    } else if(data.qual == 'speech to') {
+      addTell('You', data.msg);
     } else if(data.qual == 'rune-bug') {
       addTell('Rune-Bug', data.msg);
     } else if(data.qual == 'msg') {

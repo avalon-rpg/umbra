@@ -116,12 +116,20 @@ ShadowClient.prototype.init = function(user, pass) {
         });
       }
     },{
-      regex: /^(.+) (asks|says), "(.+)"$/,
+      regex: /^(.+) (asks|says|exclaims), "(.+)"$/,
       func: function(match) {
         self.emit('input', {
-          qual: 'speech',
+          qual: 'speech from',
           who:  match[1],
           msg:  match[3]
+        });
+      }
+    },{
+      regex: /^You (ask|say|exclaim), "(.+)"$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'speech to',
+          msg:  match[2]
         });
       }
     }
