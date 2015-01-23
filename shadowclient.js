@@ -51,8 +51,15 @@ ShadowClient.prototype.init = function(user, pass) {
 
 
   var sequences = [
-
     {
+      regex: /^Your rune-bug picks up words: (.+)$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'rune-bug',
+          msg:  match[1]
+        });
+      }
+    },{
       regex: /^(\S+) novice-calls from (.+): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
@@ -106,14 +113,6 @@ ShadowClient.prototype.init = function(user, pass) {
           qual: 'tell to',
           who:  match[1],
           msg:  match[2]
-        });
-      }
-    },{
-      regex: /^Your rune-bug picks up words: (.+)$/,
-      func: function(match) {
-        self.emit('input', {
-          qual: 'rune-bug',
-          msg:  match[1]
         });
       }
     },{
