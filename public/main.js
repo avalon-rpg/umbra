@@ -218,7 +218,7 @@ $(function() {
       addTell('Rune-Bug', data.msg);
     } else if(data.qual == 'msg') {
       var block = '';
-      for(var i = 0; i < data.lines.length, i++) {
+      for(var i = 0; i < data.lines.length; i++) {
         if(i == 0) {
           block = data.lines[0];
         else {
