@@ -108,12 +108,12 @@ ShadowClient.prototype.init = function(user, pass) {
         });
       }
     },{
-      regex: /^You tell (.*), "(.*)"$/,
+      regex: /^You (tell|answer) (.*), "(.*)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'tell to',
-          who:  match[1],
-          msg:  match[2]
+          who:  match[2],
+          msg:  match[3]
         });
       }
     },{
