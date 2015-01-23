@@ -109,12 +109,12 @@ ShadowClient.prototype.init = function(user, pass) {
         });
       }
     },{
-      regex: /^(.+) [asks|says], "(.+)"$/,
+      regex: /^(.+) (asks|says), "(.+)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'speech',
           who:  match[1],
-          msg:  match[2]
+          msg:  match[3]
         });
       }
     },{
