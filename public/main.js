@@ -176,11 +176,17 @@ $(function() {
   });
 
   socket.on('avalon disconnected', function (data) {
-    log('*** AVALON DISCONNECTED, PLEASE LOG IN AGAIN ***');
+    log('*** AVALON DISCONNECTED ***');
   });
 
   socket.on('disconnect', function () {
-    log('*** WEBSOCKET DISCONNECTED, PLEASE LOG IN AGAIN ***');
+    connected = true;
+    log('*** WEBSOCKET DISCONNECTED ***');
+  });
+
+  socket.on('reconnect', function () {
+    connected = true;
+    log('*** WEBSOCKET RECONNECTED ***');
   });
 
   socket.on('input', function (data) {    

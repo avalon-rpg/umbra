@@ -22,9 +22,12 @@ var usernames = {};
 var numUsers = 0;
 
 io.on('connection', function (socket) {
-  var addedUser = false;
+  console.log('Websocket connected');
 
-  // when the client emits 'add user', this listens and executes
+  socket.on('reconnect', function () {
+    console.log('websocket reconnected');
+  });
+
   socket.on('attemptlogin', function (username, password) {
     var shadowclient = new ShadowClient(username, password);
 
