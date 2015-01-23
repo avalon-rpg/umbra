@@ -44,8 +44,6 @@ ShadowClient.prototype.init = function(user, pass) {
   var GA  = 249;
   var gaSeq = new Buffer([IAC,GA]);
 
-You call to the Craftmasters Guild: "I get the impression that's you've already decided."
-
   var sequences = [
     {
       regex: /^(\S+) calls to (.+): "(.*)"$/,
