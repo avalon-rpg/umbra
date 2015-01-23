@@ -115,6 +115,16 @@ ul {
   white-space: pre-line;
 }
 
+.notification {
+  color: #8B0000;
+  font-size: 85%;
+  margin: 5px;
+  text-align: left;
+  float: left;
+  clear: both;
+  white-space: pre-line;
+}
+
 /* Messages */
 
 .chatArea {

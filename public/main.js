@@ -62,6 +62,11 @@ $(function() {
     addMessageElement($el, options);
   }
 
+  function log (message, options) {
+    var $el = $('<li>').addClass('notification').text(message);
+    addMessageElement($el, options);
+  }
+
   // Adds the visual chat message to the message list
   function addChatMessage (data, options) {
     var $usernameDiv = $('<span class="username"/>')
@@ -224,7 +229,7 @@ $(function() {
           block = block + '\r\n' + data.lines[i];
         }
       }
-      log(block);
+      notify(block);
     } else if(data.qual == 'unparsed') {
       console.log(data.line);  
     } else {
