@@ -157,7 +157,10 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     } 
 
-    if (line == '###msg begin') { inMsg = true;  return; }
+    if (line == '###msg begin') {
+      inMsg = true;
+      return;
+    }
 
     if (line == '###msg end')   {
       self.emit('input',{

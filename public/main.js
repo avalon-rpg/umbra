@@ -137,9 +137,9 @@ $(function() {
 
   $window.keydown(function (event) {
     // Auto-focus the current input when a key is typed
-    if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-      if (connected) { $currentInput.focus(); }
-    }
+    // if (!(event.ctrlKey || event.metaKey || event.altKey)) {
+    //   if (connected) { $currentInput.focus(); }
+    // }
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
       if (connected) { sendMessage(); } else { attemptLogin(); }
@@ -217,11 +217,15 @@ $(function() {
     } else if(data.qual == 'rune-bug') {
       addTell('Rune-Bug', data.msg);
     } else if(data.qual == 'msg') {
-      if(data.lines.length == 1) {
-        console.log(data.lines[0]);
-      } else if(data.lines.length > 1) {
-        console.log(data.lines.reduce(function (a,b) { a + '\r\n' + b }));
+      var block = '';
+      for(var i = 0; i < data.lines.length, i++) {
+        if(i == 0) {
+          block = data.lines[0];
+        else {
+          block = block + '\r\n' + data.lines[i];
+        }
       }
+      log(block);
     } else if(data.qual == 'unparsed') {
       console.log(data.line);  
     } else {
