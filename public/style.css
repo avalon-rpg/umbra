@@ -40,6 +40,11 @@ ul {
   width: 100%;
 }
 
+.message {
+  clear: both;
+  float: left;
+}
+
 .page {
   height: 100%;
   position: absolute;
@@ -95,18 +100,18 @@ ul {
 /* Font */
 
 .messages {
-  font-size: 150%;
+  font-size: 100%;
 }
 
 .inputMessage {
-  font-size: 100%;
+  font-size: 150%;
 }
 
 .log {
   color: gray;
   font-size: 70%;
   margin: 5px;
-  text-align: center;
+  text-align: right;
 }
 
 /* Messages */
