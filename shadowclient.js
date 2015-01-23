@@ -127,11 +127,6 @@ ShadowClient.prototype.init = function(user, pass) {
 
     if (line == '###msg begin') { inMsg = true;  return; }
 
-    if(inMsg) {
-      msgLines.push(line);
-      return;
-    }
-
     if (line == '###msg end')   {
       self.emit('input',{
         qual: 'msg',
@@ -142,7 +137,16 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     }
 
+    if(inMsg) {
+      msgLines.push(line);
+      return;
+    }
+
+
+
     if (line == '###begin') { inWhoList = true;  return; }
+
+    if (line == '###end')   { inWhoList = false; return; }
 
     if(inWhoList) {
       self.emit('input',{
@@ -152,7 +156,6 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     }
 
-    if (line == '###end')   { inWhoList = false; return; }
 
 
 
