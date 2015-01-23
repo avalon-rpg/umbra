@@ -91,6 +91,11 @@ ShadowClient.prototype.init = function(user, pass) {
         this.loggedIn = true;
         self.emit('login success');
       }
+      if(line.startsWith('"SHADOW" linelogout')) {
+        this.loggedIn = true;
+        self.emit('login success');
+      }
+
       return;
     } 
 
