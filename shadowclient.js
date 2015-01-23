@@ -87,11 +87,11 @@ ShadowClient.prototype.init = function(user, pass) {
   ];
 
   var onLine = function (line) {
-    if(!this.loggedIn) {
-      if(this.loggingIn) {
+    if(!self.loggedIn) {
+      if(self.loggingIn) {
         if(line.startsWith('###ACK LOGIN OK')) {
-          this.loggedIn = true;
-          this.loggingIn = false;
+          self.loggedIn = true;
+          self.loggingIn = false;
           self.emit('login success');
         } else {
           console.log('Unexpected login response: ' + line);
@@ -132,6 +132,7 @@ ShadowClient.prototype.init = function(user, pass) {
   var onPrompt = function (prompt) {
     if(prompt.indexOf('What is the name of your character?') == 0) {
       self.loggingIn = true;
+      console.write('login prompt seen');
       self.conn.write('###ack login ' + user + ' ' + pass + '\r\n');
     }
   }
