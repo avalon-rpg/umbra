@@ -97,7 +97,7 @@ ShadowClient.prototype.init = function(user, pass) {
           console.log('Unexpected login response: ' + line);
         }
       } else {
-        console.log('skipping line before login: ' + line);
+        //console.log('skipping line before login: ' + line);
       }
 
       return;
