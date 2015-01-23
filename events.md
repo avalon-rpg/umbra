@@ -53,7 +53,7 @@ _When someone has called on a channel_
 
 data fields:
 
-*qual: String = 'calling'
+*qual: String = 'calling from'
 *who: String = The (simple) name of the user who made the call
 *chan: String = The name of the channel called to
 *msg: String = The contents of the call
@@ -65,8 +65,31 @@ _When Avalon confirms you called on a channel_
 
 data fields:
 
-*qual: String = 'calling'
+*qual: String = 'calling to'
 *chan: String = The name of the channel called to
+*msg: String = The contents of the call
+
+
+###novice-calling from
+
+_When someone has called on a channel_
+
+data fields:
+
+*qual: String = 'novice calling from'
+*who: String = The (simple) name of the user who made the call
+*chan: String = The city the caller hails from
+*msg: String = The contents of the call
+
+
+###novice-calling to
+
+_When Avalon confirms you called on a channel_
+
+data fields:
+
+*qual: String = 'novice calling to'
+*chan: String = The city you hail from
 *msg: String = The contents of the call
 
 

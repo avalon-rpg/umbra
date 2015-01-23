@@ -12,18 +12,22 @@ client.on('login success', function() {
 });
 
 client.on('avalon disconnected', function (had_error) {
-  console.log('avalon disconnected);
+  console.log('avalon disconnected');
 });
 
 
 
 client.on('input', function (data) {
   if(data.qual == 'user') {
-    console.log("user: " + data.who);
+    console.log('user: ' + data.who);
   } else if(data.qual == 'calling from') {
-  	console.log("call from: " + data.who + ' to ' + data.chan + ' with text "' + data.msg + '"');
+  	console.log('call from: ' + data.who + ' to ' + data.chan + ' with text "' + data.msg + '"');
   } else if(data.qual == 'calling to') {
-  	console.log("call to: " + data.chan + ' with text "' + data.msg + '"');
+  	console.log('call to: ' + data.chan + ' with text "' + data.msg + '"');
+  } else if(data.qual == 'novice-calling from') {
+  	console.log('novice-call (' + data.chan + ') from: ' + data.who + ': "' + data.msg + '"');
+  } else if(data.qual == 'novice-calling to') {
+  	console.log('novice-call (' + data.chan + ') with text "' + data.msg + '"');
   } else if(data.qual == 'tell from') {
   	console.log("tell from: " + data.who + ' with text "' + data.msg + '"');
   } else if(data.qual == 'tell to') {

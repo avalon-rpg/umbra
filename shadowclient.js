@@ -46,7 +46,27 @@ ShadowClient.prototype.init = function(user, pass) {
   var gaSeq = new Buffer([IAC,GA]);
 
   var sequences = [
+
     {
+      regex: /^(\S+) novice-calls from (.+): "(.*)"$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'novice calling from',
+          who:  match[1],
+          chan: match[2],
+          msg: match[3]
+        });
+      }
+    },{
+      regex: /^You novice-call from (.+): "(.*)"$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'novice calling to',
+          chan: match[1],
+          msg: match[2]
+        });
+      }
+    },{
       regex: /^(\S+) calls to (.+): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
@@ -151,9 +171,9 @@ ShadowClient.prototype.init = function(user, pass) {
     });
   });
 
-  this.conn.pipe(parser);
+  self.conn.pipe(parser);
 
-  this.conn.on('close', function (had_error) {
+  self.conn.on('close', function (had_error) {
     self.connected = false;
     self.emit('avalon disconnected', had_error);
   });
@@ -165,9 +185,7 @@ ShadowClient.prototype.write = function(input) {
     this.conn.write(input);  
   } else {
     console.error('couldn\'t send msg to disconnected client: ' + input);
-  }
-
-  
+  }  
 }
 
 module.exports = ShadowClient
