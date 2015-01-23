@@ -46,7 +46,7 @@ io.on('connection', function (socket) {
 
   socket.on('send', function (text) {    
     if(shadowclient) {
-      console.log(username + ' wrote: ' + text);
+      //console.log(username + ' wrote: ' + text);
       shadowclient.write(text + '\r\n');
     } else {
       console.log(username + ' can\'t send to disconnected socket: ' + text);

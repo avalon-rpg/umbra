@@ -147,13 +147,13 @@ data fields:
 * msg: String = What was picked up
 
 
-####msg
+####notification
 
 _A dedicated message sent by avalon, to display as-is_
 
 data fields:
 
-* qual: String = 'msg'
+* qual: String = 'notification'
 * lines: Array[String] = An array of lines constituting the message
 
 

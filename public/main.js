@@ -195,7 +195,6 @@ $(function() {
   }
 
   socket.on('input', function (data) {    
-    console.log('input: ' + JSON.stringify(data));
     if(data.qual == 'user') {
       log(data.who + ' is in the land');      
     } else if(data.qual == 'calling from') {
@@ -216,7 +215,7 @@ $(function() {
       addTell('You', data.msg);
     } else if(data.qual == 'rune-bug') {
       addTell('Rune-Bug', data.msg);
-    } else if(data.qual == 'msg') {
+    } else if(data.qual == 'notification') {
       var block = '';
       for(var i = 0; i < data.lines.length; i++) {
         if(i == 0) {

@@ -33,8 +33,8 @@ util.inherits(ShadowClient, EventEmitter);
 ShadowClient.prototype.init = function(user, pass) {
   var self = this;
   var inWhoList = false;
-  var inMsg = false;
-  var msgLines = [];
+  var inNotification = false;
+  var notificationLines = [];
 
   this.user = user;
   this.pass = pass;
@@ -157,23 +157,23 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     } 
 
-    if (line == '###msg begin') {
-      inMsg = true;
+    if (line == '###notification begin') {
+      inNotification = true;
       return;
     }
 
-    if (line == '###msg end')   {
+    if (line == '###notification end')   {
       self.emit('input',{
-        qual: 'msg',
-        lines: msgLines
+        qual: 'notification',
+        lines: notificationLines
       });
-      inMsg = false;
-      msgLines = [];
+      inNotification = false;
+      notificationLines = [];
       return;
     }
 
     if(inMsg) {
-      msgLines.push(line);
+      notificationLines.push(line);
       return;
     }
 
