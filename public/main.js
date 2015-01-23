@@ -188,7 +188,7 @@ $(function() {
     if(data.qual == 'user') {
       log(data.who + ' is in the land');      
     } else if(data.qual == 'calling') {
-      log("call from: " + data.who + ' to ' + data.chan + ' with text "' + data.msg + '"');
+      addTell(data.who ' @ ' + data.chan, data.msg);
     } else if(data.qual == 'tell from') {
       addTell(data.who, data.msg);
     } else if(data.qual == 'tell to') {

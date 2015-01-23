@@ -46,7 +46,7 @@ ShadowClient.prototype.init = function(user, pass) {
 
   var sequences = [
     {
-      regex: /^(\S+) calls to (.+): ".*"$/,
+      regex: /^(\S+) calls to (.+): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'calling',
