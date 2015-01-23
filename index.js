@@ -36,6 +36,7 @@ io.on('connection', function (socket) {
     // SOCKET EVENTS 
 
     socket.on('send', function (text) {
+      console.log(username + ' sending: ' + text);
       shadowclient.write(text + '\r\n');
     });
 
@@ -51,11 +52,11 @@ io.on('connection', function (socket) {
     // CLIENT EVENTS 
 
     shadowclient.on('avalon connected', function() {
-      console.log('server connected, attempting login for ' + username);
+      console.log('avalon connected, attempting login for ' + username);
     });
 
     shadowclient.on('login success', function() {
-      console.log('login success for user ' + username);
+      console.log('login success for ' + username);
       socket.emit('login success', { numUsers: numUsers });
       shadowclient.write('who\r\n');
     });
@@ -66,6 +67,7 @@ io.on('connection', function (socket) {
     });
 
     shadowclient.on('input', function (data) {
+      console.log('input: ' + JSON.stringify(data))
       socket.emit('input', data);
     });
   });
