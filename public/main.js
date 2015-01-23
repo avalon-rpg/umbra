@@ -51,11 +51,7 @@ $(function() {
     // if there is a non-empty message and a socket connection
     if (message && connected) {
       $inputMessage.val('');
-      addChatMessage({
-        username: 'YOU',
-        message: message
-      });
-      // tell server to execute 'new message' and send along one parameter
+      log("sent: " + message);
       socket.emit('send', message);
     }
   }
@@ -196,7 +192,7 @@ $(function() {
     } else if(data.qual == 'tell from') {
       addTell(data.who, data.msg);
     } else if(data.qual == 'tell to') {
-      log("You tell " + data.who + ', "' + data.msg + '"');
+      addTell('You => ' + data.who, data.msg);
     } else if(data.qual == 'unparsed') {
       log(data.line);  
     }
