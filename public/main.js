@@ -190,10 +190,8 @@ $(function() {
     }
   });
 
-  function mkString(arr, joiner) {
-    if(arr.length == 0) { return ''; }
-    if(arr.length == 1) { return arr[0]; }
-    return arr.reduce(function (a,b) { a + '\r\n' + b });
+  function mkString(arr) {
+    
   }
 
   socket.on('input', function (data) {    
@@ -219,7 +217,11 @@ $(function() {
     } else if(data.qual == 'rune-bug') {
       addTell('Rune-Bug', data.msg);
     } else if(data.qual == 'msg') {
-      console.log(mkString(data.lines));
+      if(data.lines.length == 1) {
+        console.log(data.lines[0]);
+      } else if(data.lines.length > 1) {
+        console.log(data.lines.reduce(function (a,b) { a + '\r\n' + b }));
+      }
     } else if(data.qual == 'unparsed') {
       console.log(data.line);  
     } else {
