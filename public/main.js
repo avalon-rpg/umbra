@@ -173,11 +173,6 @@ $(function() {
     log(message, { prepend: true });
   });
 
-  // Whenever the server emits 'user joined', log it in the chat body
-  socket.on('user joined', function (data) {
-    log(data.username + ' is in the land');
-  });
-
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
     log(data.username + ' departed to walk the void');
@@ -193,14 +188,17 @@ $(function() {
   });
 
   socket.on('input', function (data) {
-    if(data.qual == 'calling') {
-      log("call from: " + data.who + ' to ' + data.list + ' with text "' + data.text + '"');
+    console.log('input: ' + JSON.stringify(data));
+    if(data.qual == 'user') {
+      log(data.who + ' is in the land');      
+    } else if(data.qual == 'calling') {
+      log("call from: " + data.who + ' to ' + data.chan + ' with text "' + data.msg + '"');
     } else if(data.qual == 'tell from') {
       addTell(data.who, data.msg);
     } else if(data.qual == 'tell to') {
       log("You tell " + data.who + ', "' + data.msg + '"');
     } else if(data.qual == 'unparsed') {
-      log(data.text);  
+      log(data.line);  
     }
   });
 
