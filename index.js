@@ -36,7 +36,7 @@ io.on('connection', function (socket) {
     // SOCKET EVENTS 
 
     socket.on('send', function (text) {
-      console.log(username + ' sending: ' + text);
+      // console.log(username + ' sending: ' + text);
       shadowclient.write(text + '\r\n');
     });
 
@@ -67,7 +67,7 @@ io.on('connection', function (socket) {
     });
 
     shadowclient.on('input', function (data) {
-      console.log('input: ' + JSON.stringify(data))
+      // console.log('input: ' + JSON.stringify(data));
       socket.emit('input', data);
     });
   });

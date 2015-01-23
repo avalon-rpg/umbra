@@ -51,7 +51,7 @@ $(function() {
     // if there is a non-empty message and a socket connection
     if (message && connected) {
       $inputMessage.val('');
-      log("sent: " + message);
+      console.log("sent: " + message);
       socket.emit('send', message);
     }
   }
