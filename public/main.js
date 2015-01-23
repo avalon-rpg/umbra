@@ -190,6 +190,10 @@ $(function() {
       addTell(data.who + ' @ ' + data.chan, data.msg);
     } else if(data.qual == 'calling to') {
       addTell('You => ' + data.chan, data.msg);
+    } else if(data.qual == 'novice-calling from') {
+      addTell(data.who + ' (' + data.chan + ') => Novices', data.msg);
+    } else if(data.qual == 'novice-calling to') {
+      addTell('You (' + data.chan + ') => Novices', data.msg);
     } else if(data.qual == 'tell from') {
       addTell(data.who, data.msg);
     } else if(data.qual == 'tell to') {

@@ -51,7 +51,7 @@ ShadowClient.prototype.init = function(user, pass) {
       regex: /^(\S+) novice-calls from (.+): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
-          qual: 'novice calling from',
+          qual: 'novice-calling from',
           who:  match[1],
           chan: match[2],
           msg: match[3]
@@ -61,7 +61,7 @@ ShadowClient.prototype.init = function(user, pass) {
       regex: /^You novice-call from (.+): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
-          qual: 'novice calling to',
+          qual: 'novice-calling to',
           chan: match[1],
           msg: match[2]
         });
