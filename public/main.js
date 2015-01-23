@@ -189,6 +189,12 @@ $(function() {
     socket.emit('confirm login', username, password);
   });
 
+  function mkString(arr, joiner) {
+    if(arr.length == 0) { return ''; }
+    if(arr.length == 1) { return arr[0]; }
+    return arr.reduce(function (a,b) { a + '\r\n' + b });
+  }
+
   socket.on('input', function (data) {    
     if(data.qual == 'user') {
       log(data.who + ' is in the land');      
@@ -211,7 +217,7 @@ $(function() {
     } else if(data.qual == 'rune-bug') {
       addTell('Rune-Bug', data.msg);
     } else if(data.qual == 'msg') {
-      console.log(data.lines.reduce(function (a,b) { a + '\r\n' + b }));
+      console.log(mkString(data.lines));
     } else if(data.qual == 'unparsed') {
       console.log(data.line);  
     } else {
