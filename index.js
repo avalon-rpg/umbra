@@ -32,31 +32,11 @@ io.on('connection', function (socket) {
     socket.username = username;
     socket.shadowclient = shadowclient;
 
+    //////////////////
+    // SOCKET EVENTS 
+
     socket.on('send', function (text) {
       shadowclient.write(text + '\r\n');
-    });
-
-    shadowclient.on('connect', function() {
-      console.log('server connected, attempting login for ' + username);
-    });
-
-
-
-    shadowclient.on('login success', function() {
-      console.log('login success for user ' + username);
-      socket.emit('login success', { numUsers: numUsers });
-      shadowclient.write('who\r\n');
-    });
-
-    shadowclient.on('user', function (user) {
-      socket.emit('user joined', {
-        username: user,
-        numUsers: numUsers
-      });
-    });
-
-    shadowclient.on('input', function (data) {
-      socket.emit('input', data);
     });
 
     // when the user disconnects.. perform this
@@ -67,10 +47,26 @@ io.on('connection', function (socket) {
       }
     });
 
-        // when the user disconnects.. perform this
+    //////////////////
+    // CLIENT EVENTS 
+
+    shadowclient.on('avalon connected', function() {
+      console.log('server connected, attempting login for ' + username);
+    });
+
+    shadowclient.on('login success', function() {
+      console.log('login success for user ' + username);
+      socket.emit('login success', { numUsers: numUsers });
+      shadowclient.write('who\r\n');
+    });
+
     shadowclient.on('avalon disconnected', function (had_error) {
       console.log('avalon disconnected for ' + username)
       socket.emit('avalon disconnected', had_error);
+    });
+
+    shadowclient.on('input', function (data) {
+      socket.emit('input', data);
     });
   });
 

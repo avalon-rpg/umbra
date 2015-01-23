@@ -38,7 +38,7 @@ ShadowClient.prototype.init = function(user, pass) {
 
   this.conn = net.connect({port: 23, host: '184.173.130.145'}, function() {
     self.connected = true;
-    this.emit('connect');
+    this.emit('avalon connected');
   });
 
   var IAC = 255;
@@ -52,8 +52,8 @@ ShadowClient.prototype.init = function(user, pass) {
         self.emit('input', {
           qual: 'calling',
           who:  match[1],
-          list: match[2],
-          text: match[3]
+          chan: match[2],
+          msg: match[3]
         });
       }
     },{
@@ -84,9 +84,6 @@ ShadowClient.prototype.init = function(user, pass) {
         });
       }
     }
-
-
-
   ];
 
   var onLine = function (line) {
@@ -101,7 +98,13 @@ ShadowClient.prototype.init = function(user, pass) {
     if (line == '###begin') { inWhoList = true;  return; }
     if (line == '###end')   { inWhoList = false; return; }
 
-    if(inWhoList) { self.emit('user', line); return; }
+    if(inWhoList) {
+      self.emit('input',{
+        qual: 'user',
+        who: line
+      });
+      return;
+    }
 
     var seqLen = sequences.length;
     for (var i = 0; i < seqLen; i++) {
@@ -114,7 +117,7 @@ ShadowClient.prototype.init = function(user, pass) {
     self.emit('line', line);
     self.emit('input', {
       qual: 'unparsed',
-      text: line
+      line: line
     });
   }
 
