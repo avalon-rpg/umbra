@@ -15,45 +15,53 @@ server.listen(port, function () {
 // Routing
 app.use(express.static(__dirname + '/public'));
 
-// Chatroom
-
-// usernames which are currently connected to the chat
-var usernames = {};
-var numUsers = 0;
 
 io.on('connection', function (socket) {
+
+  var shadowclient = null;
+  var username = "undefined"
+
   console.log('Websocket connected');
 
   socket.on('reconnect', function () {
     console.log('websocket reconnected');
   });
 
-  socket.on('attemptlogin', function (username, password) {
-    var shadowclient = new ShadowClient(username, password);
+  //////////////////
+  // SOCKET EVENTS 
 
-    // we store the username in the socket session for this client
-    socket.username = username;
-    socket.shadowclient = shadowclient;
+  socket.on('attempt login', function (username, password) {
+    shadowclient = new ShadowClient(username, password);
+    wireShadowEvents();
+  });
 
-    //////////////////
-    // SOCKET EVENTS 
+  socket.on('confirm login', function (username, password) {
+    if(!shadowclient || !shadowclient.connected || shadowclient.user != username) {
+      shadowclient = new ShadowClient(username, password);
+    }
+    wireShadowEvents();
+  });
 
-    socket.on('send', function (text) {
-      // console.log(username + ' sending: ' + text);
-      shadowclient.write(text + '\r\n');
-    });
+  socket.on('send', function (text) {    
+    if(socket.shadowclient) {
+      socket.shadowclient.write(text + '\r\n');
+    } else {
+      console.log(username + ' can\'t send to disconnected socket: ' + text);
+    }
+  });
 
-    // when the user disconnects.. perform this
-    socket.on('disconnect', function () {
-      console.log('websocket disconnected for ' + username);
-      if(shadowclient.connected) {
-        shadowclient.write('QQ\r\n');
-      }
-    });
+  // when the user disconnects.. perform this
+  socket.on('disconnect', function () {
+    console.log('websocket disconnected for ' + username);
+    if(shadowclient && shadowclient.connected) {
+      socket.shadowclient.write('QQ\r\n');
+    }
+  });
 
-    //////////////////
-    // CLIENT EVENTS 
+  //////////////////
+  // CLIENT EVENTS 
 
+  function wireShadowEvents() {
     shadowclient.on('avalon connected', function() {
       console.log('avalon connected, attempting login for ' + username);
     });
@@ -73,6 +81,6 @@ io.on('connection', function (socket) {
       // console.log('input: ' + JSON.stringify(data));
       socket.emit('input', data);
     });
-  });
+  }
 
 });

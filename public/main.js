@@ -39,7 +39,7 @@ $(function() {
       $currentInput = $inputMessage.focus();
 
       // Tell the server your username
-      socket.emit('attemptlogin', username, password);
+      socket.emit('attempt login', username, password);
     }
   }
 
@@ -180,13 +180,13 @@ $(function() {
   });
 
   socket.on('disconnect', function () {
-    connected = true;
+    connected = false;
     log('*** WEBSOCKET DISCONNECTED ***');
   });
 
   socket.on('reconnect', function () {
-    connected = true;
     log('*** WEBSOCKET RECONNECTED ***');
+    socket.emit('confirm login', username, password);
   });
 
   socket.on('input', function (data) {    

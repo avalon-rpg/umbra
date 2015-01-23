@@ -20,6 +20,7 @@ if (typeof RegExp.prototype.withMatch != 'function') {
 }
 
 function ShadowClient(user, pass) {
+  var user = user;
   var conn;
   var loggingIn = false;
   var loggedIn = false;
