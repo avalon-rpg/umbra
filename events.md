@@ -116,11 +116,22 @@ data fields:
 * msg: String = The contents of the tell
 
 
+####msg
+
+_A dedicated message sent by avalon, to display as-is_
+
+data fields:
+
+* qual: String = 'msg'
+* lines: Array[String] = An array of lines constituting the message
+
+
 ####unparsed
 
 _Any input line from Avalon that the client couldn't parse_
 
 data fields:
 
+* qual: String = 'unparsed'
 * line: String = The unparsed line
 

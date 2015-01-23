@@ -32,6 +32,8 @@ util.inherits(ShadowClient, EventEmitter);
 ShadowClient.prototype.init = function(user, pass) {
   var self = this;
   var inWhoList = false;
+  var inMsg = false;
+  var msgLines = [];
 
   this.user = user;
   this.pass = pass;
@@ -123,8 +125,24 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     } 
 
+    if (line == '###msg begin') { inMsg = true;  return; }
+
+    if(inMsg) {
+      msgLines.push(line);
+      return;
+    }
+
+    if (line == '###msg end')   {
+      self.emit('input',{
+        qual: 'msg',
+        lines: msgLines
+      });
+      inMsg = false;
+      msgLines = [];
+      return;
+    }
+
     if (line == '###begin') { inWhoList = true;  return; }
-    if (line == '###end')   { inWhoList = false; return; }
 
     if(inWhoList) {
       self.emit('input',{
@@ -133,6 +151,10 @@ ShadowClient.prototype.init = function(user, pass) {
       });
       return;
     }
+
+    if (line == '###end')   { inWhoList = false; return; }
+
+
 
     var seqLen = sequences.length;
     for (var i = 0; i < seqLen; i++) {

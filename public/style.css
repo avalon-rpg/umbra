@@ -112,6 +112,7 @@ ul {
   font-size: 70%;
   margin: 5px;
   text-align: right;
+  white-space: pre-line;
 }
 
 /* Messages */

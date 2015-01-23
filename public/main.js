@@ -198,6 +198,8 @@ $(function() {
       addTell(data.who, data.msg);
     } else if(data.qual == 'tell to') {
       addTell('You => ' + data.who, data.msg);
+    } else if(data.qual == 'msg') {
+      console.log(data.lines.reduce(function (a,b) { a + '\r\n' + b }));
     } else if(data.qual == 'unparsed') {
       console.log(data.line);  
     } else {

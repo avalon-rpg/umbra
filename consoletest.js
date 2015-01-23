@@ -32,6 +32,8 @@ client.on('input', function (data) {
   	console.log("tell from: " + data.who + ' with text "' + data.msg + '"');
   } else if(data.qual == 'tell to') {
   	console.log("tell to: " + data.who + ' with text "' + data.msg + '"');
+  } else if(data.qual == 'msg') {
+  	console.log("msg: " + data.lines.reduce(function (a,b) { a + '\r\n' + b }));
   } else if(data.qual == 'unparsed') {
   	console.log("unparsed input: " + data.text);
   }
