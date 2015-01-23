@@ -90,10 +90,11 @@ ShadowClient.prototype.init = function(user, pass) {
       if(line.startsWith('###ACK LOGIN OK')) {
         this.loggedIn = true;
         self.emit('login success');
-      }
-      if(line.startsWith('"SHADOW" linelogout')) {
+      } else if (line.startsWith('"SHADOW" linelogout')) {
         this.loggedIn = true;
         self.emit('login success');
+      } else {
+        console.log('Unexpected login response: ' + line);
       }
 
       return;
