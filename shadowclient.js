@@ -37,7 +37,7 @@ ShadowClient.prototype.init = function(user, pass) {
 
   this.conn = net.connect({port: 23, host: '184.173.130.145'}, function() {
     self.connected = true;
-    this.emit('avalon connected');
+    self.emit('avalon connected');
   });
 
   var IAC = 255;
