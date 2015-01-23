@@ -172,7 +172,6 @@ $(function() {
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
     log(data.username + ' departed to walk the void');
-    removeChatTyping(data);
   });
 
   socket.on('avalon disconnected', function (data) {
@@ -186,7 +185,9 @@ $(function() {
 
   socket.on('reconnect', function () {
     log('*** WEBSOCKET RECONNECTED ***');
-    socket.emit('confirm login', username, password);
+    if (username && password) {
+      socket.emit('confirm login', username, password);
+    }
   });
 
   function mkString(arr, joiner) {
@@ -196,6 +197,7 @@ $(function() {
   }
 
   socket.on('input', function (data) {    
+    console.log('input: ' + JSON.stringify(data));
     if(data.qual == 'user') {
       log(data.who + ' is in the land');      
     } else if(data.qual == 'calling from') {

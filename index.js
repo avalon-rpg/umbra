@@ -40,12 +40,13 @@ io.on('connection', function (socket) {
     if(!shadowclient || !shadowclient.connected || shadowclient.user != username) {
       username = username;
       shadowclient = new ShadowClient(username, password);
+      wireShadowEvents(username);
     }
-    wireShadowEvents(username);
   });
 
   socket.on('send', function (text) {    
     if(shadowclient) {
+      console.log(username + ' wrote: ' + text);
       shadowclient.write(text + '\r\n');
     } else {
       console.log(username + ' can\'t send to disconnected socket: ' + text);
