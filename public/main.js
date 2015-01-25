@@ -1,4 +1,15 @@
+$(document).ready(function() {
+  //init sidebar
+  $('[data-toggle=offcanvas]').click(function() {
+    $('.row-offcanvas').toggleClass('active');
+  });
+
+  //show login modal
+  $('#loginModal').modal();
+});
+
 $(function() {
+
   var FADE_TIME = 150; // ms
   var TYPING_TIMER_LENGTH = 400; // ms
   var COLORS = [
@@ -11,11 +22,11 @@ $(function() {
   var $window = $(window);
   var $nameInput = $('.nameInput'); // Input for username
   var $passwordInput = $('.passwordInput'); // Input for username
+  var $sidelist = $('.sidelist');
   var $messages = $('.messages'); // Messages area
   var $inputMessage = $('.inputMessage'); // Input message input box
 
-  var $loginPage = $('.login.page'); // The login page
-  var $chatPage = $('.chat.page'); // The chatroom page
+  var $loginBtn = $('.loginBtn');
 
   // Prompt for setting a username
   var username;
@@ -33,9 +44,6 @@ $(function() {
 
     // If the username is valid
     if (username && password) {
-      $loginPage.fadeOut();
-      $chatPage.show();
-      $loginPage.off('click');
       $currentInput = $inputMessage.focus();
 
       // Tell the server your username
@@ -88,6 +96,12 @@ $(function() {
     var $messageDiv = $('<li class="message"/>').data('username', whofrom).append($usernameDiv, $messageBodyDiv);
 
     addMessageElement($messageDiv, options);
+  }
+
+  function addUser(name) {
+    var $userLink = $('<a href="#"/>').text(name);
+    var $userElem = $('<li class="user"/>').append($userLink);
+    $sidelist.append($userElem);
   }
 
   // Adds a message element to the messages and scrolls to the bottom
@@ -151,15 +165,14 @@ $(function() {
     }
   });
 
+  $loginBtn.click(function () {
+    attemptLogin();
+  });
+
 
   // Click events
 
-  // Focus input when clicking anywhere on login page
-  // $loginPage.click(function () {
-  //   $currentInput.focus();
-  // });
-
-  // Focus input when clicking on the message input's border
+  //Focus input when clicking on the message input's border
   // $inputMessage.click(function () {
   //   $inputMessage.focus();
   // });
@@ -169,6 +182,7 @@ $(function() {
   // Whenever the server emits 'login', log the login message
   socket.on('login success', function () {
     connected = true;
+    $('#loginModal').modal('hide');
     // Display the welcome message
     var message = "Welcome to Avalon shadow-Chat";
     log(message, { prepend: true });
@@ -195,13 +209,10 @@ $(function() {
     }
   });
 
-  function mkString(arr) {
-    
-  }
 
   socket.on('input', function (data) {    
     if(data.qual == 'user') {
-      log(data.who + ' is in the land');      
+      addUser(data.who);      
     } else if(data.qual == 'calling from') {
       addTell(data.who + ' @ ' + data.chan, data.msg);
     } else if(data.qual == 'calling to') {

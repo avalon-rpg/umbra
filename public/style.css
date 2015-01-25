@@ -24,6 +24,62 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  padding-top: 51px;  
+}
+
+body {
+  background: url('28-faded-parchment-background-lrg.jpg');
+}
+.text-center {
+  padding-top: 20px;
+}
+.col-xs-12 {
+  background-color: #fff;
+}
+#sidebar {
+  height: 100%;
+  padding-right: 0;
+  padding-top: 20px;
+}
+#sidebar .nav {
+  width: 95%;
+}
+#sidebar li {
+  border:0 #f2f2f2 solid;
+  border-bottom-width:1px;
+}
+
+/* collapsed sidebar styles */
+@media screen and (max-width: 767px) {
+  .row-offcanvas {
+    position: relative;
+    -webkit-transition: all 0.25s ease-out;
+    -moz-transition: all 0.25s ease-out;
+    transition: all 0.25s ease-out;
+  }
+  .row-offcanvas-right
+  .sidebar-offcanvas {
+    right: -41.6%;
+  }
+
+  .row-offcanvas-left
+  .sidebar-offcanvas {
+    left: -41.6%;
+  }
+  .row-offcanvas-right.active {
+    right: 41.6%;
+  }
+  .row-offcanvas-left.active {
+    left: 41.6%;
+  }
+  .sidebar-offcanvas {
+    position: absolute;
+    top: 0;
+    width: 41.6%;
+  }
+  #sidebar {
+    padding-top:0;
+  }
 }
 
 ul {
@@ -51,50 +107,31 @@ ul {
   width: 100%;
 }
 
-/* Login Page */
-
-.login.page {
-  background-color: #000;
+.row {
+  height: 100%;
 }
 
-.login.page .form {
-  height: 100px;
-  margin-top: -100px;
-  position: absolute;
+.modal-content {
+  color: white;
+  background: url('Splat_texture_by_firesign24_7.jpg');
+  background-size: 100% 100%;}
 
-  text-align: center;
-  top: 50%;
-  width: 100%;
+.navbar {
+  color: white;
+  background: url('Flecked_texture_by_firesign24_7.jpg');
+  background-size: 100% 100%;
 }
 
-.login.page .form .usernameInput {
-  background-color: transparent;
-  border: none;
-  border-bottom: 2px solid #fff;
-  outline: none;
-  padding-bottom: 15px;
-  text-align: center;
-  width: 400px;
+.navbar-brand {
+  color: white !important;
 }
 
-.login.page .title {
-  font-size: 200%;
+.nameInput {
+  color: black;
 }
 
-.login.page .usernameInput {
-  font-size: 200%;
-  letter-spacing: 3px;
-}
-
-.login.page .title, .login.page .usernameInput {
-  color: #fff;
-  font-weight: 100;
-}
-
-/* Chat page */
-
-.chat.page {
-  display: none;
+.passwordInput {
+  color: black;
 }
 
 /* Font */
@@ -126,6 +163,18 @@ ul {
 }
 
 /* Messages */
+
+.page-container {
+  height: 100%;
+}
+
+.mainArea {
+  height: 100%;
+}
+
+.chatAreaOuter {
+  height: 100%;
+}
 
 .chatArea {
   height: 100%;

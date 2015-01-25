@@ -2,28 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Socket.IO Chat Example</title>
+  <title>Avalon-RPG Umbra</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
   <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
-  <ul class="pages">
-    <li class="chat page">
-      <div class="chatArea">
-        <ul class="messages"></ul>
-      </div>
-      <input class="inputMessage" placeholder="Type here..."/>
-    </li>
-    <li class="login page">
-      <div class="form">
-        <h3 class="title">Player name</h3>
-        <input class="nameInput" type="text" maxlength="14" />
-        <h3 class="title">Password</h3>
-        <input class="passwordInput" type="text" maxlength="14" />
-      </div>
-    </li>
-  </ul>
+  <div class="page-container">
 
-  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <!-- top navbar -->
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="offcanvas" data-target=".sidebar-nav">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Umbra</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mainArea">
+      <div class="row row-offcanvas row-offcanvas-left">
+        
+        <!-- sidebar -->
+        <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+          <ul class="nav sidelist">
+            <!--
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#">Link 1</a></li>
+            <li><a href="#">Link 2</a></li>
+            <li><a href="#">Link 3</a></li>              
+            -->
+          </ul>
+        </div>
+
+        <!-- main area -->
+        <div class="col-xs-12 col-sm-9 chatAreaOuter">
+
+          <div class="chatArea">
+            <ul class="messages"></ul>
+          </div>
+          <input class="inputMessage" placeholder="Type here..."/>
+
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title" id="loginModalLabel">Login</h4>
+              </div>
+              <div class="modal-body">
+                <!-- div class="form" -->
+                  <h4 class="title">Player name</h4>
+                  <input class="nameInput" type="text" maxlength="14" />
+                  <h4 class="title">Password</h4>
+                  <input class="passwordInput" type="text" maxlength="14" />
+                <!-- /div -->
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default loginBtn">Login</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/main.js"></script>
 </body>

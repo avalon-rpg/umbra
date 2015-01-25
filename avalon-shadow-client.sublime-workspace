@@ -28,56 +28,10 @@
 	"buffers":
 	[
 		{
-			"file": "package.json",
+			"file": "events.md",
 			"settings":
 			{
-				"buffer_size": 324,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "index.js",
-			"settings":
-			{
-				"buffer_size": 2167,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"contents": "$(function() {\n  var FADE_TIME = 150; // ms\n  var TYPING_TIMER_LENGTH = 400; // ms\n  var COLORS = [\n    '#e21400', '#91580f', '#f8a700', '#f78b00',\n    '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',\n    '#3b88eb', '#3824aa', '#a700ff', '#d300e7'\n  ];\n\n  // Initialize varibles\n  var $window = $(window);\n  var $nameInput = $('.nameInput'); // Input for username\n  var $passwordInput = $('.nameInput'); // Input for username\n  var $messages = $('.messages'); // Messages area\n  var $inputMessage = $('.inputMessage'); // Input message input box\n\n  var $loginPage = $('.login.page'); // The login page\n  var $chatPage = $('.chat.page'); // The chatroom page\n\n  // Prompt for setting a username\n  var username;\n  var password;\n  var connected = false;\n  var typing = false;\n  var lastTypingTime;\n  var $currentInput = $usernameInput.focus();\n\n  var socket = io();\n\n  function addParticipantsMessage (data) {\n    var message = '';\n    if (data.numUsers === 1) {\n      message += \"there's 1 participant\";\n    } else {\n      message += \"there are \" + data.numUsers + \" participants\";\n    }\n    log(message);\n  }\n\n  // Sets the client's username\n  function setUsername () {\n    username = cleanInput($nameInput.val().trim());\n    password = cleanInput($passwordInput.val().trim());\n\n    // If the username is valid\n    if (username && password) {\n      $loginPage.fadeOut();\n      $chatPage.show();\n      $loginPage.off('click');\n      $currentInput = $inputMessage.focus();\n\n      // Tell the server your username\n      socket.emit('add user', username);\n    }\n  }\n\n  // Sends a chat message\n  function sendMessage () {\n    var message = $inputMessage.val();\n    // Prevent markup from being injected into the message\n    message = cleanInput(message);\n    // if there is a non-empty message and a socket connection\n    if (message && connected) {\n      $inputMessage.val('');\n      addChatMessage({\n        username: username,\n        message: message\n      });\n      // tell server to execute 'new message' and send along one parameter\n      socket.emit('new message', message);\n    }\n  }\n\n  // Log a message\n  function log (message, options) {\n    var $el = $('<li>').addClass('log').text(message);\n    addMessageElement($el, options);\n  }\n\n  // Adds the visual chat message to the message list\n  function addChatMessage (data, options) {\n    // Don't fade the message in if there is an 'X was typing'\n    var $typingMessages = getTypingMessages(data);\n    options = options || {};\n    if ($typingMessages.length !== 0) {\n      options.fade = false;\n      $typingMessages.remove();\n    }\n\n    var $usernameDiv = $('<span class=\"username\"/>')\n      .text(data.username)\n      .css('color', getUsernameColor(data.username));\n    var $messageBodyDiv = $('<span class=\"messageBody\">')\n      .text(data.message);\n\n    var typingClass = data.typing ? 'typing' : '';\n    var $messageDiv = $('<li class=\"message\"/>')\n      .data('username', data.username)\n      .addClass(typingClass)\n      .append($usernameDiv, $messageBodyDiv);\n\n    addMessageElement($messageDiv, options);\n  }\n\n  // Adds the visual chat typing message\n  function addChatTyping (data) {\n    data.typing = true;\n    data.message = 'is typing';\n    addChatMessage(data);\n  }\n\n  // Removes the visual chat typing message\n  function removeChatTyping (data) {\n    getTypingMessages(data).fadeOut(function () {\n      $(this).remove();\n    });\n  }\n\n  // Adds a message element to the messages and scrolls to the bottom\n  // el - The element to add as a message\n  // options.fade - If the element should fade-in (default = true)\n  // options.prepend - If the element should prepend\n  //   all other messages (default = false)\n  function addMessageElement (el, options) {\n    var $el = $(el);\n\n    // Setup default options\n    if (!options) {\n      options = {};\n    }\n    if (typeof options.fade === 'undefined') {\n      options.fade = true;\n    }\n    if (typeof options.prepend === 'undefined') {\n      options.prepend = false;\n    }\n\n    // Apply options\n    if (options.fade) {\n      $el.hide().fadeIn(FADE_TIME);\n    }\n    if (options.prepend) {\n      $messages.prepend($el);\n    } else {\n      $messages.append($el);\n    }\n    $messages[0].scrollTop = $messages[0].scrollHeight;\n  }\n\n  // Prevents input from having injected markup\n  function cleanInput (input) {\n    return $('<div/>').text(input).text();\n  }\n\n  // Updates the typing event\n  function updateTyping () {\n    if (connected) {\n      if (!typing) {\n        typing = true;\n        socket.emit('typing');\n      }\n      lastTypingTime = (new Date()).getTime();\n\n      setTimeout(function () {\n        var typingTimer = (new Date()).getTime();\n        var timeDiff = typingTimer - lastTypingTime;\n        if (timeDiff >= TYPING_TIMER_LENGTH && typing) {\n          socket.emit('stop typing');\n          typing = false;\n        }\n      }, TYPING_TIMER_LENGTH);\n    }\n  }\n\n  // Gets the 'X is typing' messages of a user\n  function getTypingMessages (data) {\n    return $('.typing.message').filter(function (i) {\n      return $(this).data('username') === data.username;\n    });\n  }\n\n  // Gets the color of a username through our hash function\n  function getUsernameColor (username) {\n    // Compute hash code\n    var hash = 7;\n    for (var i = 0; i < username.length; i++) {\n       hash = username.charCodeAt(i) + (hash << 5) - hash;\n    }\n    // Calculate color\n    var index = Math.abs(hash % COLORS.length);\n    return COLORS[index];\n  }\n\n  // Keyboard events\n\n  $window.keydown(function (event) {\n    // Auto-focus the current input when a key is typed\n    if (!(event.ctrlKey || event.metaKey || event.altKey)) {\n      $currentInput.focus();\n    }\n    // When the client hits ENTER on their keyboard\n    if (event.which === 13) {\n      if (username) {\n        sendMessage();\n        socket.emit('stop typing');\n        typing = false;\n      } else {\n        setUsername();\n      }\n    }\n  });\n\n  $inputMessage.on('input', function() {\n    updateTyping();\n  });\n\n  // Click events\n\n  // Focus input when clicking anywhere on login page\n  $loginPage.click(function () {\n    $currentInput.focus();\n  });\n\n  // Focus input when clicking on the message input's border\n  $inputMessage.click(function () {\n    $inputMessage.focus();\n  });\n\n  // Socket events\n\n  // Whenever the server emits 'login', log the login message\n  socket.on('login', function (data) {\n    connected = true;\n    // Display the welcome message\n    var message = \"Welcome to Socket.IO Chat – \";\n    log(message, {\n      prepend: true\n    });\n    addParticipantsMessage(data);\n  });\n\n  // Whenever the server emits 'new message', update the chat body\n  socket.on('new message', function (data) {\n    addChatMessage(data);\n  });\n\n  // Whenever the server emits 'user joined', log it in the chat body\n  socket.on('user joined', function (data) {\n    log(data.username + ' joined');\n    addParticipantsMessage(data);\n  });\n\n  // Whenever the server emits 'user left', log it in the chat body\n  socket.on('user left', function (data) {\n    log(data.username + ' left');\n    addParticipantsMessage(data);\n    removeChatTyping(data);\n  });\n\n  // Whenever the server emits 'typing', show the typing message\n  socket.on('typing', function (data) {\n    addChatTyping(data);\n  });\n\n  // Whenever the server emits 'stop typing', kill the typing message\n  socket.on('stop typing', function (data) {\n    removeChatTyping(data);\n  });\n});",
-			"file": "public/main.js",
-			"file_size": 7591,
-			"file_write_time": 130663593496751026,
-			"settings":
-			{
-				"buffer_size": 7403,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"contents": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Socket.IO Chat Example</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <ul class=\"pages\">\n    <li class=\"chat page\">\n      <div class=\"chatArea\">\n        <ul class=\"messages\"></ul>\n      </div>\n      <input class=\"inputMessage\" placeholder=\"Type here...\"/>\n    </li>\n    <li class=\"login page\">\n      <div class=\"form\">\n        <h3 class=\"title\">Player name</h3>\n        <input class=\"nameInput\" type=\"text\" maxlength=\"14\" />\n        <h3 class=\"title\">Password</h3>\n        <input class=\"passwordInput\" type=\"text\" maxlength=\"14\" />\n      </div>\n    </li>\n  </ul>\n\n  <script src=\"https://code.jquery.com/jquery-1.10.2.min.js\"></script>\n  <script src=\"/socket.io/socket.io.js\"></script>\n  <script src=\"/main.js\"></script>\n</body>\n</html>",
-			"file": "public/index.html",
-			"file_size": 865,
-			"file_write_time": 130663592635441572,
-			"settings":
-			{
-				"buffer_size": 830,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "public/style.css",
-			"settings":
-			{
-				"buffer_size": 1884,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "consoletest.js",
-			"settings":
-			{
-				"buffer_size": 662,
+				"buffer_size": 2940,
 				"line_ending": "Windows"
 			}
 		},
@@ -85,7 +39,50 @@
 			"file": "shadowclient.js",
 			"settings":
 			{
-				"buffer_size": 3090,
+				"buffer_size": 5847,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "index.js",
+			"settings":
+			{
+				"buffer_size": 2381,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "public/main.js",
+			"settings":
+			{
+				"buffer_size": 7168,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Avalon-RPG Umbra</title>\n  <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css\">\n  <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css\">\n  <link rel=\"stylesheet\" href=\"style.css\">\n\n</head>\n<body>\n  <div class=\"page-container\">\n\n    <!-- top navbar -->\n    <div class=\"navbar navbar-default navbar-fixed-top\" role=\"navigation\">\n      <div class=\"container\">\n        <div class=\"navbar-header\">\n          <button type=\"button\" class=\"navbar-toggle\" data-toggle=\"offcanvas\" data-target=\".sidebar-nav\">\n            <span class=\"icon-bar\"></span>\n            <span class=\"icon-bar\"></span>\n            <span class=\"icon-bar\"></span>\n          </button>\n          <a class=\"navbar-brand\" href=\"#\">Umbra</a>\n        </div>\n      </div>\n    </div>\n\n    <div class=\"container\">\n      <div class=\"row row-offcanvas row-offcanvas-left\">\n        \n        <!-- sidebar -->\n        <div class=\"col-xs-6 col-sm-3 sidebar-offcanvas\" id=\"sidebar\" role=\"navigation\">\n          <ul class=\"nav\">\n            <li class=\"active\"><a href=\"#\">Home</a></li>\n            <li><a href=\"#\">Link 1</a></li>\n            <li><a href=\"#\">Link 2</a></li>\n            <li><a href=\"#\">Link 3</a></li>              \n          </ul>\n        </div>\n\n        <!-- main area -->\n        <div class=\"col-xs-12 col-sm-9\">\n          <ul class=\"pages\">\n            <li class=\"chat page\">\n              <div class=\"chatArea\">\n                <ul class=\"messages\"></ul>\n              </div>\n              <input class=\"inputMessage\" placeholder=\"Type here...\"/>\n            </li>\n            <li class=\"login page\">\n              <div class=\"form\">\n                <h3 class=\"title\">Player name</h3>\n                <input class=\"nameInput\" type=\"text\" maxlength=\"14\" />\n                <h3 class=\"title\">Password</h3>\n                <input class=\"passwordInput\" type=\"text\" maxlength=\"14\" />\n              </div>\n            </li>\n          </ul>\n        </div>\n        \n      </div>\n    </div>\n\n  </div>\n\n  <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js\"></script>\n  <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js\"></script>\n  <script src=\"/main.js\"></script>\n</body>\n</html>",
+			"file": "public/index.html",
+			"file_size": 2432,
+			"file_write_time": 130665989172963180,
+			"settings":
+			{
+				"buffer_size": 2371,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "package.json",
+			"settings":
+			{
+				"buffer_size": 345,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "public/style.css",
+			"settings":
+			{
+				"buffer_size": 2097,
 				"line_ending": "Windows"
 			}
 		}
@@ -115,12 +112,22 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
+	"expanded_folders":
+	[
+		"/C/devel/projects/avalon-shadow-client",
+		"/C/devel/projects/avalon-shadow-client/public"
+	],
 	"file_history":
 	[
-		"/C/devel/projects/avalon-shadow-client/public/style.css",
-		"/C/devel/projects/avalon-shadow-client/shadowclient.js",
-		"/C/devel/projects/avalon-shadow-client/ackclient.js",
 		"/C/devel/projects/avalon-shadow-client/consoletest.js",
+		"/C/devel/projects/avalon-shadow-client/public/index.html",
+		"/C/devel/projects/avalon-shadow-client/avalon-shadow-client.sublime-project",
+		"/C/devel/projects/avalon-shadow-client/shadowclient.js",
+		"/C/devel/projects/avalon-shadow-client/public/style.css",
+		"/C/devel/projects/avalon-shadow-client/package.json",
+		"/C/devel/projects/avalon-shadow-client/index.js",
+		"/C/devel/projects/avalon-shadow-client/public/main.js",
+		"/C/devel/projects/avalon-shadow-client/ackclient.js",
 		"/C/devel/projects/avalon-shadow-client/app.js",
 		"/C/devel/projects/avalon-ack-client/app.js",
 		"/C/Users/Kevin/Google Drive/Avalon/ab-itemlore.md",
@@ -239,12 +246,7 @@
 		"/C/devel/vagrant-boxes/graphite-in-a-box/puppet/modules/carbon/files/storage-schemas.conf",
 		"/C/devel/vagrant-boxes/graphite-in-a-box/graphite-poller/graphite-poller.js",
 		"/C/devel/vagrant-boxes/graphite-in-a-box/puppet/modules/carbon/files/local_settings.py",
-		"/C/devel/vagrant-boxes/graphite-in-a-box/puppet/modules/graphite/files/apache2-graphite.conf",
-		"/C/devel/vagrant-boxes/graphite-in-a-box/puppet/modules/graphite/manifests/init.pp",
-		"/C/devel/vagrant-boxes/graphite-in-a-box/TODO.txt",
-		"/C/devel/vagrant-boxes/graphite-in-a-box/puppet/modules/postgresql/manifests/init.pp",
-		"/C/devel/vagrant-boxes/graphite-in-a-box/graphite-poller/config.js",
-		"/C/devel/vagrant-boxes/graphite-in-a-box/puppet/modules/carbon/files/storage-aggregation.conf"
+		"/C/devel/vagrant-boxes/graphite-in-a-box/puppet/modules/graphite/files/apache2-graphite.conf"
 	],
 	"find":
 	{
@@ -262,6 +264,10 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"focus",
+			"connected",
+			"attemptLogin",
+			"getUsernameColor",
 			"socket",
 			"<<< mud",
 			">>> mud",
@@ -305,24 +311,172 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 4,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "package.json",
+					"file": "events.md",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 324,
+						"buffer_size": 2940,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								317,
-								317
+								2715,
+								2715
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Markdown/Markdown.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1820.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "shadowclient.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5847,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3838,
+								3838
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2115.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "index.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2381,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1137,
+								1137
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 360.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "public/main.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7168,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1017,
+								1017
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": -0.0,
+						"translation.y": 3585.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "public/index.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2371,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								32,
+								32
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 585.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "package.json",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 345,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								226,
+								226
 							]
 						],
 						"settings":
@@ -335,114 +489,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "index.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2167,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								740,
-								740
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 156.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "public/main.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7403,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								843,
-								849
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 53.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "public/index.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 830,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								480,
-								480
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/HTML/HTML.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
 					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 6,
 					"file": "public/style.css",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1884,
+						"buffer_size": 2097,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1467,
+								1467
 							]
 						],
 						"settings":
@@ -452,70 +516,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "consoletest.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 662,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								662,
-								662
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 1440.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "shadowclient.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3090,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3090,
-								3090
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1586.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
 					"type": "text"
 				}
 			]
@@ -523,7 +527,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 21.0
+		"height": 23.0
 	},
 	"input":
 	{
@@ -559,7 +563,7 @@
 	"project": "avalon-shadow-client.sublime-project",
 	"replace":
 	{
-		"height": 38.0
+		"height": 42.0
 	},
 	"save_all_on_build": true,
 	"select_file":
