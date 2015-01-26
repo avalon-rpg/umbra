@@ -49,7 +49,10 @@ ShadowClient.prototype.init = function(user, pass) {
   var gaSeq = new Buffer([IAC,GA]);
 
 
-
+  // needs handling:
+  //
+  // Gigglefluff of Mercinae (scholar; on the hunter course) is requesting ADVICE at "Gardens of the Hunter Gatherer school". Your help may be needed.
+  // Andreu novice-calls: "Or just send a TELL to me."
 
   var sequences = [
     {
