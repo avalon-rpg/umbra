@@ -24,6 +24,7 @@ $(function() {
   var $passwordInput = $('.passwordInput'); // Input for username
   var $sidelist = $('.sidelist');
   var $messages = $('.messages'); // Messages area
+  var $chatArea = $('.chatArea'); // Input message input box
   var $inputMessage = $('.inputMessage'); // Input message input box
 
   var $loginBtn = $('.loginBtn');
@@ -99,8 +100,10 @@ $(function() {
   }
 
   function addUser(name) {
-    var $userLink = $('<a href="#"/>').text(name);
+    var $badge = $('<span class="badge"/>').text('42');
+    var $userLink = $('<a href="#"/>').text(name).append($badge);
     var $userElem = $('<li class="user"/>').append($userLink);
+
     $sidelist.append($userElem);
   }
 
@@ -173,9 +176,9 @@ $(function() {
   // Click events
 
   //Focus input when clicking on the message input's border
-  // $inputMessage.click(function () {
-  //   $inputMessage.focus();
-  // });
+  $chatArea.click(function () {
+    $inputMessage.focus();
+  });
 
   // Socket events
 

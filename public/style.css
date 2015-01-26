@@ -11,6 +11,7 @@ html {
 
 html, input {
   font-family:
+    "Alegreya",
     "HelveticaNeue-Light",
     "Helvetica Neue Light",
     "Helvetica Neue",
@@ -28,8 +29,15 @@ html, body {
 }
 
 body {
-  background: url('28-faded-parchment-background-lrg.jpg');
+  background:    
+    linear-gradient(
+      rgba(255,255,255,.05),
+      rgba(255,255,255,.05)
+    ),
+    url('dark-flecks.jpg');
+  /*background-size: 100% 100%;*/
 }
+
 .text-center {
   padding-top: 20px;
 }
@@ -89,6 +97,7 @@ ul {
 
 /* Pages */
 
+
 .pages {
   height: 100%;
   margin: 0;
@@ -114,8 +123,10 @@ ul {
 .modal-content {
   color: white;
   background: url('Splat_texture_by_firesign24_7.jpg');
-  background-size: 100% 100%;}
+  background-size: 100% 100%;
+}
 
+/* shouldn't be needed with navbar-inverse
 .navbar {
   color: white;
   background: url('Flecked_texture_by_firesign24_7.jpg');
@@ -125,6 +136,7 @@ ul {
 .navbar-brand {
   color: white !important;
 }
+*/
 
 .nameInput {
   color: black;
@@ -145,15 +157,21 @@ ul {
 }
 
 .log {
-  color: gray;
+  /*color: gray;*/
+  color: white;
   font-size: 70%;
   margin: 5px;
   text-align: right;
   white-space: pre-line;
 }
 
+.message {
+  color: white;
+}
+
 .notification {
-  color: #8B0000;
+  /*color: #8B0000;*/
+  color: white;
   font-size: 85%;
   margin: 5px;
   text-align: left;
@@ -170,27 +188,45 @@ ul {
 
 .mainArea {
   height: 100%;
+  padding-bottom: 20px;
 }
 
-.chatAreaOuter {
+.chat-panel-outer {
   height: 100%;
+  padding-left: 20px;
+  background: inherit;
 }
 
-.chatArea {
+.chat-panel {
+  height: 100%;
+  background: rgba(255,255,255,.05);
+  padding-bottom: 40px;
+  border-color: #123535;
+
+  /*box-shadow: 10px 10px 5px #888888;*/
+  /*border-radius: 10px;*/
+  /*mask: url(mask.png) top left / cover;*/
+  /*-webkit-mask: url(mask.png) top left / cover;*/
+}
+
+.chat-panel .panel-body {
   height: 100%;
   padding-bottom: 60px;
+  overflow-y: scroll;
+}
+
+.chat-panel .panel-footer {
+  padding: 0;
+  background: inherit;
+  /*height: 60px;*/
+  /*padding: 10px 20px 10px 20px;*/
 }
 
 .messages {
-  height: 100%;
-  margin: 0;
-  overflow-y: scroll;
+  /*height: 100%;*/
   padding: 10px 20px 10px 20px;
 }
 
-.message.typing .messageBody {
-  color: gray;
-}
 
 .username {
   float: left;
@@ -203,13 +239,16 @@ ul {
 /* Input */
 
 .inputMessage {
-  border: 10px solid #000;
-  bottom: 0;
-  height: 60px;
-  left: 0;
-  outline: none;
-  padding-left: 10px;
-  position: absolute;
-  right: 0;
+  /*border: 10px solid #000;*/
+  /*bottom: 0;*/
+  height: 40px;
+  /*left: 0;*/
+  /*outline: none;*/
+  /*padding-left: 10px;*/
+  /*position: absolute;*/
+  /*right: 0;*/
   width: 100%;
+  background: inherit;
+  border: none;
+  color: white;
 }
