@@ -67,41 +67,30 @@ $(function() {
 
   // Log a message
   function log (message, options) {
-    var $el = $('<li>').addClass('log').text(message);
+    var msghtml = ansi_up.ansi_to_html(message);
+    var $el = $('<li>').addClass('log').html(msghtml);
     addMessageElement($el, options);
   }
 
   function notify (message, options) {
-    var $el = $('<li>').addClass('notification').text(message);
+    var msghtml = ansi_up.ansi_to_html(message);
+    var $el = $('<li>').addClass('notification').html(msghtml);
     addMessageElement($el, options);
   }
 
-  // Adds the visual chat message to the message list
-  function addChatMessage (data, options) {
-    var $usernameDiv = $('<span class="username"/>')
-      .text(data.username)
-      .css('color', getUsernameColor(data.username));
-    var $messageBodyDiv = $('<span class="messageBody">')
-      .text(data.message);
-
-    var $messageDiv = $('<li class="message"/>')
-      .data('username', data.username)
-      .append($usernameDiv, $messageBodyDiv);
-
-    addMessageElement($messageDiv, options);
-  }
-
   function addTell (whofrom, message, options) {
-    var $usernameDiv = $('<span class="username"/>').text(whofrom + ': ').css('color', getUsernameColor(whofrom));
-    var $messageBodyDiv = $('<span class="messageBody">').text(message);
+    var whofromhtml = ansi_up.ansi_to_html(whofrom + ': ');
+    var msghtml = ansi_up.ansi_to_html(message);
+    var $usernameDiv = $('<span class="username"/>').html(whofromhtml).css('color', getUsernameColor(whofrom));
+    var $messageBodyDiv = $('<span class="messageBody">').html(msghtml);
     var $messageDiv = $('<li class="message"/>').data('username', whofrom).append($usernameDiv, $messageBodyDiv);
 
     addMessageElement($messageDiv, options);
   }
 
   function addUser(name) {
-    var $badge = $('<span class="badge"/>').text('42');
-    var $userLink = $('<a href="#"/>').text(name).append($badge);
+    // var $badge = $('<span class="badge"/>').text('42');
+    var $userLink = $('<a href="#"/>').text(name);//.append($badge);
     var $userElem = $('<li class="user"/>').append($userLink);
 
     $sidelist.append($userElem);
@@ -245,7 +234,7 @@ $(function() {
       }
       notify(block);
     } else if(data.qual == 'unparsed') {
-      console.log(data.line);  
+      log(data.line);  
     } else {
       console.log('input: ' + JSON.stringify(data));
     }
