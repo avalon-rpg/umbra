@@ -169,6 +169,10 @@ ul {
   color: white;
 }
 
+.message span {
+  border-radius: 3px;
+}
+
 .notification {
   /*color: #8B0000;*/
   color: white;

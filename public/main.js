@@ -67,19 +67,19 @@ $(function() {
 
   // Log a message
   function log (message, options) {
-    var msghtml = ansi_up.ansi_to_html(message);
+    var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
     var $el = $('<li>').addClass('log').html(msghtml);
     addMessageElement($el, options);
   }
 
   function notify (message, options) {
-    var msghtml = ansi_up.ansi_to_html(message);
+    var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
     var $el = $('<li>').addClass('notification').html(msghtml);
     addMessageElement($el, options);
   }
 
   function addTell (whofrom, message, options) {
-    var whofromhtml = ansi_up.ansi_to_html(whofrom + ': ');
+    var whofromhtml = ansi_up.ansi_to_html(whofrom + ': ', {use_classes: true});
     var msghtml = ansi_up.ansi_to_html(message);
     var $usernameDiv = $('<span class="username"/>').html(whofromhtml).css('color', getUsernameColor(whofrom));
     var $messageBodyDiv = $('<span class="messageBody">').html(msghtml);
