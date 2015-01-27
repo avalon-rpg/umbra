@@ -165,7 +165,7 @@ $(function() {
     // }
     // When the client hits ENTER on their keyboard
     if (event.which === 13) {
-      if (connected) { sendMessage(); } else { attemptLogin(); }
+      if (connected) { sendMessage(); }
     }
   });
 

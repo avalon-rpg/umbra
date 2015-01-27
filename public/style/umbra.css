@@ -152,21 +152,23 @@ ul {
   font-size: 100%;
 }
 
-.inputMessage {
-  font-size: 150%;
-}
-
 .log {
   /*color: gray;*/
-  color: white;
-  font-size: 70%;
+  color: rgb(229,229,229);
   margin: 5px;
-  text-align: right;
+  float: left;
+  clear: both;
+  padding-left: 20px;
   white-space: pre-line;
 }
 
 .message {
-  color: white;
+  color: rgb(229,229,229);
+  margin: 5px;
+  float: left;
+  clear: both;
+  padding-left: 20px;
+  white-space: pre-line;
 }
 
 .message span {
@@ -175,12 +177,13 @@ ul {
 
 .notification {
   /*color: #8B0000;*/
-  color: white;
-  font-size: 85%;
+  color: rgb(229,229,229);
+  border: 1px rgb(229,229,229) solid;
+  border-radius: 5px;
   margin: 5px;
-  text-align: left;
   float: left;
   clear: both;
+  padding-left: 20px;
   white-space: pre-line;
 }
 
@@ -258,8 +261,10 @@ ul {
   /*padding-left: 10px;*/
   /*position: absolute;*/
   /*right: 0;*/
+  font-size: 150%;
   width: 100%;
   background: inherit;
+  background-color: rgb(48, 58, 65);
   border: none;
   color: white;
 }
