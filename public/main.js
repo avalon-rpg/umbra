@@ -4,11 +4,20 @@ $(document).ready(function() {
     $('.row-offcanvas').toggleClass('active');
   });
 
+  //turn on nano-scrollbars
+  $(".nano").nanoScroller();
+
   //show login modal
   $('#loginModal').modal();
 });
 
 $(function() {
+
+  /* depressing workaround for my least favourite browser */
+  var isIE = window.ActiveXObject || "ActiveXObject" in window;
+  if (isIE) {
+    $('.modal').removeClass('fade');
+  }
 
   var FADE_TIME = 150; // ms
   var TYPING_TIMER_LENGTH = 400; // ms
@@ -94,6 +103,7 @@ $(function() {
     var $userElem = $('<li class="user"/>').append($userLink);
 
     $sidelist.append($userElem);
+    $('.side-panel').nanoScroller();
   }
 
   // Adds a message element to the messages and scrolls to the bottom
@@ -125,6 +135,7 @@ $(function() {
       $messages.append($el);
     }
     $messages[0].scrollTop = $messages[0].scrollHeight;
+    $(".nano").nanoScroller();
   }
 
   // Prevents input from having injected markup

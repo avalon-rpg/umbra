@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
   <link rel="stylesheet" href="ansi_up.css">
+  <link rel="stylesheet" href="nanoscroller.css">
   <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
   <div class="page-container">
@@ -32,26 +32,78 @@
         
         <!-- sidebar -->
         <div class="col-xs-6 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
-          <div class="panel panel-default">
-            <div class="panel-body">
+          <div class="panel panel-default side-panel nano">
+            <div class="panel-body nano-content">
               <h4>Users</h4>
+              <ul class="nav sidelist nano-content">
+                <!--
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#">Link 1</a></li>
+                <li><a href="#">Link 2</a></li>
+                <li><a href="#">Link 3</a></li>              
+                -->
+              </ul>
             </div>
-            <ul class="nav sidelist">
-              <!--
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#">Link 1</a></li>
-              <li><a href="#">Link 2</a></li>
-              <li><a href="#">Link 3</a></li>              
-              -->
-            </ul>
           </div>
         </div>
 
         <!-- main area -->
         <div class="col-xs-12 col-sm-9 chat-panel-outer">
           <div class="panel panel-default chat-panel">
-            <div class="panel-body">
-              <ul class="messages"></ul>
+            <div class="panel-body nano">
+              <!-- div class="nano-content">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>  
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>  
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et explicabo accusantium nobis dolor amet vel veniam architecto suscipit? Officiis maxime earum aliquam provident reprehenderit asperiores necessitatibus ad quae dignissimos atque? 
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit impedit at debitis odio ullam cupiditate voluptatum quas cumque dolorum repellendus possimus temporibus accusantium eius modi eos ipsa officiis eveniet magnam!   
+                <br/>
+              </div -->
+              <div class="nano-content">
+                <ul class="messages"></ul>
+              </div>
             </div>
             <div class="panel-footer">
               <input class="inputMessage" placeholder="Type here..."/>
@@ -89,6 +141,7 @@
   <script src="ansi_up.js" type="text/javascript"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script src="jquery.nanoscroller.min.js"></script>  
   <script src="/socket.io/socket.io.js"></script>
   <script src="/main.js"></script>
 </body>
