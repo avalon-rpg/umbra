@@ -1,15 +1,4 @@
-$(document).ready(function() {
-  //init sidebar
-  $('[data-toggle=offcanvas]').click(function() {
-    $('.row-offcanvas').toggleClass('active');
-  });
 
-  //turn on nano-scrollbars
-  $(".nano").nanoScroller();
-
-  //show login modal
-  $('#loginModal').modal();
-});
 
 $(function() {
 
@@ -29,12 +18,12 @@ $(function() {
 
   // Initialize varibles
   var $window = $(window);
-  var $nameInput = $('.nameInput'); // Input for username
-  var $passwordInput = $('.passwordInput'); // Input for username
-  var $sidelist = $('.sidelist');
+  var $nameInput = $('#nameInput'); // Input for username
+  var $passwordInput = $('#passwordInput'); // Input for username
+  var $userlist = $('#userlist');
   var $messages = $('.messages'); // Messages area
   var $chatArea = $('.chatArea'); // Input message input box
-  var $inputMessage = $('.inputMessage'); // Input message input box
+  var $inputMessage = $('#inputMessage'); // Input message input box
 
   var $loginBtn = $('.loginBtn');
 
@@ -102,8 +91,8 @@ $(function() {
     var $userLink = $('<a href="#"/>').text(name);//.append($badge);
     var $userElem = $('<li class="user"/>').append($userLink);
 
-    $sidelist.append($userElem);
-    $('.side-panel').nanoScroller();
+    $userlist.append($userElem);
+    $('#leftSidebarScroll').nanoScroller();
   }
 
   // Adds a message element to the messages and scrolls to the bottom
@@ -158,27 +147,25 @@ $(function() {
 
   // Keyboard events
 
-  $window.keydown(function (event) {
+  $window.keyup(function (event) {
     // Auto-focus the current input when a key is typed
     // if (!(event.ctrlKey || event.metaKey || event.altKey)) {
     //   if (connected) { $currentInput.focus(); }
     // }
     // When the client hits ENTER on their keyboard
-    if (event.which === 13) {
-      if (connected) { sendMessage(); }
-    }
+    if (event.which === 13) { sendMessage(); }
   });
 
-  $loginBtn.click(function () {
-    attemptLogin();
-  });
-
-
+  
   // Click events
 
   //Focus input when clicking on the message input's border
-  $('.chat-panel').click(function () {
+  $('.output-segment').click(function () {
     $inputMessage.focus();
+  });
+
+  $('#leftSidebarTab').click(function () {
+    $('#leftSidebar').sidebar('toggle');
   });
 
   // Socket events
@@ -252,4 +239,26 @@ $(function() {
     }
   });
 
+
+  /////////////////////////////////////////////
+  // Page initialisation
+
+  //turn on nano-scrollbars
+  $(".nano").nanoScroller();
+
+  //show login modal
+  $('#loginModal').modal({
+    closable  : false,
+    onDeny    : function(){
+      window.alert('You must log in before continuing!');
+      return false;
+    },
+    onApprove : function() {
+      attemptLogin();
+    }
+  })
+  .modal('show');
+
+
 });
+
