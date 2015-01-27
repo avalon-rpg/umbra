@@ -136,6 +136,7 @@ $(function() {
     }
     $messages[0].scrollTop = $messages[0].scrollHeight;
     $(".nano").nanoScroller();
+    $(".chat-panel-body").nanoScroller({ scroll: 'bottom' });
   }
 
   // Prevents input from having injected markup
@@ -176,7 +177,7 @@ $(function() {
   // Click events
 
   //Focus input when clicking on the message input's border
-  $chatArea.click(function () {
+  $('.chat-panel').click(function () {
     $inputMessage.focus();
   });
 
@@ -187,7 +188,7 @@ $(function() {
     connected = true;
     $('#loginModal').modal('hide');
     // Display the welcome message
-    var message = "Welcome to Avalon shadow-Chat";
+    var message = "Welcome to Umbra";
     log(message, { prepend: true });
   });
 
