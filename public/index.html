@@ -19,14 +19,11 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body>
-
-
-
+<body class="pushable">
 
   <!-- left sidebar -->
   <div class="ui left vertical inverted sidebar flecked-bg" id="leftSidebar">
-    <div class="nano pale">
+    <div class="nano pale" id="leftSidebarScroll">
       <div class="nano-content pale">
         <h4>Users</h4>
         <ul id="userlist">
@@ -51,7 +48,7 @@
 
   <div class="pusher full height flecked-bg">
       <div class="ui basic segment paler" id="output-segment">
-        <div class="nano">
+        <div class="nano" id="output-scroller">
           <div class="nano-content">
             <ul class="messages"></ul>
           </div>

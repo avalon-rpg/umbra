@@ -125,7 +125,7 @@ $(function() {
     }
     $messages[0].scrollTop = $messages[0].scrollHeight;
     $(".nano").nanoScroller();
-    $(".chat-panel-body").nanoScroller({ scroll: 'bottom' });
+    $("#output-scroller").nanoScroller({ scroll: 'bottom' });
   }
 
   // Prevents input from having injected markup
