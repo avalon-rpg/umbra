@@ -4,22 +4,6 @@
   box-sizing: border-box;
 }
 
-html {
-  font-weight: 300;
-  -webkit-font-smoothing: antialiased;
-}
-
-html, input {
-  font-family:
-    "Alegreya",
-    "HelveticaNeue-Light",
-    "Helvetica Neue Light",
-    "Helvetica Neue",
-    Helvetica,
-    Arial,
-    "Lucida Grande",
-    sans-serif;
-}
 
 /*html, body {
   height: 100%;
@@ -31,6 +15,18 @@ html, input {
 body {
   background: url('/img/dark-flecks.jpg');
   /*background-size: 100% 100%;*/
+
+  -webkit-font-smoothing: antialiased;
+
+  font-family:
+    "Alegreya",
+    "HelveticaNeue-Light",
+    "Helvetica Neue Light",
+    "Helvetica Neue",
+    Helvetica,
+    Arial,
+    "Lucida Grande",
+    sans-serif;
 }
 
 .flecked-bg {
@@ -64,7 +60,8 @@ ul {
   float: left;
   clear: both;
   padding-left: 20px;
-  white-space: pre-line;
+  white-space: pre-wrap;
+  font-family: monospace;
 }
 
 .message {
