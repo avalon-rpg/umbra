@@ -20,7 +20,7 @@ $(function() {
   var $window = $(window);
   var $nameInput = $('#nameInput'); // Input for username
   var $passwordInput = $('#passwordInput'); // Input for username
-  var $userlist = $('#userlist');
+  var $userlist = $('#user-list');
   var $messages = $('.messages'); // Messages area
   var $chatArea = $('.chatArea'); // Input message input box
   var $inputMessage = $('#inputMessage'); // Input message input box
@@ -88,10 +88,9 @@ $(function() {
 
   function addUser(name) {
     // var $badge = $('<span class="badge"/>').text('42');
-    var $userLink = $('<a href="#"/>').text(name);//.append($badge);
-    var $userElem = $('<li class="user"/>').append($userLink);
+    var $userItem = $('<a class="item" href="#"/>').text(name);//.append($badge);
 
-    $userlist.append($userElem);
+    $userlist.append($userItem);
     $('#leftSidebarScroll').nanoScroller();
   }
 
@@ -258,17 +257,17 @@ $(function() {
   $(".nano").nanoScroller();
 
   //show login modal
-  // $('#loginModal').modal({
-  //   closable  : false,
-  //   onDeny    : function(){
-  //     window.alert('You must log in before continuing!');
-  //     return false;
-  //   },
-  //   onApprove : function() {
-  //     attemptLogin();
-  //   }
-  // })
-  // .modal('show');
+  $('#loginModal').modal({
+    closable  : false,
+    onDeny    : function(){
+      window.alert('You must log in before continuing!');
+      return false;
+    },
+    onApprove : function() {
+      attemptLogin();
+    }
+  })
+  .modal('show');
 
 
 });
