@@ -146,15 +146,20 @@ $(function() {
 
   // Keyboard events
 
-  $window.keyup(function (event) {
-    // Auto-focus the current input when a key is typed
-    // if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-    //   if (connected) { $currentInput.focus(); }
-    // }
-    // When the client hits ENTER on their keyboard
-    if (event.which === 13) { sendMessage(); }
-  });
+  // $window.keyup(function (event) {
+  //   // Auto-focus the current input when a key is typed
+  //   // if (!(event.ctrlKey || event.metaKey || event.altKey)) {
+  //   //   if (connected) { $currentInput.focus(); }
+  //   // }
+  //   // When the client hits ENTER on their keyboard
+  //   if (event.which === 13) { sendMessage(); }
+  // });
 
+  //this should work better on an iPad
+  $(document).keypress( function (event) {
+    var keycode = (event.keyCode ? event.keyCode : event.which);
+    if (keycode == 13) { sendMessage(); }
+  });
   
   // Click events
 
