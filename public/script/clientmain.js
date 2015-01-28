@@ -175,9 +175,14 @@ $(function() {
   //   if (keycode == 13) { sendMessage(); }
   // });
 
-  $('#inputMessage').on("keypress", function (event) {
-    var keycode = (event.keyCode ? event.keyCode : event.which);
-    if (keycode == 13) { sendMessage(); }
+  // $('#inputMessage').on("keypress", function (event) {
+  //   var keycode = (event.keyCode ? event.keyCode : event.which);
+  //   if (keycode == 13) { sendMessage(); }
+  // });
+
+  $('#input-message-form').submit( function(event) {
+    sendMessage();
+    event.preventDefault();
   });
   
   // Click events

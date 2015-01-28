@@ -82,7 +82,8 @@ ul {
   float: left;
   clear: both;
   padding-left: 20px;
-  white-space: pre-line;
+  white-space: pre-wrap;
+  font-family: monospace;
 }
 
 

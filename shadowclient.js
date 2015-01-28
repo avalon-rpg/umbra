@@ -227,8 +227,8 @@ ShadowClient.prototype.init = function(user, pass) {
         var lines = block.split("\r\n");
         var lineCount = lines.length;
         for (var i = 0; i < lineCount; i++) {
-          if(i == lineCount - 1) { onPrompt(lines[i].trim()); }
-          else                   { onLine(lines[i].trim()); }
+          if(i == lineCount - 1) { onPrompt(lines[i]); }
+          else                   { onLine(lines[i]); }
         }
       }
     });
