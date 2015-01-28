@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Avalon-RPG Umbra</title>
-  <link href='http://fonts.googleapis.com/css?family=Alegreya:400italic,700italic,900italic,400,700,900' rel='stylesheet' type='text/css' />
+  <<link href='/style/alegreya-font.css' rel='stylesheet' type='text/css' />
   <link href="/semantic-ui/semantic.css" rel="stylesheet" type='text/css' />
   <link href="/style/ansi_up.css" rel="stylesheet" type='text/css' />
   <link href="/style/nanoscroller.css" rel="stylesheet" type='text/css' />
@@ -22,13 +22,54 @@
 <body class="pushable">
 
   <!-- left sidebar -->
-  <div class="ui left vertical inverted sidebar flecked-bg" id="leftSidebar">
+  <div class="ui left vertical inverted sidebar flecked-bg menu" id="leftSidebar">
     <div class="nano pale" id="leftSidebarScroll">
-
       <div class="nano-content pale">
-        <h4>Users</h4>
-        <ul id="userlist">
-        </ul>
+        <div class="ui header item">
+          <a href="#"><b>Channels</b></a>
+        </div>
+
+
+        <div class="item">
+          <div class="ui small inverted header">
+            <i class="tree icon"></i>
+            Current Location
+          </div>
+
+          <div class="menu">
+            <a class="item" href="#" id="current-loc">Current Loc Name </a>
+          </div>
+        </div>
+
+
+        <div class="item">
+          <div class="ui small inverted header">
+            <i class="comments icon"></i>
+            Calling
+          </div>
+          
+          <div class="menu" id="calling-list">
+            <a class="item" href="#">City </a>
+            <a class="item" href="#">Profession </a>
+            <a class="item" href="#">Guild </a>
+            <a class="item" href="#">Novices </a>
+          </div>
+        </div>
+
+        <div class="item">
+          <div class="ui small inverted header">
+            <i class="child icon"></i>
+            Players
+          </div>
+
+          <div class="menu" id="user-list">
+            <a class="item" href="#">City </a>
+            <a class="item" href="#">Profession </a>
+            <a class="item" href="#">Guild </a>
+            <a class="item" href="#">Novices </a>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
