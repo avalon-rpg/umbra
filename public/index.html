@@ -24,7 +24,11 @@
   <!-- left sidebar -->
   <div class="ui left vertical inverted sidebar flecked-bg" id="leftSidebar">
     <div class="nano pale" id="leftSidebarScroll">
+
       <div class="nano-content pale">
+        <a class="ui item" id="pinLeftSidebar">
+          <i class="pin icon"></i> Pin
+        </a>
         <h4>Users</h4>
         <ul id="userlist">
         </ul>
@@ -32,20 +36,24 @@
     </div>
   </div>
 
-  <div class="ui big launch right attached fixed button" id="leftSidebarTab">
+<!--   <div class="ui big launch right attached fixed button" id="leftSidebarTab">
     <i class="content icon"></i>
     <span class="text">Users</span>
   </div>
-
+ -->
   <!-- top navbar -->
   <div class="ui top fixed inverted menu">
-    <div class="container">
-      <div class="title item">
+    <a class="ui item" id="toggleLeftSidebar">
+      <i class="sidebar icon"></i> Channels
+    </a>
+    <div class="active right menu">
+      <div class="active title item">
         <b>Umbra</b>
       </div>
     </div>
   </div>
 
+  <!-- Main Body -->
   <div class="pusher full height flecked-bg">
       <div class="ui basic segment paler" id="output-segment">
         <div class="nano" id="output-scroller">

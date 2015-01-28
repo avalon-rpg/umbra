@@ -164,9 +164,20 @@ $(function() {
     $inputMessage.focus();
   });
 
-  $('#leftSidebarTab').click(function () {
-    $('#leftSidebar').sidebar('toggle');
+  $('#toggleLeftSidebar').click(function () {
+    $('#leftSidebar')
+    .sidebar('setting', {
+      dimPage             : false,
+      closable            : false,
+      transition          : 'push',
+      mobileTransition    : 'push'})
+    .sidebar('toggle');
+
+    $('#toggleLeftSidebar').toggleClass('active');
   });
+
+
+  
 
   // Socket events
 
@@ -247,17 +258,17 @@ $(function() {
   $(".nano").nanoScroller();
 
   //show login modal
-  $('#loginModal').modal({
-    closable  : false,
-    onDeny    : function(){
-      window.alert('You must log in before continuing!');
-      return false;
-    },
-    onApprove : function() {
-      attemptLogin();
-    }
-  })
-  .modal('show');
+  // $('#loginModal').modal({
+  //   closable  : false,
+  //   onDeny    : function(){
+  //     window.alert('You must log in before continuing!');
+  //     return false;
+  //   },
+  //   onApprove : function() {
+  //     attemptLogin();
+  //   }
+  // })
+  // .modal('show');
 
 
 });
