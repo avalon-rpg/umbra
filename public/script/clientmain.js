@@ -85,6 +85,20 @@ $(function() {
 
     addMessageElement($messageDiv, options);
   }
+  
+  function addComms(icon, who, message) {
+    var whohtml = ansi_up.ansi_to_html(who, {use_classes: true});
+    var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
+    var $icon = $('<i class="icon">').addClass(icon);
+    var $headerElem = $('<b>').html(whohtml);
+    var $bodyElem = $('<span>').html('&nbsp;-&nbsp;' + msghtml);
+
+    var $msgDiv = $('<div class="comms">')
+      .append($icon, $headerElem, $bodyElem);
+
+    addMessageElement($msgDiv);
+  }
+
 
   function addUser(name) {
     // var $badge = $('<span class="badge"/>').text('42');
@@ -156,7 +170,12 @@ $(function() {
   // });
 
   //this should work better on an iPad
-  $(document).keypress( function (event) {
+  // $(document).keypress( function (event) {
+  //   var keycode = (event.keyCode ? event.keyCode : event.which);
+  //   if (keycode == 13) { sendMessage(); }
+  // });
+
+  $('#inputMessage').on("keypress", function (event) {
     var keycode = (event.keyCode ? event.keyCode : event.which);
     if (keycode == 13) { sendMessage(); }
   });
@@ -228,9 +247,11 @@ $(function() {
     } else if(data.qual == 'novice-calling to') {
       addTell('You (' + data.chan + ') => Novices', data.msg);
     } else if(data.qual == 'tell from') {
-      addTell(data.who + ' => You', data.msg);
+      addComms('reply', 'From: ' + data.who, data.msg);
+      console.log('input: ' + JSON.stringify(data));
     } else if(data.qual == 'tell to') {
-      addTell('You => ' + data.who, data.msg);
+      addComms('share', 'To: ' + data.who, data.msg);
+      console.log('input: ' + JSON.stringify(data));
     } else if(data.qual == 'speech from') {
       addTell(data.who, data.msg);
     } else if(data.qual == 'speech to') {

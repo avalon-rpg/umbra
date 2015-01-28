@@ -64,6 +64,18 @@ ul {
   font-family: monospace;
 }
 
+.comms {
+  background: rgba(255, 255, 255, 0.2);
+  color: #efefef;
+  clear: both;
+  float: left;
+  border-radius: 5px;
+  padding: 2px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  max-width: 75%;
+}
+
 .message {
   color: rgb(229,229,229);
   margin: 5px;
@@ -72,6 +84,7 @@ ul {
   padding-left: 20px;
   white-space: pre-line;
 }
+
 
 .message span {
   border-radius: 3px;
