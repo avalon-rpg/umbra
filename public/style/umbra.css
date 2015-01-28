@@ -143,7 +143,9 @@ ul {
   height: 40px;
   /*left: 0;*/
   /*outline: none;*/
-  /*padding-left: 10px;*/
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 10px;
   /*position: absolute;*/
   /*right: 0;*/
   font-size: 150%;
