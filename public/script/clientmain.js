@@ -104,10 +104,10 @@ $(function() {
     addMessageElement($iconElem);
   }
   
-  function addComms(icon, who, message) {
+  function addComms(iconClasses, who, message) {
     var whohtml = ansi_up.ansi_to_html(who, {use_classes: true});
     var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
-    var $icon = $('<i class="icon">').addClass(icon);
+    var $icon = $('<i class="' + iconClasses + ' icon">');
     var $headerElem = $('<b>').html(whohtml);
     var $bodyElem = $('<span>').html('&nbsp;-&nbsp;' + msghtml);
 
@@ -275,25 +275,23 @@ $(function() {
     } else if(data.qual == 'channel') {
       addChannel(data.code, data.name);
     } else if(data.qual == 'calling from') {
-      addTell(data.who + ' @ ' + data.chan, data.msg);
+      addComms('comment', data.who + ' @ ' + data.chan, data.msg);
     } else if(data.qual == 'calling to') {
-      addTell('You => ' + data.chan, data.msg);
+      addComms('comment', 'You @ ' + data.chan, data.msg);
     } else if(data.qual == 'novice-calling from') {
-      addTell(data.who + ' (' + data.chan + ') => Novices', data.msg);
+      addComms('student', data.who + ' (' + data.chan + ') @ Novices', data.msg);
     } else if(data.qual == 'novice-calling to') {
-      addTell('You (' + data.chan + ') => Novices', data.msg);
+      addComms('student', 'You (' + data.chan + ') @ Novices', data.msg);
     } else if(data.qual == 'tell from') {
       addComms('reply', 'From: ' + data.who, data.msg);
-      console.log('input: ' + JSON.stringify(data));
     } else if(data.qual == 'tell to') {
       addComms('share', 'To: ' + data.who, data.msg);
-      console.log('input: ' + JSON.stringify(data));
     } else if(data.qual == 'speech from') {
-      addTell(data.who, data.msg);
+      addComms('quote left', data.who, data.msg);
     } else if(data.qual == 'speech to') {
-      addTell('You', data.msg);
+      addComms('quote left', 'You', data.msg);
     } else if(data.qual == 'rune-bug') {
-      addTell('Rune-Bug', data.msg);
+      addComms('bug', 'Bug-Rune', data.msg);
     } else if(data.qual == 'notification') {
       var block = '';
       for(var i = 0; i < data.lines.length; i++) {
