@@ -110,7 +110,7 @@ $(function() {
     var $icon = $('<i class="' + iconClasses + ' icon">');
     var $headerElem = $('<b>').html(whohtml);
     var $bodyElem = $('<span>').html('&nbsp;-&nbsp;' + msghtml);
-
+ 
     var $msgDiv = $('<div class="comms">')
       .append($icon, $headerElem, $bodyElem);
 
@@ -120,7 +120,9 @@ $(function() {
 
   function addUser(name) {
     // var $badge = $('<span class="badge"/>').text('42');
-    var $userItem = $('<a class="item" href="#"/>').text(name);//.append($badge);
+    var $userItem = $('<a class="item" href="#"/>')
+      .data('command', name)
+      .text(name);//.append($badge);
 
     $userlist.append($userItem);
     $('#leftSidebarScroll').nanoScroller();
@@ -128,7 +130,12 @@ $(function() {
 
   function addChannel(code, name) {
     // var $badge = $('<span class="badge"/>').text('42');
-    var $elem = $('<a class="item" href="#"/>').data('code', code).text(name);//.append($badge);
+    var $label = $('<div class="ui label">').text(code);
+    var $elem = $('<a class="item" href="#"/>')
+      .data('code', code)
+      .data('command', code)
+      .append($label)
+      .append($('<span>').text(name));//.append($badge);
 
     $('#calling-list').append($elem);
     $('#leftSidebarScroll').nanoScroller();
@@ -205,6 +212,14 @@ $(function() {
   //   var keycode = (event.keyCode ? event.keyCode : event.which);
   //   if (keycode == 13) { sendMessage(); }
   // });
+
+  $( document ).on( "click", "a.item", function(event) {
+    var cmd = $(this).data('command');
+    if(cmd) {
+      $inputMessage.val(cmd + ' ');
+      $inputMessage.focus();
+    }
+  });
 
   $('#input-message-form').submit( function(event) {
     sendMessage();
