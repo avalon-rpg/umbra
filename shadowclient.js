@@ -216,7 +216,9 @@ ShadowClient.prototype.init = function(user, pass) {
     if(prompt.indexOf('What is the name of your character?') == 0) {
       self.loggingIn = true;
       console.log('login prompt seen');
-      self.conn.write('###ack login ' + user + ' ' + pass + '\r\n');
+      var loginline = '###ack login ' + user + ' ' + pass;
+      console.log('sending login line [' + loginline + ']');
+      self.conn.write(loginline + '\r\n');
     }
   }
 
