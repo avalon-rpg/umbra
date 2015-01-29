@@ -33,6 +33,8 @@ $(function() {
   var connected = false;
   var $currentInput = $nameInput.focus();
 
+  var prevMsgType = '';
+
   var socket = io();
 
 
@@ -65,15 +67,19 @@ $(function() {
 
   // Log a message
   function log (message, options) {
+    if(prevMsgType == 'prompt') { addPromptMark(); }
+
     var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
     var $el = $('<div>').addClass('log').html(msghtml);
     addMessageElement($el, options);
+    prevMsgType = 'log';
   }
 
   function notify (message, options) {
     var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
     var $el = $('<div>').addClass('notification').html(msghtml);
     addMessageElement($el, options);
+    prevMsgType = 'notify';
   }
 
   function addTell (whofrom, message, options) {
@@ -84,9 +90,16 @@ $(function() {
     var $messageDiv = $('<li class="message"/>').data('username', whofrom).append($usernameDiv, $messageBodyDiv);
 
     addMessageElement($messageDiv, options);
+    prevMsgType = 'tell';
   }
 
   function addPrompt() {
+    if(prevMsgType == 'log') {
+      prevMsgType = 'prompt';
+    }
+  }
+
+  function addPromptMark() {
     var $iconElem = $('<i class="icon caret right prompt">');
     addMessageElement($iconElem);
   }

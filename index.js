@@ -16,7 +16,6 @@ server.listen(port, function () {
 app.use(express.static(__dirname + '/public'));
 app.use(express.static(__dirname + '/node_modules'));
 
-
 io.on('connection', function (socket) {
 
   var shadowclient = null;
