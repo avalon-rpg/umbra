@@ -85,6 +85,10 @@ io.on('connection', function (socket) {
       // console.log('input: ' + JSON.stringify(data));
       socket.emit('input', data);
     });
+
+    shadowclient.on('prompt', function (text) {
+      socket.emit('prompt', text);
+    });
   }
 
 });

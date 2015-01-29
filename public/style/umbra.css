@@ -50,13 +50,19 @@ ul {
   float: left;
 }
 
+.prompt {
+  margin-top: -5px !important;
+  margin-bottom: -5px !important;
+  float: left;
+  clear: left;
+  display: none !important;
+}
 
 /* Font */
 
 .log {
   /*color: gray;*/
   color: rgb(229,229,229);
-  margin: 5px;
   float: left;
   clear: both;
   padding-left: 20px;

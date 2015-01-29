@@ -66,13 +66,13 @@ $(function() {
   // Log a message
   function log (message, options) {
     var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
-    var $el = $('<li>').addClass('log').html(msghtml);
+    var $el = $('<div>').addClass('log').html(msghtml);
     addMessageElement($el, options);
   }
 
   function notify (message, options) {
     var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
-    var $el = $('<li>').addClass('notification').html(msghtml);
+    var $el = $('<div>').addClass('notification').html(msghtml);
     addMessageElement($el, options);
   }
 
@@ -84,6 +84,11 @@ $(function() {
     var $messageDiv = $('<li class="message"/>').data('username', whofrom).append($usernameDiv, $messageBodyDiv);
 
     addMessageElement($messageDiv, options);
+  }
+
+  function addPrompt() {
+    var $iconElem = $('<i class="icon caret right prompt">');
+    addMessageElement($iconElem);
   }
   
   function addComms(icon, who, message) {
@@ -105,6 +110,14 @@ $(function() {
     var $userItem = $('<a class="item" href="#"/>').text(name);//.append($badge);
 
     $userlist.append($userItem);
+    $('#leftSidebarScroll').nanoScroller();
+  }
+
+  function addChannel(code, name) {
+    // var $badge = $('<span class="badge"/>').text('42');
+    var $elem = $('<a class="item" href="#"/>').data('code', code).text(name);//.append($badge);
+
+    $('#calling-list').append($elem);
     $('#leftSidebarScroll').nanoScroller();
   }
 
@@ -188,7 +201,7 @@ $(function() {
   // Click events
 
   //Focus input when clicking on the message input's border
-  $('.output-segment').click(function () {
+  $('#output-segment').click(function () {
     $inputMessage.focus();
   });
 
@@ -239,10 +252,15 @@ $(function() {
     }
   });
 
+  socket.on('prompt', function (text) {
+    addPrompt();
+  });
 
   socket.on('input', function (data) {    
     if(data.qual == 'user') {
       addUser(data.who);      
+    } else if(data.qual == 'channel') {
+      addChannel(data.code, data.name);
     } else if(data.qual == 'calling from') {
       addTell(data.who + ' @ ' + data.chan, data.msg);
     } else if(data.qual == 'calling to') {

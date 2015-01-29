@@ -56,6 +56,16 @@ ShadowClient.prototype.init = function(user, pass) {
 
   var sequences = [
     {
+      regex: /^###channel (\S+) (.+)$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'channel',
+          code:  match[1],
+          name:  match[2]
+        });
+      }
+
+    },{
       regex: /^Your rune-bug picks up words: (.+)$/,
       func: function(match) {
         self.emit('input', {
@@ -182,7 +192,7 @@ ShadowClient.prototype.init = function(user, pass) {
 
 
 
-    if (line == '###begin') { inWhoList = true;  return; }
+    if (line == '###begin') { inWhoList = true; return; }
 
     if (line == '###end')   { inWhoList = false; return; }
 
@@ -219,6 +229,10 @@ ShadowClient.prototype.init = function(user, pass) {
       var loginline = '###ack login ' + user + ' ' + pass;
       console.log('sending login line [' + loginline + ']');
       self.conn.write(loginline + '\r\n');
+      return;
+    }
+    if(self.loggedIn) {
+      self.emit('prompt', prompt);
     }
   }
 
