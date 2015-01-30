@@ -51,12 +51,8 @@ ul {
 }
 
 .prompt {
-/*  margin-top: -5px !important;
-  margin-bottom: -5px !important;
-*/ 
   float: left;
   clear: both;
-  /*display: none !important;*/
 }
 
 /* Font */
