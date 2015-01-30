@@ -24,6 +24,7 @@ function ShadowClient(user, pass) {
   var conn;
   var loggingIn = false;
   var loggedIn = false;
+  var badCredentials = false;
   var connected = false;
   this.init(user, pass);
 }
@@ -173,13 +174,21 @@ ShadowClient.prototype.init = function(user, pass) {
           self.emit('login result', {
             success: true            
           });
-        } else if(line.startsWith('###ACK ERROR @ bad persona')) {
+        } else if(line.startsWith('ERROR: ###ACK ERROR @ bad persona')) {
+          self.loggedIn = false;
+          self.loggingIn = false;
+          self.badCredentials = true;
+          self.connected = false;
           self.emit('login result', {
             success: false,
             username: user,
             reason: 'bad username'
           });
-        } else if(line.startsWith('###ACK ERROR @ bad password')) {
+        } else if(line.startsWith('ERROR: ###ACK ERROR @ bad password')) {
+          self.loggedIn = false;
+          self.loggingIn = false;
+          self.badCredentials = true;
+          self.connected = false;
           self.emit('login result', {
             success: false,
             username: user,
@@ -242,7 +251,9 @@ ShadowClient.prototype.init = function(user, pass) {
   }
 
   var onPrompt = function (prompt) {
-    if(prompt.indexOf('What is the name of your character?') == 0) {
+
+
+    if(!self.badCredentials && prompt.indexOf('What is the name of your character?') == 0) {
       self.loggingIn = true;
       console.log('login prompt seen');
       var loginline = '###ack login ' + user + ' ' + pass;
@@ -284,6 +295,12 @@ ShadowClient.prototype.write = function(input) {
     this.conn.write(input);  
   } else {
     console.error('couldn\'t send msg to disconnected client: ' + input);
+  }  
+}
+
+ShadowClient.prototype.close = function() {
+  if(this.connected) {
+    // this.conn.end();  
   }  
 }
 

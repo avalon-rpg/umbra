@@ -248,7 +248,21 @@ $(function() {
   });
 
 
-  
+  function showLoginModal() {
+    //show login modal
+    $('#login-modal').modal({
+      closable  : false,
+      onDeny    : function(){
+        window.alert('You must log in before continuing!');
+        return false;
+      },
+      onApprove : function() {
+        attemptLogin();
+      }
+    })
+    .modal('show');    
+  }
+
 
   // Socket events
 
@@ -260,7 +274,7 @@ $(function() {
       // Display the welcome message
       log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
     } else {
-      alert(data.reason);
+      showLoginModal();
     }
   });
 
@@ -290,16 +304,33 @@ $(function() {
   });
 
   function handleProto(code, content) {
+    console.log('###' + code + ' ' + content);
+
     if(code == 'playername') {
-      console.log("playername = " + content);
       $('#playername').text(content);
     } else if(code == 'brief') {
-      console.log("brief = " + content);
       $('#current-loc').text(content);
-    } else {
-      console.log('###' + code + ' ' + content);
+    } else if(code == 'health') {
+      var split = content.split(" ");
+      $('#health-stat').text(split[0]);
+      $('#max-health-stat').text(split[1]);
+    } else if(code == 'mana') {
+      var split = content.split(" ");
+      $('#mana-stat').text(split[0]);
+      $('#max-mana-stat').text(split[1]);
+    } else if(code == 'level') {
+      $('#level-stat').text(content);
+    } else if(code == 'xp') {
+      $('#xp-stat').text(content);
+    } else if(code == 'lessons') {
+      $('#lessons-stat').text(content);
+    } else if(code == 'bloodlust') {
+      $('#bloodlust-stat').text(content);
+    } else if(code == 'alignment') {
+      $('#alignment-stat').text(content);
     }
   }
+
 
   socket.on('input', function (data) {    
     if(data.qual == 'user') {
@@ -348,20 +379,19 @@ $(function() {
   // Page initialisation
 
   //turn on nano-scrollbars
-  $(".nano").nanoScroller();
+  //$(".nano").nanoScroller();
 
-  //show login modal
-  $('#loginModal').modal({
-    closable  : false,
-    onDeny    : function(){
-      window.alert('You must log in before continuing!');
-      return false;
-    },
-    onApprove : function() {
-      attemptLogin();
-    }
-  })
-  .modal('show');
+  //initialise dropdowns
+  $('.ui.dropdown').dropdown();
+
+  $('#login-form').submit( function(event) {
+    $('#login-modal').modal('hide');
+    attemptLogin();
+    event.preventDefault();
+  });
+
+
+  showLoginModal();
 
 
 });

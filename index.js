@@ -47,7 +47,14 @@ io.on('connection', function (socket) {
   socket.on('send', function (text) {    
     if(shadowclient) {
       //console.log(username + ' wrote: ' + text);
-      shadowclient.write(text + '\r\n');
+      if(text.trim() == 'who') {
+        socket.emit('input', {
+         qual: 'notification',
+         lines: ['Click "Channels" above to see the who list']
+        });
+      } else {
+        shadowclient.write(text + '\r\n');
+      }
     } else {
       console.log(username + ' can\'t send to disconnected socket: ' + text);
     }
@@ -55,7 +62,7 @@ io.on('connection', function (socket) {
 
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {
-    console.log('websocket disconnected for ' + username);
+    console.log('websocket disconnected');
     if(shadowclient && shadowclient.connected) {
       shadowclient.write('QQ\r\n');
     }
@@ -75,21 +82,24 @@ io.on('connection', function (socket) {
       if(data.success) {
         shadowclient.write('who\r\n');
         shadowclient.write('protocol on\r\n');
+      } else {
+        shadowclient.close();
       }
     });
 
     shadowclient.on('avalon disconnected', function (had_error) {
       console.log('avalon disconnected for ' + username)
       socket.emit('avalon disconnected', had_error);
+      shadowclient.close();
     });
 
     shadowclient.on('input', function (data) {
       // console.log('input: ' + JSON.stringify(data));
-      socket.emit('input', data);
+      if(shadowclient.loggedIn) { socket.emit('input', data); }
     });
 
     shadowclient.on('prompt', function (text) {
-      socket.emit('prompt', text);
+      if(shadowclient.loggedIn) { socket.emit('prompt', text); }
     });
   }
 
