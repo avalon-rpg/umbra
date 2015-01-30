@@ -115,13 +115,15 @@ $(function() {
       .append($icon, $headerElem, $bodyElem);
 
     addMessageElement($msgDiv);
+    prevMsgType = 'comms';
   }
 
 
   function addUser(name) {
     // var $badge = $('<span class="badge"/>').text('42');
-    var $userItem = $('<a class="item" href="#"/>')
+    var $userItem = $('<a class="user item" href="#"/>')
       .data('command', name)
+      .data('playername', name)
       .text(name);//.append($badge);
 
     $userlist.append($userItem);
@@ -251,12 +253,15 @@ $(function() {
   // Socket events
 
   // Whenever the server emits 'login', log the login message
-  socket.on('login success', function () {
-    connected = true;
-    $('#loginModal').modal('hide');
-    // Display the welcome message
-    var message = "Welcome to Umbra";
-    log(message, { prepend: true });
+  socket.on('login result', function (data) {
+    if(data.success) {
+      connected = true;
+      $('#loginModal').modal('hide');
+      // Display the welcome message
+      log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
+    } else {
+      alert(data.reason);
+    }
   });
 
   // Whenever the server emits 'user left', log it in the chat body
@@ -283,6 +288,18 @@ $(function() {
   socket.on('prompt', function (text) {
     addPrompt();
   });
+
+  function handleProto(code, content) {
+    if(code == 'playername') {
+      console.log("playername = " + content);
+      $('#playername').text(content);
+    } else if(code == 'brief') {
+      console.log("brief = " + content);
+      $('#current-loc').text(content);
+    } else {
+      console.log('###' + code + ' ' + content);
+    }
+  }
 
   socket.on('input', function (data) {    
     if(data.qual == 'user') {
@@ -318,7 +335,9 @@ $(function() {
       }
       notify(block);
     } else if(data.qual == 'unparsed') {
-      log(data.line);  
+      log(data.line);
+    } else if(data.qual == 'protocol') {
+      handleProto(data.code, data.content);
     } else {
       console.log('input: ' + JSON.stringify(data));
     }

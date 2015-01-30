@@ -64,7 +64,6 @@ ShadowClient.prototype.init = function(user, pass) {
           name:  match[2]
         });
       }
-
     },{
       regex: /^Your rune-bug picks up words: (.+)$/,
       func: function(match) {
@@ -146,9 +145,21 @@ ShadowClient.prototype.init = function(user, pass) {
           msg:  match[2]
         });
       }
+    },{
+      regex: /^###(\S+) ?(.*)$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'protocol',
+          code:  match[1],
+          content:  match[2]
+        });
+      }
     }
   ];
 
+  var onProto = function(line) {
+
+  }
 
 // Your rune-bug picks up words: Billum asks, "Did you find an emerald?"
 // Your rune-bug picks up words: Satsuki answers Craftmaster Billum Submerged Involved, "Thank you."
@@ -159,7 +170,21 @@ ShadowClient.prototype.init = function(user, pass) {
         if(line.startsWith('###ACK LOGIN OK')) {
           self.loggedIn = true;
           self.loggingIn = false;
-          self.emit('login success');
+          self.emit('login result', {
+            success: true            
+          });
+        } else if(line.startsWith('###ACK ERROR @ bad persona')) {
+          self.emit('login result', {
+            success: false,
+            username: user,
+            reason: 'bad username'
+          });
+        } else if(line.startsWith('###ACK ERROR @ bad password')) {
+          self.emit('login result', {
+            success: false,
+            username: user,
+            reason: 'bad password'
+          });
         } else {
           console.log('Unexpected login response: ' + line);
         }
@@ -190,8 +215,6 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     }
 
-
-
     if (line == '###begin') { inWhoList = true; return; }
 
     if (line == '###end')   { inWhoList = false; return; }
@@ -204,9 +227,6 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     }
 
-
-
-
     var seqLen = sequences.length;
     for (var i = 0; i < seqLen; i++) {
       var entry = sequences[i];
@@ -215,7 +235,6 @@ ShadowClient.prototype.init = function(user, pass) {
     }
 
     //default fallback
-    self.emit('line', line);
     self.emit('input', {
       qual: 'unparsed',
       line: line
@@ -227,7 +246,7 @@ ShadowClient.prototype.init = function(user, pass) {
       self.loggingIn = true;
       console.log('login prompt seen');
       var loginline = '###ack login ' + user + ' ' + pass;
-      console.log('sending login line [' + loginline + ']');
+      console.log('sending credentials');
       self.conn.write(loginline + '\r\n');
       return;
     }
@@ -253,6 +272,7 @@ ShadowClient.prototype.init = function(user, pass) {
   self.conn.pipe(parser);
 
   self.conn.on('close', function (had_error) {
+    console.log("shadow client closing for " + user);
     self.connected = false;
     self.emit('avalon disconnected', had_error);
   });

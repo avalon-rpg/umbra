@@ -69,10 +69,13 @@ io.on('connection', function (socket) {
       console.log('avalon connected, attempting login for ' + username);
     });
 
-    shadowclient.on('login success', function() {
-      console.log('login success for ' + username);
-      socket.emit('login success');
-      shadowclient.write('who\r\n');
+    shadowclient.on('login result', function(data) {
+      console.log('login reult: ' + JSON.stringify(data));
+      socket.emit('login result', data);
+      if(data.success) {
+        shadowclient.write('who\r\n');
+        shadowclient.write('protocol on\r\n');
+      }
     });
 
     shadowclient.on('avalon disconnected', function (had_error) {
