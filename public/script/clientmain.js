@@ -145,6 +145,7 @@ $(function() {
     if(code == 'ccc') { $('#city-stat').text(name); }
     if(code == 'ccg') { $('#guild-stat').text(name); }
     if(code == 'ccp') { $('#profession-stat').text(name); }
+    if(code == 'cco') { $('#order-stat').text(name); }
   }
 
   // Adds a message element to the messages and scrolls to the bottom
@@ -356,7 +357,8 @@ $(function() {
 
   socket.on('input', function (data) {    
     if(data.qual == 'user') {
-      addUser(data.who);      
+      console.log(JSON.stringify(data));
+      addUser(data.name);      
     } else if(data.qual == 'channel') {
       addChannel(data.code, data.name);
     } else if(data.qual == 'calling from') {

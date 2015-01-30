@@ -80,7 +80,6 @@ io.on('connection', function (socket) {
       console.log('login reult: ' + JSON.stringify(data));
       socket.emit('login result', data);
       if(data.success) {
-        shadowclient.write('who\r\n');
         shadowclient.write('protocol on\r\n');
       } else {
         shadowclient.close();

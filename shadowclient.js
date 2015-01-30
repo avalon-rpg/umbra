@@ -147,7 +147,22 @@ ShadowClient.prototype.init = function(user, pass) {
         });
       }
     },{
-      regex: /^###(\S+) ?(.*)$/,
+      regex: /^###user@ (.*)$/,
+      func: function(match) {
+        var data = { qual: 'user' };
+        var parts = match[1].split('###');
+        var partcount = parts.length;
+        for (var i = 1; i < partcount; i++) {
+          var part = parts[i];
+          var keyarr = part.split(' ', 1);
+          var key = keyarr[0];
+          var value = part.substring(key.length);
+          data[key] = value.trim();
+        }
+        self.emit('input', data);
+      }
+    },{
+      regex: /^( *)###(\S+) ?(.*)$/,
       func: function(match) {
         self.emit('input', {
           qual: 'protocol',
@@ -221,17 +236,17 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     }
 
-    if (line == '###begin') { inWhoList = true; return; }
+    // if (line == '###begin') { inWhoList = true; return; }
 
-    if (line == '###end')   { inWhoList = false; return; }
+    // if (line == '###end')   { inWhoList = false; return; }
 
-    if(inWhoList) {
-      self.emit('input',{
-        qual: 'user',
-        who: line
-      });
-      return;
-    }
+    // if(inWhoList) {
+    //   self.emit('input',{
+    //     qual: 'user',
+    //     who: line
+    //   });
+    //   return;
+    // }
 
     var seqLen = sequences.length;
     for (var i = 0; i < seqLen; i++) {
