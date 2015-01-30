@@ -141,6 +141,10 @@ $(function() {
 
     $('#calling-list').append($elem);
     $('#leftSidebarScroll').nanoScroller();
+
+    if(code == 'ccc') { $('#city-stat').text(name); }
+    if(code == 'ccg') { $('#guild-stat').text(name); }
+    if(code == 'ccp') { $('#profession-stat').text(name); }
   }
 
   // Adds a message element to the messages and scrolls to the bottom
@@ -300,6 +304,24 @@ $(function() {
   });
 
   socket.on('prompt', function (text) {
+    console.log('prompt: ' + text);
+    if(text.indexOf('###name') >= 0) {
+      var players = text.split('###end');
+      var playerCount = players.length;
+      for (var i = 0; i < playerCount - 1; i++) {
+        var player = players[i];
+        var parts = player.split('###');
+        var partcount = parts.length;
+        for (var j = 1; j < partcount; j++) {
+          var part = parts[j];
+          if(part.indexOf('name') == 0) {
+            var name = part.substring(5);
+            addUser(name);
+          }
+          console.log('player ' + i + ' part ' + j + ' = ' + part);
+        }
+      }
+    }
     addPrompt();
   });
 

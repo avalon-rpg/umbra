@@ -158,9 +158,6 @@ ShadowClient.prototype.init = function(user, pass) {
     }
   ];
 
-  var onProto = function(line) {
-
-  }
 
 // Your rune-bug picks up words: Billum asks, "Did you find an emerald?"
 // Your rune-bug picks up words: Satsuki answers Craftmaster Billum Submerged Involved, "Thank you."
