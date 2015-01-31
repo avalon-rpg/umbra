@@ -16,6 +16,18 @@ $(function() {
     '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
   ];
 
+  // Gets the color of a username through our hash function
+  function getUsernameColor (username) {
+    // Compute hash code
+    var hash = 7;
+    for (var i = 0; i < username.length; i++) {
+       hash = username.charCodeAt(i) + (hash << 5) - hash;
+    }
+    // Calculate color
+    var index = Math.abs(hash % COLORS.length);
+    return COLORS[index];
+  }
+
   // Initialize varibles
   var $window = $(window);
   var $nameInput = $('#nameInput'); // Input for username
@@ -104,20 +116,38 @@ $(function() {
     addMessageElement($iconElem);
   }
   
-  function addComms(iconClasses, who, message) {
-    var whohtml = ansi_up.ansi_to_html(who, {use_classes: true});
-    var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
-    var $icon = $('<i class="' + iconClasses + ' icon">');
-    var $headerElem = $('<b>').html(whohtml);
-    var $bodyElem = $('<span>').html('&nbsp;-&nbsp;' + msghtml);
- 
-    var $msgDiv = $('<div class="comms">')
-      .append($icon, $headerElem, $bodyElem);
-
-    addMessageElement($msgDiv);
-    prevMsgType = 'comms';
+  function mkIcon(classes) {
+    return $('<i class="' + classes + ' icon">');
   }
 
+  function addComms(data) {
+
+    var parts = [];
+    parts.push(mkIcon(data.iconClasses));
+
+    if(data.chan) {
+      parts.push($('<div class="channel">').text(data.chan));
+    }
+
+    if(data.who) {
+      var whohtml = ansi_up.ansi_to_html(data.who, {use_classes: true});
+      parts.push($('<div class="who">').html(whohtml));
+    }
+
+
+    if(data.city) {
+      parts.push($('<div class="city">').html(data.city));
+    }
+
+    var msghtml = ansi_up.ansi_to_html(data.msg, {use_classes: true});
+    parts.push($('<div class="msg">').html(msghtml));
+ 
+    var $commsElem = $('<div class="comms">')
+    $commsElem.append(parts);
+
+    addMessageElement($commsElem);
+    prevMsgType = 'comms';
+  }
 
   function addUser(name) {
     if(0 == $('#player_'+name).length) {
@@ -190,39 +220,7 @@ $(function() {
     return $('<div/>').text(input).text();
   }
 
-  // Gets the color of a username through our hash function
-  function getUsernameColor (username) {
-    // Compute hash code
-    var hash = 7;
-    for (var i = 0; i < username.length; i++) {
-       hash = username.charCodeAt(i) + (hash << 5) - hash;
-    }
-    // Calculate color
-    var index = Math.abs(hash % COLORS.length);
-    return COLORS[index];
-  }
 
-  // Keyboard events
-
-  // $window.keyup(function (event) {
-  //   // Auto-focus the current input when a key is typed
-  //   // if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-  //   //   if (connected) { $currentInput.focus(); }
-  //   // }
-  //   // When the client hits ENTER on their keyboard
-  //   if (event.which === 13) { sendMessage(); }
-  // });
-
-  //this should work better on an iPad
-  // $(document).keypress( function (event) {
-  //   var keycode = (event.keyCode ? event.keyCode : event.which);
-  //   if (keycode == 13) { sendMessage(); }
-  // });
-
-  // $('#inputMessage').on("keypress", function (event) {
-  //   var keycode = (event.keyCode ? event.keyCode : event.which);
-  //   if (keycode == 13) { sendMessage(); }
-  // });
 
   $( document ).on( "click", "a.item", function(event) {
     var cmd = $(this).data('command');
@@ -358,31 +356,38 @@ $(function() {
     }
   }
 
+  var commsTypes = [
+    { name: 'calling from',        iconClasses: 'from comment'    },
+    { name: 'calling to',          iconClasses: 'to comment'      },
+    { name: 'novice-calling from', iconClasses: 'from student'    },
+    { name: 'novice-calling to',   iconClasses: 'to student'      },
+    { name: 'tell from',           iconClasses: 'from reply'      },
+    { name: 'tell to',             iconClasses: 'to share'        },
+    { name: 'speech from',         iconClasses: 'from quote left' },
+    { name: 'speech to',           iconClasses: 'to quote left'   },
+    { name: 'rune-bug',            iconClasses: 'from bug'        }
+  ];
+
+  function lookupCommsType(name) {
+    for(i = 0; i < commsTypes.length; ++i) {
+      var ct = commsTypes[i];
+      if(ct.name == name) { return ct; }
+    }
+  }
 
   socket.on('input', function (data) {    
-    if(data.qual == 'user') {
-      console.log(JSON.stringify(data));
+    console.log('input: ' + JSON.stringify(data));
+
+    var ct = lookupCommsType(data.qual);
+    if(ct) {
+      data.iconClasses = ct.iconClasses;
+      addComms(data);
+    } else if(data.qual == 'user') {
+      //console.log(JSON.stringify(data));
       addUser(data.name);      
     } else if(data.qual == 'channel') {
+      //console.log('input: ' + JSON.stringify(data));
       addChannel(data.code, data.name);
-    } else if(data.qual == 'calling from') {
-      addComms('comment', data.who + ' @ ' + data.chan, data.msg);
-    } else if(data.qual == 'calling to') {
-      addComms('comment', 'You @ ' + data.chan, data.msg);
-    } else if(data.qual == 'novice-calling from') {
-      addComms('student', data.who + ' (' + data.chan + ') @ Novices', data.msg);
-    } else if(data.qual == 'novice-calling to') {
-      addComms('student', 'You (' + data.chan + ') @ Novices', data.msg);
-    } else if(data.qual == 'tell from') {
-      addComms('reply', 'From: ' + data.who, data.msg);
-    } else if(data.qual == 'tell to') {
-      addComms('share', 'To: ' + data.who, data.msg);
-    } else if(data.qual == 'speech from') {
-      addComms('quote left', data.who, data.msg);
-    } else if(data.qual == 'speech to') {
-      addComms('quote left', 'You', data.msg);
-    } else if(data.qual == 'rune-bug') {
-      addComms('bug', 'Bug-Rune', data.msg);
     } else if(data.qual == 'notification') {
       var block = '';
       for(var i = 0; i < data.lines.length; i++) {
@@ -398,7 +403,7 @@ $(function() {
     } else if(data.qual == 'protocol') {
       handleProto(data.code, data.content);
     } else {
-      console.log('input: ' + JSON.stringify(data));
+      //console.log('input: ' + JSON.stringify(data));
     }
   });
 

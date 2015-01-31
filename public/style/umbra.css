@@ -53,6 +53,7 @@ ul {
 .prompt {
   float: left;
   clear: both;
+  color: rgba(255,255,255,0.2);
 }
 
 /* Font */
@@ -67,16 +68,59 @@ ul {
   font-family: monospace;
 }
 
+.log span {
+  border-radius: 5px;
+}
+
 .comms {
   background: rgba(255, 255, 255, 0.2);
   color: #efefef;
   clear: both;
   float: left;
   border-radius: 5px;
-  padding: 2px;
+  padding: 0;
   margin-top: 3px;
   margin-bottom: 3px;
   max-width: 95%;
+}
+
+.comms .icon {
+  padding: 2px;
+ }
+
+.comms .icon.to {
+  padding: 2px;
+  color: red;
+}
+
+.comms .icon.from {
+  padding: 2px;
+  color: springgreen;
+}
+
+.comms .channel {
+  display: inline-block;
+  padding: 2px;
+}
+
+.comms .who {
+  display: inline-block;
+  padding: 2px;
+  font-weight: bold;
+  background-color: rgba(0,0,0,0.6);
+  border: 1px solid rgb(127,127,127);
+  border-radius: 5px;
+}
+
+.comms .city {
+  display: inline-block;
+  padding: 2px;
+  background-color: rgba(255,255,255,0.2);
+}
+
+.comms .msg {
+  display: inline-block;
+  padding: 2px;
 }
 
 .message {
@@ -91,7 +135,7 @@ ul {
 
 
 .message span {
-  border-radius: 3px;
+  border-radius: 5px;
 }
 
 .notification {
@@ -104,6 +148,10 @@ ul {
   clear: both;
   padding-left: 20px;
   white-space: pre-line;
+}
+
+.notification span {
+  border-radius: 5px;
 }
 
 .pale {

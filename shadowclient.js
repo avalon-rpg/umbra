@@ -1,6 +1,7 @@
 var util = require('util');
 var net = require('net');
 var binary = require('binary');
+var stripAnsi = require('strip-ansi');
 
 
 var EventEmitter = require('events').EventEmitter;
@@ -79,7 +80,8 @@ ShadowClient.prototype.init = function(user, pass) {
         self.emit('input', {
           qual: 'novice-calling from',
           who:  match[1],
-          chan: match[2],
+          chan: 'novices',
+          city: match[2],
           msg: match[3]
         });
       }
@@ -88,7 +90,8 @@ ShadowClient.prototype.init = function(user, pass) {
       func: function(match) {
         self.emit('input', {
           qual: 'novice-calling to',
-          chan: match[1],
+          chan: 'novices',
+          city: match[1],
           msg: match[2]
         });
       }
@@ -107,6 +110,7 @@ ShadowClient.prototype.init = function(user, pass) {
       func: function(match) {
         self.emit('input', {
           qual: 'calling to',
+          who: 'You',
           chan: match[1],
           msg: match[2]
         });
@@ -117,6 +121,7 @@ ShadowClient.prototype.init = function(user, pass) {
         self.emit('input', {
           qual: 'tell from',
           who:  match[1],
+          chan: 'From',
           msg:  match[2]
         });
       }
@@ -126,6 +131,7 @@ ShadowClient.prototype.init = function(user, pass) {
         self.emit('input', {
           qual: 'tell to',
           who:  match[2],
+          chan: 'To',
           msg:  match[3]
         });
       }
@@ -178,15 +184,16 @@ ShadowClient.prototype.init = function(user, pass) {
 // Your rune-bug picks up words: Satsuki answers Craftmaster Billum Submerged Involved, "Thank you."
 
   var onLine = function (line) {
+    var cleanline = stripAnsi(line);
     if(!self.loggedIn) {
       if(self.loggingIn) {
-        if(line.startsWith('###ACK LOGIN OK')) {
+        if(cleanline.startsWith('###ACK LOGIN OK')) {
           self.loggedIn = true;
           self.loggingIn = false;
           self.emit('login result', {
             success: true            
           });
-        } else if(line.startsWith('ERROR: ###ACK ERROR @ bad persona')) {
+        } else if(cleanline.startsWith('ERROR: ###ACK ERROR @ bad persona')) {
           self.loggedIn = false;
           self.loggingIn = false;
           self.badCredentials = true;
@@ -196,7 +203,7 @@ ShadowClient.prototype.init = function(user, pass) {
             username: user,
             reason: 'bad username'
           });
-        } else if(line.startsWith('ERROR: ###ACK ERROR @ bad password')) {
+        } else if(cleanline.startsWith('ERROR: ###ACK ERROR @ bad password')) {
           self.loggedIn = false;
           self.loggingIn = false;
           self.badCredentials = true;
@@ -216,12 +223,12 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     } 
 
-    if (line == '###notification begin') {
+    if (cleanline == '###notification begin') {
       inNotification = true;
       return;
     }
 
-    if (line == '###notification end')   {
+    if (cleanline == '###notification end')   {
       self.emit('input',{
         qual: 'notification',
         lines: notificationLines
@@ -251,15 +258,17 @@ ShadowClient.prototype.init = function(user, pass) {
     var seqLen = sequences.length;
     for (var i = 0; i < seqLen; i++) {
       var entry = sequences[i];
-      var match = entry.regex.exec(line);
+      var match = entry.regex.exec(cleanline);
       if(match) { entry.func(match); return; }
     }
 
     //default fallback
-    self.emit('input', {
-      qual: 'unparsed',
-      line: line
-    });
+    if(line.trim() != '') {
+      self.emit('input', {
+        qual: 'unparsed',
+        line: line
+      });
+    }
   }
 
   var onPrompt = function (prompt) {
