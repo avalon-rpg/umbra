@@ -120,32 +120,36 @@ $(function() {
 
 
   function addUser(name) {
-    // var $badge = $('<span class="badge"/>').text('42');
-    var $userItem = $('<a class="user item" href="#"/>')
-      .data('command', name)
-      .data('playername', name)
-      .text(name);//.append($badge);
+    if(0 == $('#player_'+name).length) {
+      // var $badge = $('<span class="badge"/>').text('42');
+      var $userItem = $('<a class="user item" id="player_' + name + '" href="#"/>')
+        .data('command', name)
+        .data('playername', name)
+        .text(name);//.append($badge);
 
-    $userlist.append($userItem);
-    $('#leftSidebarScroll').nanoScroller();
+      $userlist.append($userItem);
+      $('#leftSidebarScroll').nanoScroller();
+    }
   }
 
   function addChannel(code, name) {
-    // var $badge = $('<span class="badge"/>').text('42');
-    var $label = $('<div class="ui label">').text(code);
-    var $elem = $('<a class="item" href="#"/>')
-      .data('code', code)
-      .data('command', code)
-      .append($label)
-      .append($('<span>').text(name));//.append($badge);
+    if(0 == $('#channel_' + code).length) {
+      // var $badge = $('<span class="badge"/>').text('42');
+      var $label = $('<div class="ui label">').text(code);
+      var $elem = $('<a class="item" id="channel_' + code + '" href="#"/>')
+        .data('code', code)
+        .data('command', code)
+        .append($label)
+        .append($('<span>').text(name));//.append($badge);
 
-    $('#calling-list').append($elem);
-    $('#leftSidebarScroll').nanoScroller();
+      $('#calling-list').append($elem);
+      $('#leftSidebarScroll').nanoScroller();
 
-    if(code == 'ccc') { $('#city-stat').text(name); }
-    if(code == 'ccg') { $('#guild-stat').text(name); }
-    if(code == 'ccp') { $('#profession-stat').text(name); }
-    if(code == 'cco') { $('#order-stat').text(name); }
+      if(code == 'ccc') { $('#city-stat').text(name); }
+      if(code == 'ccg') { $('#guild-stat').text(name); }
+      if(code == 'ccp') { $('#profession-stat').text(name); }
+      if(code == 'cco') { $('#order-stat').text(name); }
+    }
   }
 
   // Adds a message element to the messages and scrolls to the bottom

@@ -162,7 +162,7 @@ ShadowClient.prototype.init = function(user, pass) {
         self.emit('input', data);
       }
     },{
-      regex: /^( *)###(\S+) ?(.*)$/,
+      regex: /^###(\S+) ?(.*)$/,
       func: function(match) {
         self.emit('input', {
           qual: 'protocol',

@@ -47,14 +47,7 @@ io.on('connection', function (socket) {
   socket.on('send', function (text) {    
     if(shadowclient) {
       //console.log(username + ' wrote: ' + text);
-      if(text.trim() == 'who') {
-        socket.emit('input', {
-         qual: 'notification',
-         lines: ['Click "Channels" above to see the who list']
-        });
-      } else {
-        shadowclient.write(text + '\r\n');
-      }
+      shadowclient.write(text + '\r\n');
     } else {
       console.log(username + ' can\'t send to disconnected socket: ' + text);
     }
