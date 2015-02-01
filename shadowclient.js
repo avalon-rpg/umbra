@@ -54,10 +54,27 @@ ShadowClient.prototype.init = function(user, pass) {
   // needs handling:
   //
   // Gigglefluff of Mercinae (scholar; on the hunter course) is requesting ADVICE at "Gardens of the Hunter Gatherer school". Your help may be needed.
-  // Andreu novice-calls: "Or just send a TELL to me."
+
+
+  //###msg@ ###tag=location ###title=Nave of the Temple of the Sea ###text=This is the brief for "Nave of the Temple of the Sea" location.
 
   var sequences = [
     {
+      regex: /^###msg@ (.+)$/,
+      func: function(match) {
+        var data = { qual: 'avmsg' };
+        var parts = match[1].split('###');
+        var partcount = parts.length;
+        for (var i = 1; i < partcount; i++) {
+          var part = parts[i];
+          var keyarr = part.split('=', 1);
+          var key = keyarr[0];
+          var value = part.substring(key.length + 1);
+          data[key] = value.trim();
+        }
+        self.emit('input', data);
+      }
+    },{
       regex: /^###channel (\S+) (.+)$/,
       func: function(match) {
         self.emit('input', {
@@ -96,6 +113,15 @@ ShadowClient.prototype.init = function(user, pass) {
         });
       }
     },{
+      regex: /^(\S+) novice-calls: "(.*)"$/,
+      func: function(match) {
+        self.emit('input', {
+          qual: 'novice-calling from',
+          who:  match[1],
+          chan: 'novices',
+          msg: match[2]
+        });
+      }    },{
       regex: /^(\S+) calls to (.+): "(.*)"$/,
       func: function(match) {
         self.emit('input', {

@@ -72,6 +72,33 @@ ul {
   border-radius: 5px;
 }
 
+.avmsg {
+  margin-left: 25px;
+  background: rgba(64, 128, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #efefef;
+  clear: both;
+  float: left;
+  border-radius: 5px;
+  padding: 0;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  max-width: 95%;
+}
+
+.avmsg .title {
+  background: rgba(64, 128, 255, 0.6);
+  color: black;
+  padding: 2px;
+  border-radius: 5px;
+}
+
+.avmsg .text {
+  padding: 2px;
+}
+
+
+
 .comms {
   background: rgba(255, 255, 255, 0.2);
   color: #efefef;
@@ -89,13 +116,15 @@ ul {
  }
 
 .comms .icon.to {
-  padding: 2px;
-  color: red;
+  color: rgba(255,0,0,.7);
 }
 
 .comms .icon.from {
-  padding: 2px;
   color: springgreen;
+}
+
+.comms .icon.bug {
+  color: coral;
 }
 
 .comms .channel {
@@ -130,7 +159,7 @@ ul {
   clear: both;
   padding-left: 20px;
   white-space: pre-wrap;
-  font-family: monospace;
+  font-family: source-code-pro, Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
 }
 
 

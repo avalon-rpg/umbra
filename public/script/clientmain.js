@@ -149,15 +149,74 @@ $(function() {
     prevMsgType = 'comms';
   }
 
-  function addUser(name) {
-    if(0 == $('#player_'+name).length) {
+  function addAvmsg(data) {
+    var $elem = $('<div class="avmsg ' + data.tag + '">');
+    if(data.title) {
+      $elem.append($('<div class="title">').text(data.title));
+    }
+    $elem.append($('<div class="text">').text(data.text));
+    addMessageElement($elem);
+    prevMsgType = 'avmsg';
+  }
+
+
+  function elemExists(q) {
+    return ($(q).length > 0);
+  }
+
+  function concatUserName(user) {
+    var str = '';
+    if(user.prefix && user.prefix.trim() != '') {
+      str = str + user.prefix + ' ';
+    }
+    str = str + user.name;
+    if(user.suffix && user.suffix.trim() != '') {
+      if(user.suffix[0] != ',') {
+        str = str + ' ';
+      }
+      str = str + user.suffix + ' ';
+    }
+    return str;
+  }
+
+  function addUser(user) {
+    if(!elemExists('#player_'+user.name)) {
       // var $badge = $('<span class="badge"/>').text('42');
-      var $userItem = $('<a class="user item" id="player_' + name + '" href="#"/>')
-        .data('command', name)
-        .data('playername', name)
-        .text(name);//.append($badge);
+      var $userItem = $('<a class="user item" id="player_' + user.name + '" href="#"/>')
+        .data('command', user.name)
+        .data('user', user)
+        .text(user.name);
+
+      
+      var $cardHeader = $('<div class="header">').text(concatUserName(user));
+      var $cardMeta = $('<div class="meta">').text(user.city);
+
+      var cardContents = [];
+      for (var prop in user) {
+        if(prop != 'qual'
+        && prop != 'prefix'
+        && prop != 'name'
+        && prop != 'suffix'
+        && prop != 'city'
+        && user.hasOwnProperty(prop)){
+          cardContents.push($('<li>').text(prop + ': ' + user[prop]));
+        }
+      }
+
+      var $cardContent = $('<div class="content">')
+        .append($('<ul>').append(cardContents));
+
+      var $userPopup = $('<div class="ui card popup" id="player_popup_' + user.name + '"">')
+        .append($cardHeader, $cardMeta, $cardContent);
 
       $userlist.append($userItem);
+      $userlist.append($userPopup);
+
+      $userItem.popup({
+        popup    : $('player_popup_' + user.name),
+        on       : 'hover'
+      });
+
       $('#leftSidebarScroll').nanoScroller();
     }
   }
@@ -307,24 +366,7 @@ $(function() {
   });
 
   socket.on('prompt', function (text) {
-    console.log('prompt: ' + text);
-    if(text.indexOf('###name') >= 0) {
-      var players = text.split('###end');
-      var playerCount = players.length;
-      for (var i = 0; i < playerCount - 1; i++) {
-        var player = players[i];
-        var parts = player.split('###');
-        var partcount = parts.length;
-        for (var j = 1; j < partcount; j++) {
-          var part = parts[j];
-          if(part.indexOf('name') == 0) {
-            var name = part.substring(5);
-            addUser(name);
-          }
-          console.log('player ' + i + ' part ' + j + ' = ' + part);
-        }
-      }
-    }
+    console.log('prompt: ' + text);    
     addPrompt();
   });
 
@@ -365,7 +407,7 @@ $(function() {
     { name: 'tell to',             iconClasses: 'to share'        },
     { name: 'speech from',         iconClasses: 'from quote left' },
     { name: 'speech to',           iconClasses: 'to quote left'   },
-    { name: 'rune-bug',            iconClasses: 'from bug'        }
+    { name: 'rune-bug',            iconClasses: 'bug'             }
   ];
 
   function lookupCommsType(name) {
@@ -382,9 +424,11 @@ $(function() {
     if(ct) {
       data.iconClasses = ct.iconClasses;
       addComms(data);
+    } else if(data.qual == 'avmsg') {
+      addAvmsg(data);      
     } else if(data.qual == 'user') {
       //console.log(JSON.stringify(data));
-      addUser(data.name);      
+      addUser(data);      
     } else if(data.qual == 'channel') {
       //console.log('input: ' + JSON.stringify(data));
       addChannel(data.code, data.name);
