@@ -104,6 +104,10 @@ ul {
 
 }
 
+.avmsg.environs {
+  float: right;
+}
+
 .avmsg.location {
   float: right;
 }

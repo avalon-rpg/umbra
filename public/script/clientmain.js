@@ -152,11 +152,12 @@ $(function() {
   function addAvmsg(data) {
     var $elem = $('<div class="avmsg ' + data.tag + '">');
     for (var prop in data) {
-      if(prop != 'tag' && user.hasOwnProperty(prop)) {
-        $elem.append($('<div class="'+prop+'">').text(data.title));
+      if(prop != 'qual' && prop != 'tag' && data.hasOwnProperty(prop)) {
+        $elem.append($('<div class="'+prop+'">').text(data[prop]));
       }
     }
     addMessageElement($elem);
+    // add location reveal handler here
     prevMsgType = 'avmsg';
   }
 
