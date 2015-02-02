@@ -1,0 +1,15 @@
+%% hello
+%% version FMud-Avalon 1.1
+%% password bibble
+%% keepCommand true
+%% host 184.173.130.145
+%% create yes
+%% origin 
+%% gac UA-1428142-1
+%% username deatheater
+%% bounty 
+%% gender male
+%% referrer 
+%% port 23
+%% create deatheater bibble male
+
