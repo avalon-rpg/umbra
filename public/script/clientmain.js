@@ -151,10 +151,11 @@ $(function() {
 
   function addAvmsg(data) {
     var $elem = $('<div class="avmsg ' + data.tag + '">');
-    if(data.title) {
-      $elem.append($('<div class="title">').text(data.title));
+    for (var prop in data) {
+      if(prop != 'tag' && user.hasOwnProperty(prop)) {
+        $elem.append($('<div class="'+prop+'">').text(data.title));
+      }
     }
-    $elem.append($('<div class="text">').text(data.text));
     addMessageElement($elem);
     prevMsgType = 'avmsg';
   }

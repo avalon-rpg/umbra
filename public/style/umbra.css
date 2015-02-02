@@ -27,6 +27,7 @@ body {
     Arial,
     "Lucida Grande",
     sans-serif;
+  line-height: 1.0;
 }
 
 .flecked-bg {
@@ -54,6 +55,7 @@ ul {
   float: left;
   clear: both;
   color: rgba(255,255,255,0.2);
+  margin-bottom: -0.5em!important;
 }
 
 /* Font */
@@ -65,7 +67,13 @@ ul {
   clear: both;
   padding-left: 20px;
   white-space: pre-wrap;
-  font-family: monospace;
+  font-family:
+    source-code-pro,
+    Monaco,
+    "Bitstream Vera Sans Mono",
+    "Lucida Console",
+    Terminal,
+    monospace;
 }
 
 .log span {
@@ -84,13 +92,27 @@ ul {
   margin-top: 3px;
   margin-bottom: 3px;
   max-width: 95%;
+  font-family:
+    "Alegreya",
+    "HelveticaNeue-Light",
+    "Helvetica Neue Light",
+    "Helvetica Neue",
+    Helvetica,
+    Arial,
+    "Lucida Grande",
+    sans-serif;
+
+}
+
+.avmsg.location {
+  float: right;
 }
 
 .avmsg .title {
   background: rgba(64, 128, 255, 0.6);
-  color: black;
   padding: 2px;
   border-radius: 5px;
+  font-weight: 900;
 }
 
 .avmsg .text {
@@ -130,6 +152,7 @@ ul {
 .comms .channel {
   display: inline-block;
   padding: 2px;
+  font-weight:700;
 }
 
 .comms .who {
