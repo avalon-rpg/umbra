@@ -69,7 +69,7 @@ $(function() {
       };
       if(createNewUser) {
         loginParams['gender'] = $('input[name=gender]:checked').val();
-        loginParams['email'] = $('#confirmEmailInput').val().trim();
+        loginParams['email'] = $('#emailInput').val().trim();
       }
       // Tell the server your username
       console.log(loginParams);

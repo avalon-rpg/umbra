@@ -46,7 +46,7 @@ ShadowClient.prototype.init = function(params) {
   self.email = params.email || '';
   self.create = params.create || false;
 
-  console.log('ShadowLogin initialising as: ' + JSON.stringify(self));
+  // console.log('ShadowLogin initialising as: ' + JSON.stringify(self));
 
   var inWhoList = false;
   var inNotification = false;
@@ -65,9 +65,6 @@ ShadowClient.prototype.init = function(params) {
   // needs handling:
   //
   // Gigglefluff of Mercinae (scholar; on the hunter course) is requesting ADVICE at "Gardens of the Hunter Gatherer school". Your help may be needed.
-
-
-  //###msg@ ###tag=location ###title=Nave of the Temple of the Sea ###text=This is the brief for "Nave of the Temple of the Sea" location.
 
   var sequences = [
     {

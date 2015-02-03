@@ -32,6 +32,7 @@ io.on('connection', function (socket) {
   // SOCKET EVENTS 
 
   socket.on('attempt login', function (params) {
+    // console.log('index.js attempt login: ' + JSON.stringify(params));
     username = params.username;
     shadowclient = new ShadowClient(params);
     wireShadowEvents(username);
