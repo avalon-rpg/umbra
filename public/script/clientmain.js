@@ -30,6 +30,9 @@ $(function() {
 
   // Initialize varibles
   var $window = $(window);
+
+  var createNewUser = false;
+
   var $nameInput = $('#nameInput'); // Input for username
   var $passwordInput = $('#passwordInput'); // Input for username
   var $userlist = $('#user-list');
@@ -59,8 +62,18 @@ $(function() {
     if (username && password) {
       $currentInput = $inputMessage.focus();
 
+      var loginParams = {
+        username: username,
+        password: password,
+        create: createNewUser        
+      };
+      if(createNewUser) {
+        loginParams['gender'] = $('input[name=gender]:checked').val();
+        loginParams['email'] = $('#confirmEmailInput').val().trim();
+      }
       // Tell the server your username
-      socket.emit('attempt login', username, password);
+      console.log(loginParams);
+      socket.emit('attempt login', loginParams);
     }
   }
 
@@ -290,18 +303,66 @@ $(function() {
       $inputMessage.focus();
     }
   });
-
+ 
   $('#input-message-form').submit( function(event) {
     sendMessage();
     event.preventDefault();
   });
-  
+
+
+  $('#newUserDropdown').accordion({
+    onOpen: function () { createNewUser = true; },
+    onClose: function () { createNewUser = false; }
+  });
+
+  $('#login-form').validate({
+    submitHandler: function (form) {
+      $('#login-form').transition('pulse');
+      attemptLogin();
+    }
+  });
+
+  $('#nameInput').rules('add', {
+    required: true,
+    minlength: 3,
+    maxlength: 18,
+    remote: {
+      depends: function(element) { return createNewUser; },
+      url: 'http://www.avalon-rpg.com/api/checkname',
+      data: { format: 'boolean' }
+    },
+    messages: {
+      required:  'This field is required',
+      minlength: 'Your username needs to be at least 3 characters',
+      maxlength: 'Your username needs to be less than 18 characters',
+      remote:    'This username is already taken, try another one.'
+    }
+  });
+
+  $('#passwordInput').rules('add', { required: true });
+
+  $('#confirmPasswordInput').rules('add', {
+    required: { depends: function(element) { return createNewUser; } },
+    equalTo: '#passwordInput'    
+  });
+
+  $('#emailInput').rules('add', {
+    required: { depends: function(element) { return createNewUser; } },
+    email: true    
+  });
+
+  // $('#login-form').submit( function(event) {
+  //   $('#login-form').transition('pulse');
+  //   attemptLogin();
+  //   event.preventDefault();
+  // });
+
   // Click events
 
   //Focus input when clicking on the message input's border
-  $('#output-segment').click(function () {
-    $inputMessage.focus();
-  });
+  // $('#output-segment').click(function () {
+  //   $inputMessage.focus();
+  // });
 
   $('#toggleLeftSidebar').click(function () {
     $('#leftSidebar')
@@ -316,20 +377,20 @@ $(function() {
   });
 
 
-  function showLoginModal() {
-    //show login modal
-    $('#login-modal').modal({
-      closable  : false,
-      onDeny    : function(){
-        window.alert('You must log in before continuing!');
-        return false;
-      },
-      onApprove : function() {
-        attemptLogin();
-      }
-    })
-    .modal('show');    
-  }
+  // function showLoginModal() {
+  //   //show login modal
+  //   $('#login-modal').modal({
+  //     closable  : false,
+  //     onDeny    : function(){
+  //       window.alert('You must log in before continuing!');
+  //       return false;
+  //     },
+  //     onApprove : function() {
+  //       attemptLogin();
+  //     }
+  //   })
+  //   .modal('show');    
+  // }
 
 
   // Socket events
@@ -338,11 +399,15 @@ $(function() {
   socket.on('login result', function (data) {
     if(data.success) {
       connected = true;
-      $('#loginModal').modal('hide');
+      $('#login-form').transition({
+        animation: 'vertical flip',
+        onComplete: function() { $('#introText').transition('vertical flip'); }
+      });
       // Display the welcome message
       log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
     } else {
-      showLoginModal();
+      //do validation results
+      //$('.autumn.leaf').transition('slide down');
     }
   });
 
@@ -460,17 +525,18 @@ $(function() {
   //turn on nano-scrollbars
   //$(".nano").nanoScroller();
 
-  //initialise dropdowns
+  //initialise clicky bits
   $('.ui.dropdown').dropdown();
+  $('.ui.accordion').accordion();
 
-  $('#login-form').submit( function(event) {
-    $('#login-modal').modal('hide');
-    attemptLogin();
-    event.preventDefault();
-  });
+  // $('#login-form').submit( function(event) {
+  //   $('#login-modal').modal('hide');
+  //   attemptLogin();
+  //   event.preventDefault();
+  // });
 
 
-  showLoginModal();
+  // showLoginModal();
 
 
 });

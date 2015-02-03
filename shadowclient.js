@@ -20,26 +20,37 @@ if (typeof RegExp.prototype.withMatch != 'function') {
   };
 }
 
-function ShadowClient(user, pass) {
-  var user = user;
+function ShadowClient(params) {
+
+  var username;
+  var password;
+  var gender;
+  var create;
+
   var conn;
   var loggingIn = false;
   var loggedIn = false;
   var badCredentials = false;
   var connected = false;
-  this.init(user, pass);
+  this.init(params);
 }
 
 util.inherits(ShadowClient, EventEmitter);
 
-ShadowClient.prototype.init = function(user, pass) {
+ShadowClient.prototype.init = function(params) {
   var self = this;
+
+  self.username = params.username;
+  self.password = params.password;
+  self.gender = params.gender;
+  self.email = params.email || '';
+  self.create = params.create || false;
+
+  console.log('ShadowLogin initialising as: ' + JSON.stringify(self));
+
   var inWhoList = false;
   var inNotification = false;
   var notificationLines = [];
-
-  this.user = user;
-  this.pass = pass;
 
   this.conn = net.connect({port: 23, host: '184.173.130.145'}, function() {
     self.connected = true;
@@ -226,7 +237,7 @@ ShadowClient.prototype.init = function(user, pass) {
           self.connected = false;
           self.emit('login result', {
             success: false,
-            username: user,
+            username: self.username,
             reason: 'bad username'
           });
         } else if(cleanline.startsWith('ERROR: ###ACK ERROR @ bad password')) {
@@ -236,7 +247,7 @@ ShadowClient.prototype.init = function(user, pass) {
           self.connected = false;
           self.emit('login result', {
             success: false,
-            username: user,
+            username: self.username,
             reason: 'bad password'
           });
         } else {
@@ -269,18 +280,6 @@ ShadowClient.prototype.init = function(user, pass) {
       return;
     }
 
-    // if (line == '###begin') { inWhoList = true; return; }
-
-    // if (line == '###end')   { inWhoList = false; return; }
-
-    // if(inWhoList) {
-    //   self.emit('input',{
-    //     qual: 'user',
-    //     who: line
-    //   });
-    //   return;
-    // }
-
     var seqLen = sequences.length;
     for (var i = 0; i < seqLen; i++) {
       var entry = sequences[i];
@@ -303,8 +302,15 @@ ShadowClient.prototype.init = function(user, pass) {
     if(!self.badCredentials && prompt.indexOf('What is the name of your character?') == 0) {
       self.loggingIn = true;
       console.log('login prompt seen');
-      var loginline = '###ack login ' + user + ' ' + pass;
-      console.log('sending credentials');
+      var loginline;
+      if(self.create) {
+        console.log('attempting to log in new user ' + self.username);
+        var loginline = '###ack create ' + self.username + ' ' + self.password + ' ' + self.gender;
+        console.log(loginline);
+      } else {
+        console.log('attempting to log in existing user ' + self.username);
+        var loginline = '###ack login ' + self.username + ' ' + self.password;
+      }
       self.conn.write(loginline + '\r\n');
       return;
     }
@@ -330,7 +336,7 @@ ShadowClient.prototype.init = function(user, pass) {
   self.conn.pipe(parser);
 
   self.conn.on('close', function (had_error) {
-    console.log("shadow client closing for " + user);
+    console.log("shadow client closing for " + self.username);
     self.connected = false;
     self.emit('avalon disconnected', had_error);
   });

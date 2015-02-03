@@ -20,6 +20,7 @@ io.on('connection', function (socket) {
 
   var shadowclient = null;
   var username = "undefined";
+  var self = this;
 
   console.log('Websocket connected');
 
@@ -30,16 +31,16 @@ io.on('connection', function (socket) {
   //////////////////
   // SOCKET EVENTS 
 
-  socket.on('attempt login', function (username, password) {
-    username = username;
-    shadowclient = new ShadowClient(username, password);
+  socket.on('attempt login', function (params) {
+    username = params.username;
+    shadowclient = new ShadowClient(params);
     wireShadowEvents(username);
   });
 
-  socket.on('confirm login', function (username, password) {
-    if(!shadowclient || !shadowclient.connected || shadowclient.user != username) {
-      username = username;
-      shadowclient = new ShadowClient(username, password);
+  socket.on('confirm login', function (params) {
+    if(!shadowclient || !shadowclient.connected || shadowclient.username != params.username) {
+      username = params.username;
+      shadowclient = new ShadowClient(params);
       wireShadowEvents(username);
     }
   });

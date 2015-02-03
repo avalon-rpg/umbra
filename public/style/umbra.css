@@ -27,7 +27,7 @@ body {
     Arial,
     "Lucida Grande",
     sans-serif;
-  line-height: 1.0;
+  line-height: 1.1;
 }
 
 .flecked-bg {
@@ -45,7 +45,9 @@ ul {
 
 /* Pages */
 
-
+#introText {
+  margin-bottom: 20px;
+}
 .message {
   clear: both;
   float: left;
@@ -78,6 +80,8 @@ ul {
 
 .log span {
   border-radius: 5px;
+  padding: 0;
+  display: inline-block;
 }
 
 .avmsg {
@@ -249,7 +253,8 @@ ul {
 
 #output-segment {
   height: 100%;
-  padding-bottom: 40px;
+  padding-top: 40px;
+  padding-bottom: 56px;
 }
 
 #input-segment {

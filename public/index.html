@@ -118,54 +118,85 @@
       <div class="ui basic segment paler" id="output-segment">
         <div class="nano" id="output-scroller">
           <div class="nano-content">
-            <div class="messages"></div>
+            <div class="messages">
+
+              <div id="introText">
+                <div class="ui top attached header">
+                  <h3>Welcome To Avalon Umbra - v0.9 beta</h3>
+                </div>
+                <div class="ui bottom attached segment">
+                  <p>UMBRA is a pure web client for anyone unable to use our full-function Lumiere or Javalon, specifically iOS and iPhone owners.  It needs neither Java nor Flash and is engineered to take you into Avalon no matter what stands in the way!</p>
+
+                  <p><i>This software is currently in beta and we advise everyone to first try another client
+                  at this point in time.  That said, if you <b>do</b> decide to try it, then please feel free
+                  to report any issues via the BUG command!</i></p>
+                </div>
+              </div>
+
+              <form class="ui form" id="login-form" action="#">
+                <div class="ui top attached header">
+                  <p>Login</p>
+                </div>
+                <div class="ui bottom attached segment fields">
+                  <div class="eight wide field">
+                    <label>Player name</label>
+                    <input name="name" id="nameInput" type="text">
+                  </div>
+                  <div class="eight wide input field">
+                    <label>Password</label>
+                    <input name="password" id="passwordInput" type="password">
+                  </div>
+                  <div id="newUserDropdown" class="sixteen wide ui accordion field">
+                    <div class="title">
+                      <i class="icon dropdown"></i>
+                      Create New User
+                    </div>
+                    <div class="content fields">
+                      <div class="eight wide field">
+                        <label>Email</label>
+                        <input name="email" id="emailInput" placeholder="myaddress@example.com" type="text">
+                      </div>
+                      <div class="eight wide input field">
+                        <label>Confirm Password</label>
+                        <input name="confirmPassword" id="confirmPasswordInput" type="password">
+                      </div>
+                      <div class="inline fields">
+                        <label for="gender">Gender:</label>
+                        <div class="field">
+                          <div class="ui radio checkbox">
+                            <input id="genderMaleInput" type="radio" name="gender" value="male" checked="">
+                            <label for="genderMaleInput">Male</label>
+                          </div>
+                        </div>
+                        <div class="field">
+                          <div class="ui radio checkbox">
+                            <input id="genderFemaleInput" type="radio" name="gender" value="female" >
+                            <label for="genderFemaleInput">Female</label>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- <div class="ui secondary submit button" type="submit" value="create">Create</div> -->
+                    </div>
+                  </div>
+                  <input class="ui submit button" name="login" type="submit" value="Make it So..."></input>
+                </div>
+              </form>
+
+            </div>
           </div>
         </div>
       </div>
       <div class="ui bottom attached basic segment" id="input-segment">
-        <form class="ui form" id="input-message-form" >
+        <form class="ui form" id="input-message-form" action="#" >
           <div class="field">
             <input class="pale" id="inputMessage" placeholder="Type here..."/>
           </div>
         </form>
       </div>    
   </div>
-
-
-  <!-- login modal -->
-  <div class="ui small modal" id="login-modal">
-    <div class="header">
-      Login
-    </div>
-
-    <div class="content">
-      <div class="image">
-        <i class="privacy icon"></i>
-      </div>
-      <div class="description">
-        <form class="ui form" id="login-form">
-          <div class="ui field">
-            <label>Player name</label>
-            <input class="basic" id="nameInput" type="text">
-          </div>
-          <div class="field">
-            <label>Password</label>
-            <input id="passwordInput" type="text">
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div class="actions">
-      <div class="ui positive button">
-        <i class="checkmark icon"></i>
-        Login
-      </div>
-    </div>
-  </div>
-
   <script src="/ansi_up/ansi_up.js" type="text/javascript"></script>
   <script src="/jquery/dist/jquery.min.js"></script>
+  <script src="/script/jquery-validation/jquery.validate.js" type="text/javascript"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/script/jquery.nanoscroller.min.js"></script>  
   <script src="/semantic-ui/semantic.min.js"></script>
