@@ -326,11 +326,6 @@ $(function() {
     required: true,
     minlength: 3,
     maxlength: 18,
-    remote: {
-      depends: function(element) { return createNewUser; },
-      url: 'http://www.avalon-rpg.com/api/checkname',
-      data: { format: 'boolean' }
-    },
     messages: {
       required:  'This field is required',
       minlength: 'Your username needs to be at least 3 characters',
@@ -351,11 +346,6 @@ $(function() {
     email: true    
   });
 
-  // $('#login-form').submit( function(event) {
-  //   $('#login-form').transition('pulse');
-  //   attemptLogin();
-  //   event.preventDefault();
-  // });
 
   // Click events
 
