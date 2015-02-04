@@ -154,7 +154,7 @@ $(function() {
     var $commsContentElem = $('<div class="commscontent">');
     $commsContentElem.append(parts);
 
-    var $commsElem = $('<div class="comms">');
+    var $commsElem = $('<div class="comms ' + data.commsClasses + '">');
     $commsElem.append(mkIcon(data.iconClasses), $commsContentElem);
 
     addMessageElement($commsElem);
@@ -440,15 +440,15 @@ $(function() {
   }
 
   var commsTypes = [
-    { name: 'calling from',        iconClasses: 'from comment'    },
-    { name: 'calling to',          iconClasses: 'to comment'      },
-    { name: 'novice-calling from', iconClasses: 'from student'    },
-    { name: 'novice-calling to',   iconClasses: 'to student'      },
-    { name: 'tell from',           iconClasses: 'from reply'      },
-    { name: 'tell to',             iconClasses: 'to share'        },
-    { name: 'speech from',         iconClasses: 'from quote left' },
-    { name: 'speech to',           iconClasses: 'to quote left'   },
-    { name: 'rune-bug',            iconClasses: 'bug'             }
+    { name: 'calling from',        commsClasses: 'from', iconClasses: 'comment'    },
+    { name: 'calling to',          commsClasses: 'to',   iconClasses: 'comment'    },
+    { name: 'novice-calling from', commsClasses: 'from', iconClasses: 'student'    },
+    { name: 'novice-calling to',   commsClasses: 'to',   iconClasses: 'student'    },
+    { name: 'tell from',           commsClasses: 'from', iconClasses: 'reply'      },
+    { name: 'tell to',             commsClasses: 'to',   iconClasses: 'share'      },
+    { name: 'speech from',         commsClasses: 'from', iconClasses: 'quote left' },
+    { name: 'speech to',           commsClasses: 'to',   iconClasses: 'quote left' },
+    { name: 'rune-bug',            commsClasses: 'bug',  iconClasses: 'bug'        }
   ];
 
   function lookupCommsType(name) {
@@ -464,6 +464,7 @@ $(function() {
     var ct = lookupCommsType(data.qual);
     if(ct) {
       data.iconClasses = ct.iconClasses;
+      data.commsClasses = ct.commsClasses;
       addComms(data);
     } else if(data.qual == 'avmsg') {
       addAvmsg(data);      

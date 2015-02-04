@@ -134,6 +134,7 @@ ul {
   padding: 0;
   margin-top: 3px;
   margin-bottom: 3px;
+  padding-left: 20px;
   max-width: 95%;
 }
 
@@ -146,23 +147,14 @@ ul {
 }
 
 .comms .icon {
-  padding: 2px;
+  padding-top: 4px;
+  position: absolute;
+  left: 10px;
  }
 
-.comms .icon.to {
-  color: rgba(255,0,0,.7);
-}
-
-.comms .icon.from {
-  color: springgreen;
-}
-
-.comms .icon.bug {
-  color: coral;
-}
-
-.comms .icon.bug + .comms .commscontent {
-    background: rgba(253, 126, 80, 0.20);
+.comms.bug .commscontent {
+    background: rgba(253, 126, 80, 0.25);
+    border: solid 1px rgba(253, 126, 80, 0.5);
 }
 .comms .channel {
   display: inline-block;
@@ -177,6 +169,18 @@ ul {
   background-color: rgba(0,0,0,0.6);
   border: 1px solid rgb(127,127,127);
   border-radius: 5px;
+}
+
+.comms.to .icon, .comms.to .channel {
+    color: rgba(255,0,0,.7);
+}
+
+.comms.from .icon, .comms.from .channel {
+    color: springgreen;
+}
+
+.comms.bug .icon, .comms.bug .channel {
+    color: coral;
 }
 
 .comms .city {

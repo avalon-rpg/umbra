@@ -95,6 +95,7 @@ ShadowClient.prototype.init = function(params) {
       regex: /^Your rune-bug picks up words: (.+)$/,
       func: function(match) {
         self.emit('input', {
+          chan: 'rune-bug',
           qual: 'rune-bug',
           msg:  match[1]
         });
