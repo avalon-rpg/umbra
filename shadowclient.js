@@ -100,7 +100,7 @@ ShadowClient.prototype.init = function(params) {
         });
       }
     },{
-      regex: /^(\S+) novice-calls from (.+): "(.*)"$/,
+      regex: /^(\S+) novice-calls from (.+?): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'novice-calling from',
@@ -111,7 +111,7 @@ ShadowClient.prototype.init = function(params) {
         });
       }
     },{
-      regex: /^You novice-call from (.+): "(.*)"$/,
+      regex: /^You novice-call from (.+?): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'novice-calling to',
@@ -130,7 +130,7 @@ ShadowClient.prototype.init = function(params) {
           msg: match[2]
         });
       }    },{
-      regex: /^(\S+) calls to (.+): "(.*)"$/,
+      regex: /^(\S+) calls to (.+?): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'calling from',
@@ -140,7 +140,7 @@ ShadowClient.prototype.init = function(params) {
         });
       }
     },{
-      regex: /^You call to (.+): "(.*)"$/,
+      regex: /^You call to (.+?): "(.*)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'calling to',
@@ -150,7 +150,7 @@ ShadowClient.prototype.init = function(params) {
         });
       }
     },{
-      regex: /^(.*) tells you, "(.*)"$/,
+      regex: /^(.*?) tells you, "(.*)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'tell from',
@@ -160,7 +160,7 @@ ShadowClient.prototype.init = function(params) {
         });
       }
     },{
-      regex: /^You (tell|answer) (.*), "(.*)"$/,
+      regex: /^You (tell|answer) (.*?), "(.*)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'tell to',
@@ -170,7 +170,7 @@ ShadowClient.prototype.init = function(params) {
         });
       }
     },{
-      regex: /^(.+) (asks|says|exclaims), "(.+)"$/,
+      regex: /^(.+?) (asks|says|exclaims), "(.+)"$/,
       func: function(match) {
         self.emit('input', {
           qual: 'speech from',

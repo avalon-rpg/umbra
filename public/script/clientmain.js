@@ -72,21 +72,18 @@ $(function() {
         loginParams['email'] = $('#emailInput').val().trim();
       }
       // Tell the server your username
-      console.log(loginParams);
       socket.emit('attempt login', loginParams);
     }
   }
 
   // Sends a chat message
-  function sendMessage () {
-    var message = $inputMessage.val();
-    // Prevent markup from being injected into the message
-    message = cleanInput(message);
+  function sendMessage (text) {
+    text = cleanInput(text);
     // if there is a non-empty message and a socket connection
-    if (message && connected) {
+    if (text && connected) {
       $inputMessage.val('');
-      console.log("sent: " + message);
-      socket.emit('send', message);
+      console.log("sent: " + text);
+      socket.emit('send', text);
     }
   }
 
@@ -136,7 +133,6 @@ $(function() {
   function addComms(data) {
 
     var parts = [];
-    parts.push(mkIcon(data.iconClasses));
 
     if(data.chan) {
       parts.push($('<div class="channel">').text(data.chan));
@@ -154,9 +150,12 @@ $(function() {
 
     var msghtml = ansi_up.ansi_to_html(data.msg, {use_classes: true});
     parts.push($('<div class="msg">').html(msghtml));
- 
-    var $commsElem = $('<div class="comms">')
-    $commsElem.append(parts);
+
+    var $commsContentElem = $('<div class="commscontent">');
+    $commsContentElem.append(parts);
+
+    var $commsElem = $('<div class="comms">');
+    $commsElem.append(mkIcon(data.iconClasses), $commsContentElem);
 
     addMessageElement($commsElem);
     prevMsgType = 'comms';
@@ -305,7 +304,7 @@ $(function() {
   });
  
   $('#input-message-form').submit( function(event) {
-    sendMessage();
+    sendMessage($inputMessage.val());
     event.preventDefault();
   });
 
@@ -366,21 +365,6 @@ $(function() {
     $('#toggleLeftSidebar').toggleClass('active');
   });
 
-
-  // function showLoginModal() {
-  //   //show login modal
-  //   $('#login-modal').modal({
-  //     closable  : false,
-  //     onDeny    : function(){
-  //       window.alert('You must log in before continuing!');
-  //       return false;
-  //     },
-  //     onApprove : function() {
-  //       attemptLogin();
-  //     }
-  //   })
-  //   .modal('show');    
-  // }
 
 
   // Socket events
@@ -508,6 +492,46 @@ $(function() {
     }
   });
 
+  var keypadCodes = [
+    {code: 111, char: '/', cmd: 'out'},
+    {code: 106, char: '*', cmd: 'in'},
+    {code: 109, char: '-', cmd: 'up'},
+    {code: 107, char: '+', cmd: 'down'},
+    {code: 110, char: '.', cmd: ''},
+    {code: 96,  char: '0', cmd: ''},
+    {code: 97,  char: '1', cmd: 'sw'},
+    {code: 98,  char: '2', cmd: 's'},
+    {code: 99,  char: '3', cmd: 'se'},
+    {code: 100, char: '4', cmd: 'w'},
+    {code: 101, char: '5', cmd: ''},
+    {code: 102, char: '6', cmd: 'e'},
+    {code: 103, char: '7', cmd: 'nw'},
+    {code: 104, char: '8', cmd: 'n'},
+    {code: 105, char: '9', cmd: 'ne'}
+  ];
+
+  //this should work better on an iPad
+  $(document).keydown( function (e) {
+    if(connected) {
+      var str = '';
+
+      if (e.shiftKey) { str = 'shift+' + str; }
+      if (e.ctrlKey)  { str = 'ctrl+' + str;  }
+      if (e.altKey) { str = 'alt+' + str; }
+
+      var len = keypadCodes.length;
+      for (var i = 0; i < len; i++) {
+        var entry = keypadCodes[i];
+        if(entry.code == e.keyCode) {
+          str = str + entry.char;
+          if(entry.cmd != '') {
+            sendMessage(entry.cmd);
+          }
+          console.log(str);
+        }
+      }
+    }
+  });
 
   /////////////////////////////////////////////
   // Page initialisation

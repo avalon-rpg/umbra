@@ -85,7 +85,7 @@ ul {
 }
 
 .avmsg {
-  margin-left: 25px;
+  margin-left: 20px;
   background: rgba(64, 128, 255, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #efefef;
@@ -109,11 +109,10 @@ ul {
 }
 
 .avmsg.environs {
-  float: right;
+  background: rgba(64, 255, 128, 0.25);
 }
 
 .avmsg.location {
-  float: right;
 }
 
 .avmsg .title {
@@ -130,15 +129,20 @@ ul {
 
 
 .comms {
-  background: rgba(255, 255, 255, 0.2);
-  color: #efefef;
   clear: both;
   float: left;
-  border-radius: 5px;
   padding: 0;
   margin-top: 3px;
   margin-bottom: 3px;
   max-width: 95%;
+}
+
+.comms .commscontent {
+    background: rgba(255, 255, 255, 0.2);
+    color: #efefef;
+    border-radius: 5px;
+    padding: 0;
+    display: inline-block;
 }
 
 .comms .icon {
@@ -157,6 +161,9 @@ ul {
   color: coral;
 }
 
+.comms .icon.bug + .comms .commscontent {
+    background: rgba(253, 126, 80, 0.20);
+}
 .comms .channel {
   display: inline-block;
   padding: 2px;
