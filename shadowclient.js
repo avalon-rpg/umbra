@@ -100,6 +100,10 @@ ShadowClient.prototype.init = function(params) {
       cond: function() { return inMap; },
       func: fnEndMap
     },{
+      regex: /^Map depicts (.*)$/,
+      cond: function() { return inMap; },
+      func: fnEndMap
+    },{
       regex: /^.*$/,
       cond: function() { return inMap; },
       func: function(match, rawLine) {
