@@ -48,7 +48,10 @@ ShadowClient.prototype.init = function(params) {
 
   // console.log('ShadowLogin initialising as: ' + JSON.stringify(self));
 
-  var inWhoList = false;
+  var inMap = false;
+  var mapLoc = '';
+  var mapLines = [];
+
   var inNotification = false;
   var notificationLines = [];
 
@@ -66,8 +69,43 @@ ShadowClient.prototype.init = function(params) {
   //
   // Gigglefluff of Mercinae (scholar; on the hunter course) is requesting ADVICE at "Gardens of the Hunter Gatherer school". Your help may be needed.
 
+
+
+  var fnEndMap = function(match) {
+    console.log('map finished');
+    self.emit('input', {
+      qual:  'map',
+      loc:    mapLoc,
+      region: match[1],
+      lines:  mapLines
+    });
+    mapLoc = '';
+    mapLines = [];
+    inMap = false;
+  };
+
   var sequences = [
     {
+      regex: /^Vicinity MAP around "(.+)" location:$/,
+      func: function(match) {
+        mapLoc = match[1];
+        inMap = true;
+      }
+    },{
+      regex: /^Map depicts (.*)\. Your location is highlighted\.$/,
+      cond: function() { return inMap; },
+      func: fnEndMap
+    },{
+      regex: /^Map depicts (.*) environs with your location highlighted\.$/,
+      cond: function() { return inMap; },
+      func: fnEndMap
+    },{
+      regex: /^.*$/,
+      cond: function() { return inMap; },
+      func: function(match, rawLine) {
+        mapLines.push(rawLine);
+      }
+    },{
       regex: /^###msg@ (.+)$/,
       func: function(match) {
         var data = { qual: 'avmsg' };
@@ -281,8 +319,13 @@ ShadowClient.prototype.init = function(params) {
     var seqLen = sequences.length;
     for (var i = 0; i < seqLen; i++) {
       var entry = sequences[i];
-      var match = entry.regex.exec(cleanline);
-      if(match) { entry.func(match); return; }
+      if(entry.cond == undefined || entry.cond()) {
+        var match = entry.regex.exec(cleanline);
+        if (match) {
+          entry.func(match, line);
+          return;
+        }
+      }
     }
 
     //default fallback

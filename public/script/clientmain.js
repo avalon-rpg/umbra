@@ -173,6 +173,19 @@ $(function() {
     prevMsgType = 'avmsg';
   }
 
+  function addAvmap(data) {
+    var $elem = $('<div class="avmap">');
+    $elem.append($('<div class="loc">').text(data.loc));
+    $elem.append($('<div class="region">').text(data.region));
+    var ansiLines = ansi_up.ansi_to_html(
+      data.lines.join('\n'),
+      {use_classes: true}
+    );
+    $elem.append($('<div class="lines">').html(ansiLines));
+    addMessageElement($elem);
+    // add location reveal handler here
+    prevMsgType = 'avmap';
+  }
 
   function elemExists(q) {
     return ($(q).length > 0);
@@ -402,7 +415,12 @@ $(function() {
   socket.on('reconnect', function () {
     log('*** WEBSOCKET RECONNECTED ***');
     if (username && password) {
-      socket.emit('confirm login', username, password);
+      var loginParams = {
+        username: username,
+        password: password,
+        create: false
+      };
+      socket.emit('confirm login', loginParams);
     }
   });
 
@@ -467,7 +485,9 @@ $(function() {
       data.commsClasses = ct.commsClasses;
       addComms(data);
     } else if(data.qual == 'avmsg') {
-      addAvmsg(data);      
+      addAvmsg(data);
+    } else if(data.qual == 'map') {
+      addAvmap(data);
     } else if(data.qual == 'user') {
       //console.log(JSON.stringify(data));
       addUser(data);      
