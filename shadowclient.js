@@ -291,7 +291,7 @@ ShadowClient.prototype.init = function(params) {
         line: line
       });
     }
-  }
+  };
 
   var onPrompt = function (prompt) {
 
@@ -302,11 +302,11 @@ ShadowClient.prototype.init = function(params) {
       var loginline;
       if(self.create) {
         console.log('attempting to log in new user ' + self.username);
-        var loginline = '###ack create ' + self.username + ' ' + self.password + ' ' + self.gender;
+        loginline = '###ack create ' + self.username + ' ' + self.password + ' ' + self.gender;
         console.log(loginline);
       } else {
         console.log('attempting to log in existing user ' + self.username);
-        var loginline = '###ack login ' + self.username + ' ' + self.password;
+        loginline = '###ack login ' + self.username + ' ' + self.password;
       }
       self.conn.write(loginline + '\r\n');
       return;
@@ -314,7 +314,7 @@ ShadowClient.prototype.init = function(params) {
     if(self.loggedIn) {
       self.emit('prompt', prompt);
     }
-  }
+  };
 
   var parser = binary().loop(function (end, vars) {
     this.scan('gablock', gaSeq).tap( function(vars) {
@@ -338,7 +338,7 @@ ShadowClient.prototype.init = function(params) {
     self.emit('avalon disconnected', had_error);
   });
 
-}
+};
 
 ShadowClient.prototype.write = function(input) {
   if(this.connected) {
@@ -346,12 +346,12 @@ ShadowClient.prototype.write = function(input) {
   } else {
     console.error('couldn\'t send msg to disconnected client: ' + input);
   }  
-}
+};
 
 ShadowClient.prototype.close = function() {
   if(this.connected) {
     // this.conn.end();  
   }  
-}
+};
 
-module.exports = ShadowClient
+module.exports = ShadowClient;
