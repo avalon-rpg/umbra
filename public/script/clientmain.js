@@ -93,7 +93,7 @@ $(function() {
 
     var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
     var $el = $('<div>').addClass('log').html(msghtml);
-    if(typeof options.monospaced != 'undefined' && options.monospaced) {
+    if(options && options.monospaced) {
       $el.addClass('monospaced');
     }
     addMessageElement($el, options);
@@ -389,7 +389,7 @@ $(function() {
   socket.on('login result', function (data) {
     if(data.success) {
       connected = true;
-      $('#login-form').transition({
+      $('#login-form-outer').transition({
         animation: 'vertical flip',
         onComplete: function() { $('#introText').transition('vertical flip'); }
       });
@@ -408,6 +408,13 @@ $(function() {
 
   socket.on('avalon disconnected', function (data) {
     log('*** AVALON DISCONNECTED ***');
+    var $form = $('#login-form-outer');
+    //$form.remove();
+    $('.messages').append($form);
+    //$('#introText').transition('vertical flip');
+    $('#login-form-outer').transition({
+      animation: 'vertical flip'
+    });
   });
 
   socket.on('disconnect', function () {

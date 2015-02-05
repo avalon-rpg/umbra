@@ -45,6 +45,9 @@ ul {
 
 /* Pages */
 
+#login-form-outer {
+  clear: both;
+}
 #introText {
   margin-bottom: 20px;
 }
