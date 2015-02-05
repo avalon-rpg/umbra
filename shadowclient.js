@@ -52,6 +52,9 @@ ShadowClient.prototype.init = function(params) {
   var mapLoc = '';
   var mapLines = [];
 
+  var inMultilineMsg = false;
+  var multilineMsgData = {};
+
   var inNotification = false;
   var notificationLines = [];
 
@@ -82,6 +85,14 @@ ShadowClient.prototype.init = function(params) {
     mapLoc = '';
     mapLines = [];
     inMap = false;
+  };
+
+  var fnEndMultilineMsg = function(match) {
+    if(inMultilineMsg && multilineMsgData) {
+      self.emit('input', multilineMsgData.text);
+    }
+    inMultilineMsg = false;
+    multilineMsgData = undefined;
   };
 
   var sequences = [
@@ -124,6 +135,29 @@ ShadowClient.prototype.init = function(params) {
         }
         self.emit('input', data);
       }
+    },{
+      regex: /^###begin@ (.+)$/,
+      func: function(match) {
+        inMultilineMsg = true;
+        multilineMsgData = { qual: 'avmsg' };
+        var parts = match[1].split('###');
+        var partcount = parts.length;
+        for (var i = 1; i < partcount; i++) {
+          var part = parts[i];
+          var keyarr = part.split('=', 1);
+          var key = keyarr[0];
+          var value = part.substring(key.length + 1);
+          multilineMsgData[key] = value.trim();
+        }
+        multilineMsgData.text = [];
+      }
+    },{
+      regex: /^###end@.*$/,
+      func: fnEndMultilineMsg
+    },{
+      regex: /^.*$/,
+      cond: function() { return inMultilineMsg; },
+      func: function(match, rawLine) { multilineMsgData.text.push(rawLine); }
     },{
       regex: /^###channel (\S+) (.+)$/,
       func: function(match) {
@@ -360,6 +394,7 @@ ShadowClient.prototype.init = function(params) {
       return;
     }
     if(self.loggedIn) {
+      fnEndMultilineMsg(); //end any ongoing multiline message
       self.emit('prompt', prompt);
     }
   };
