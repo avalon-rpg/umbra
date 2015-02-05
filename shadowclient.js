@@ -75,7 +75,6 @@ ShadowClient.prototype.init = function(params) {
 
 
   var fnEndMap = function(match) {
-    console.log('map finished');
     queueOutput({
       qual:  'map',
       loc:    mapLoc,
@@ -89,7 +88,8 @@ ShadowClient.prototype.init = function(params) {
 
   var fnEndMultilineMsg = function(match) {
     if(inMultilineMsg && multilineMsgData) {
-      queueOutput(multilineMsgData.text);
+      console.log('ending multiline message');
+      queueOutput(multilineMsgData);
     }
     inMultilineMsg = false;
     multilineMsgData = undefined;
@@ -138,18 +138,22 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^###begin@ (.+)$/,
       func: function(match) {
-        inMultilineMsg = true;
-        multilineMsgData = { qual: 'avmsg' };
-        var parts = match[1].split('###');
-        var partcount = parts.length;
-        for (var i = 1; i < partcount; i++) {
-          var part = parts[i];
-          var keyarr = part.split('=', 1);
-          var key = keyarr[0];
-          var value = part.substring(key.length + 1);
-          multilineMsgData[key] = value.trim();
+        ///for now, don't treat 'stdio' as a valid multiline tag
+        if(match[1].indexOf('tag=stdio') < 0) {
+          console.log('multiline message start: ' + match[0]);
+          inMultilineMsg = true;
+          multilineMsgData = {qual: 'avmsg'};
+          var parts = match[1].split('###');
+          var partcount = parts.length;
+          for (var i = 1; i < partcount; i++) {
+            var part = parts[i];
+            var keyarr = part.split('=', 1);
+            var key = keyarr[0];
+            var value = part.substring(key.length + 1);
+            multilineMsgData[key] = value.trim();
+          }
+          multilineMsgData.text = [];
         }
-        multilineMsgData.text = [];
       }
     },{
       regex: /^###end@.*$/,
@@ -157,7 +161,10 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^.*$/,
       cond: function() { return inMultilineMsg; },
-      func: function(match, rawLine) { multilineMsgData.text.push(rawLine); }
+      func: function(match, rawLine) {
+        console.log('multiline message part: ' + rawLine);
+        multilineMsgData.text.push(rawLine);
+      }
     },{
       regex: /^###channel (\S+) (.+)$/,
       func: function(match) {
@@ -333,6 +340,8 @@ ShadowClient.prototype.init = function(params) {
 
       return;
     } 
+
+    if(cleanline.startsWith('###')) { fnEndMultilineMsg([]); }
 
     if (cleanline == '###notification begin') {
       inNotification = true;
