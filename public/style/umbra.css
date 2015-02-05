@@ -80,6 +80,7 @@ ul {
     Terminal,
     monospace;
   line-height: 1.1;
+  font-size: smaller;
 }
 
 .log span {
