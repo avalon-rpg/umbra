@@ -69,7 +69,10 @@ ul {
   clear: both;
   padding-left: 20px;
   white-space: pre-wrap;
-  font-family:
+}
+
+.log.monospaced {
+    font-family:
     source-code-pro,
     Monaco,
     "Bitstream Vera Sans Mono",

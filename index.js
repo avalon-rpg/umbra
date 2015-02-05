@@ -87,14 +87,11 @@ io.on('connection', function (socket) {
       shadowclient.close();
     });
 
-    shadowclient.on('input', function (data) {
+    shadowclient.on('block', function (data) {
       // console.log('input: ' + JSON.stringify(data));
-      if(shadowclient.loggedIn) { socket.emit('input', data); }
+      if(shadowclient.loggedIn) { socket.emit('block', data); }
     });
 
-    shadowclient.on('prompt', function (text) {
-      if(shadowclient.loggedIn) { socket.emit('prompt', text); }
-    });
   }
 
 });

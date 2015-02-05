@@ -93,6 +93,9 @@ $(function() {
 
     var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
     var $el = $('<div>').addClass('log').html(msghtml);
+    if(options.monospaced) {
+      $el.addClass('monospaced');
+    }
     addMessageElement($el, options);
     prevMsgType = 'log';
   }
@@ -164,7 +167,7 @@ $(function() {
   function addAvmsg(data) {
     var $elem = $('<div class="avmsg ' + data.tag + '">');
     for (var prop in data) {
-      if(prop != 'qual' && prop != 'tag' && data.hasOwnProperty(prop)) {
+      if(prop != 'qual' && prop != 'tag' && prop != 'monospaced' && data.hasOwnProperty(prop)) {
         $elem.append($('<div class="'+prop+'">').text(data[prop]));
       }
     }
@@ -281,7 +284,7 @@ $(function() {
       options = {};
     }
     if (typeof options.fade === 'undefined') {
-      options.fade = true;
+      options.fade = false;
     }
     if (typeof options.prepend === 'undefined') {
       options.prepend = false;
@@ -424,11 +427,6 @@ $(function() {
     }
   });
 
-  socket.on('prompt', function (text) {
-    console.log('prompt: ' + text);    
-    addPrompt();
-  });
-
   function handleProto(code, content) {
     console.log('###' + code + ' ' + content);
 
@@ -476,7 +474,20 @@ $(function() {
     }
   }
 
-  socket.on('input', function (data) {    
+  socket.on('block', function (data) {
+    console.log('got block');
+    console.log(data);
+    var len = data.entries.length;
+    for(var i = 0; i < len; ++i) {
+      var entry = data.entries[i];
+      entry.monospaced = data.monospaced;
+      processInput(entry);
+    }
+    console.log('prompt: ' + data.prompt);
+    addPrompt();
+  });
+
+  function processInput(data) {
     console.log('input: ' + JSON.stringify(data));
 
     var ct = lookupCommsType(data.qual);
@@ -505,13 +516,13 @@ $(function() {
       }
       notify(block);
     } else if(data.qual == 'unparsed') {
-      log(data.line);
+      log(data.line, {monospaced: data.monospaced});
     } else if(data.qual == 'protocol') {
       handleProto(data.code, data.content);
     } else {
       //console.log('input: ' + JSON.stringify(data));
     }
-  });
+  }
 
   var keypadCodes = [
     {code: 111, char: '/', cmd: 'out'},

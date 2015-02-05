@@ -21,17 +21,6 @@ if (typeof RegExp.prototype.withMatch != 'function') {
 }
 
 function ShadowClient(params) {
-
-  var username;
-  var password;
-  var gender;
-  var create;
-
-  var conn;
-  var loggingIn = false;
-  var loggedIn = false;
-  var badCredentials = false;
-  var connected = false;
   this.init(params);
 }
 
@@ -39,6 +28,17 @@ util.inherits(ShadowClient, EventEmitter);
 
 ShadowClient.prototype.init = function(params) {
   var self = this;
+
+  var currentBlock;
+  var monospacedBlock = false;
+
+  function queueOutput(data) {
+    if(currentBlock) {
+      currentBlock.push(data);
+    } else {
+      currentBlock = [data];
+    }
+  }
 
   self.username = params.username;
   self.password = params.password;
@@ -76,7 +76,7 @@ ShadowClient.prototype.init = function(params) {
 
   var fnEndMap = function(match) {
     console.log('map finished');
-    self.emit('input', {
+    queueOutput({
       qual:  'map',
       loc:    mapLoc,
       region: match[1],
@@ -89,7 +89,7 @@ ShadowClient.prototype.init = function(params) {
 
   var fnEndMultilineMsg = function(match) {
     if(inMultilineMsg && multilineMsgData) {
-      self.emit('input', multilineMsgData.text);
+      queueOutput(multilineMsgData.text);
     }
     inMultilineMsg = false;
     multilineMsgData = undefined;
@@ -133,7 +133,7 @@ ShadowClient.prototype.init = function(params) {
           var value = part.substring(key.length + 1);
           data[key] = value.trim();
         }
-        self.emit('input', data);
+        queueOutput(data);
       }
     },{
       regex: /^###begin@ (.+)$/,
@@ -161,7 +161,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^###channel (\S+) (.+)$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'channel',
           code:  match[1],
           name:  match[2]
@@ -170,7 +170,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^Your rune-bug picks up words: (.+)$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           chan: 'rune-bug',
           qual: 'rune-bug',
           msg:  match[1]
@@ -179,7 +179,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^(\S+) novice-calls from (.+?): "(.*)"$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'novice-calling from',
           who:  match[1],
           chan: 'novices',
@@ -190,7 +190,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^You novice-call from (.+?): "(.*)"$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'novice-calling to',
           chan: 'novices',
           city: match[1],
@@ -200,7 +200,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^(\S+) novice-calls: "(.*)"$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'novice-calling from',
           who:  match[1],
           chan: 'novices',
@@ -209,7 +209,7 @@ ShadowClient.prototype.init = function(params) {
       }    },{
       regex: /^(\S+) calls to (.+?): "(.*)"$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'calling from',
           who:  match[1],
           chan: match[2],
@@ -219,7 +219,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^You call to (.+?): "(.*)"$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'calling to',
           who: 'You',
           chan: match[1],
@@ -229,7 +229,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^(.*?) tells you, "(.*)"$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'tell from',
           who:  match[1],
           chan: 'From',
@@ -239,7 +239,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^You (tell|answer) (.*?), "(.*)"$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'tell to',
           who:  match[2],
           chan: 'To',
@@ -249,7 +249,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^(.+?) (asks|says|exclaims), "(.+)"$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'speech from',
           who:  match[1],
           msg:  match[3]
@@ -258,7 +258,7 @@ ShadowClient.prototype.init = function(params) {
     },{
       regex: /^You (ask|say|exclaim), "(.+)"$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'speech to',
           msg:  match[2]
         });
@@ -276,12 +276,12 @@ ShadowClient.prototype.init = function(params) {
           var value = part.substring(key.length);
           data[key] = value.trim();
         }
-        self.emit('input', data);
+        queueOutput(data);
       }
     },{
       regex: /^###(\S+) ?(.*)$/,
       func: function(match) {
-        self.emit('input', {
+        queueOutput({
           qual: 'protocol',
           code:  match[1],
           content:  match[2]
@@ -340,7 +340,7 @@ ShadowClient.prototype.init = function(params) {
     }
 
     if (cleanline == '###notification end')   {
-      self.emit('input',{
+      queueOutput({
         qual: 'notification',
         lines: notificationLines
       });
@@ -368,7 +368,10 @@ ShadowClient.prototype.init = function(params) {
 
     //default fallback
     if(line.trim() != '') {
-      self.emit('input', {
+      if(line.indexOf('   ') >= 0) {
+        monospacedBlock = true;
+      }
+      queueOutput({
         qual: 'unparsed',
         line: line
       });
@@ -395,7 +398,13 @@ ShadowClient.prototype.init = function(params) {
     }
     if(self.loggedIn) {
       fnEndMultilineMsg(); //end any ongoing multiline message
-      self.emit('prompt', prompt);
+      self.emit('block', {
+        monospaced: monospacedBlock,
+        entries:    currentBlock,
+        prompt:     prompt
+      });
+      monospacedBlock = false;
+      currentBlock = null;
     }
   };
 
