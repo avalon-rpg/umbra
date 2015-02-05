@@ -93,7 +93,7 @@ $(function() {
 
     var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
     var $el = $('<div>').addClass('log').html(msghtml);
-    if(options.monospaced) {
+    if(typeof options.monospaced != 'undefined' && options.monospaced) {
       $el.addClass('monospaced');
     }
     addMessageElement($el, options);

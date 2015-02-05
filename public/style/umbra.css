@@ -179,7 +179,7 @@ ul {
 }
 
 .comms .commscontent {
-    background: rgba(255, 255, 255, 0.2);
+    /* background: rgba(255, 255, 255, 0.2); */
     color: #efefef;
     border-radius: 5px;
     padding: 0;
@@ -204,18 +204,18 @@ ul {
 
 .comms .who {
   display: inline-block;
-  padding: 2px;
+  padding: 1px;
   font-weight: bold;
   background-color: rgba(0,0,0,0.6);
   border: 1px solid rgb(127,127,127);
   border-radius: 5px;
 }
 
-.comms.to .icon, .comms.to .channel {
-    color: rgba(255,0,0,.7);
+.comms.to .icon, .comms.to .msg {
+    color: rgba(255,96,96,.9);
 }
 
-.comms.from .icon, .comms.from .channel {
+.comms.from .icon { /* , .comms.from .channel { */
     color: springgreen;
 }
 

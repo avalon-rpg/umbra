@@ -139,7 +139,9 @@ ShadowClient.prototype.init = function(params) {
       regex: /^###begin@ (.+)$/,
       func: function(match) {
         ///for now, don't treat 'stdio' as a valid multiline tag
-        if(match[1].indexOf('tag=stdio') < 0) {
+        if(match[1].indexOf('tag=stdio') >= 0) {
+          console.log('NOT starting multiline message for stdio input: ' + match[0]);
+        } else {
           console.log('multiline message start: ' + match[0]);
           inMultilineMsg = true;
           multilineMsgData = {qual: 'avmsg'};
@@ -239,7 +241,7 @@ ShadowClient.prototype.init = function(params) {
         queueOutput({
           qual: 'tell from',
           who:  match[1],
-          chan: 'From',
+          //chan: 'From',
           msg:  match[2]
         });
       }
@@ -249,7 +251,7 @@ ShadowClient.prototype.init = function(params) {
         queueOutput({
           qual: 'tell to',
           who:  match[2],
-          chan: 'To',
+          //chan: 'To',
           msg:  match[3]
         });
       }
