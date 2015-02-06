@@ -14,7 +14,7 @@ var sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s+)H: ((?:\d+)\/(?:\d+))(?:\s*)M: 
 
 Tabulator.prototype.process = function (block) {
   var self = this;
-  if(!block.entries || block.entries.size == 0) { return block; }
+  if(!block.entries || block.entries.length == 0) { return block; }
 
   var outEntries = [];
   var rows;

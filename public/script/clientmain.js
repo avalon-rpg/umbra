@@ -526,7 +526,7 @@ $(function() {
       data.iconClasses = ct.iconClasses;
       data.commsClasses = ct.commsClasses;
       addComms(data);
-    } else if(data.qual == 'block') {
+    } else if(data.entries && data.entries.length > 0) {
       processBlock(data);
     } else if(data.qual == 'avmsg') {
       addAvmsg(data);

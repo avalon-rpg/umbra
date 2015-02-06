@@ -44,6 +44,7 @@ AvParser.prototype.init = function(shadowclient) {
   var emptyStrArray = [''].pop();
 
   function appendOutput(data) {
+    console.log('outputting: ' + JSON.stringify(data));
     if (!currentBlock) {
       currentBlock = {
         tags: emptyStrArray,
@@ -65,28 +66,31 @@ AvParser.prototype.init = function(shadowclient) {
       block.tags = emptyStrArray;
     }
     currentBlock = block;
+    console.log('entering block at depth ' + blockStack.length + ': ' + JSON.stringify(block));
     blockStack.push(block);
   }
 
   function tagBlock(tag) {
-    if(!currentBlock.tags || currentBlock.tags.size == 0) {
+    if(!currentBlock.tags || currentBlock.tags.length == 0) {
       currentBlock.tags = [tag];
     } else {
       currentBlock.tags.push(tag);
     }
   }
   function exitBlock() {
-    if(blockStack.size > 1) {
+    if(blockStack.length > 1) {
       var block = blockStack.pop();
+      console.log('================================================================');
       console.log("popping block: " + JSON.stringify(block));
-      console.log("blockstand depth is now : " + blockStack.size);
+      console.log("blockstand depth is now : " + blockStack.length);
+      console.log('================================================================');
       currentBlock = blockStack.last();
       appendOutput(block);
     }
   }
 
   function flushOutput() {
-    while(blockStack.size > 1) {
+    while(blockStack.length > 1) {
       exitBlock();
     }
     self.emit('block', currentBlock);
