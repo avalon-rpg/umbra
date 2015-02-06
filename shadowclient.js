@@ -13,6 +13,12 @@ if (typeof String.prototype.startsWith != 'function') {
   };
 }
 
+if (!Array.prototype.last){
+  Array.prototype.last = function(){
+    return this[this.length - 1];
+  };
+}
+
 if (typeof RegExp.prototype.withMatch != 'function') {
   // see below for better implementation!
   String.prototype.startsWith = function (str){

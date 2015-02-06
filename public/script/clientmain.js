@@ -190,6 +190,25 @@ $(function() {
     prevMsgType = 'avmap';
   }
 
+  function addTable(table) {
+    var $table = $('<table>');
+    var rlen = table.rows.length;
+    for(var r=0; r < rlen; ++r) {
+      var row = table.rows[r];
+      var $row = $('<tr>');
+
+      var clen = row.cells.length;
+      for(var c=0; c < clen; ++c) {
+        var cell = row.cells[c];
+        if(row.header) { $cell = $('<th>').text(cell); }
+        else { $cell = $('<td>').text(cell); }
+        $row.append($cell);
+      }
+      $table.append($row);
+    }
+    addMessageElement($table);
+  }
+
   function elemExists(q) {
     return ($(q).length > 0);
   }
@@ -490,8 +509,10 @@ $(function() {
       entry.monospaced = data.monospaced;
       processInput(entry);
     }
-    console.log('prompt: ' + data.prompt);
-    addPrompt();
+    if(data.prompt) {
+      console.log('prompt: ' + data.prompt);
+      addPrompt();
+    }
   });
 
   function processInput(data) {
@@ -512,6 +533,8 @@ $(function() {
     } else if(data.qual == 'channel') {
       //console.log('input: ' + JSON.stringify(data));
       addChannel(data.code, data.name);
+    } else if (data.qual == 'table') {
+      addTable(data);
     } else if(data.qual == 'notification') {
       var block = '';
       for(var i = 0; i < data.lines.length; i++) {

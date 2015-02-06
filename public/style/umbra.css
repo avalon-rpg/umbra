@@ -252,6 +252,24 @@ ul {
   border-radius: 5px;
 }
 
+.messages table {
+  margin-top: 5px;
+  clear: both;
+  margin-left: 30px;
+}
+
+.messages table th {
+  font-weight: 700;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-bottom: 1px solid;
+}
+
+.messages table td {
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
 .notification {
   /*color: #8B0000;*/
   color: rgb(229,229,229);
