@@ -18,6 +18,16 @@ Tabulator.prototype.process = function (block) {
   var outEntries = [];
   var rows = null;
 
+  function pushRows() {
+    if(rows) {
+      outEntries.push({
+        qual: 'table',
+        rows: rows
+      });
+      rows = null;
+    }
+  }
+
   var len = block.entries.length;
   for(i=1; i < len; ++i) {
     var entry = block.entries[i];
@@ -33,20 +43,16 @@ Tabulator.prototype.process = function (block) {
           cells: [match[1],match[2],match[3],match[4]]
         });
       } else {
-        if(rows) {
-          outEntries.push({
-            qual: 'table',
-            rows: rows
-          });
-          rows = null;
-        }
+        pushRows();
         outEntries.push(entry);
       }
     }
   }
+  pushRows();
 
   var newBlock = {
     monospaced: false,
+    oldEntries: block.entries,
     entries: outEntries,
     prompt: block.prompt
   };
