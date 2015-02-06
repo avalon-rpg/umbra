@@ -9,14 +9,16 @@ if (typeof Array.prototype.flatMap != 'function') {
 function Tabulator() {
 }
 
-var sphereSenseRegex = /(\S+) at ([^\.]+)\.(?:\s+)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
+var sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s+)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
 
 
 Tabulator.prototype.process = function (block) {
-  if(!block.entries || !block.monospaced) { return block; }
+  var self = this;
+  if(!block.entries || block.entries.size == 0) { return block; }
 
   var outEntries = [];
-  var rows = null;
+  var rows;
+  var sphereSense = false;
 
   function pushRows() {
     if(rows) {
@@ -28,14 +30,15 @@ Tabulator.prototype.process = function (block) {
     }
   }
 
+  if(block.tags.indexOf('sphere sense') >= 0) { sphereSense = true; }
+
+  if(sphereSense) { rows = [{header: true, cells: ['who', 'where', 'health', 'mana']}]; }
+
   var len = block.entries.length;
   for(i=1; i < len; ++i) {
     var entry = block.entries[i];
 
-    if(entry.qual == 'unparsed'
-    && entry.line == 'You engage in a moment\'s deep thought, gathering a sense of the domain.') {
-      rows = [{header: true, cells: ['who', 'where', 'health', 'mana']}];
-    } else {
+    if(sphereSense) {
       var match = sphereSenseRegex.exec(entry.line);
       if(match) {
         rows.push({
@@ -44,20 +47,16 @@ Tabulator.prototype.process = function (block) {
         });
       } else {
         pushRows();
-        outEntries.push(entry);
+        outEntries.push(self.process(entry));
       }
+    } else {
+      outEntries.push(self.process(entry));
     }
   }
   pushRows();
 
-  var newBlock = {
-    monospaced: false,
-    oldEntries: block.entries,
-    entries: outEntries,
-    prompt: block.prompt
-  };
-  outEntries = [];
-  return newBlock;
+  block.entries = outEntries;
+  return block;
 };
 
 module.exports = Tabulator;

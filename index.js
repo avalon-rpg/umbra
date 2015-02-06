@@ -6,6 +6,7 @@ var io = require('socket.io')(server);
 var port = process.env.PORT || 2252;
 
 var ShadowClient = require('./shadowclient');
+var AvParser = require('./avparser');
 var Tabulator = require('./tabulator');
 
 var tabulator = new Tabulator();
@@ -20,7 +21,8 @@ app.use(express.static(__dirname + '/node_modules'));
 
 io.on('connection', function (socket) {
 
-  var shadowclient = null;
+  var shadowclient;
+  var parsedclient;
   var username = "undefined";
   var self = this;
 
@@ -37,6 +39,7 @@ io.on('connection', function (socket) {
     console.log('index.js attempt login for ' + params.username);
     username = params.username;
     shadowclient = new ShadowClient(params);
+    parsedclient = new AvParser(shadowclient);
     wireShadowEvents(username);
   });
 
@@ -46,6 +49,7 @@ io.on('connection', function (socket) {
       console.log('fresh login required');
       username = params.username;
       shadowclient = new ShadowClient(params);
+      parsedclient = new AvParser(shadowclient);
       wireShadowEvents(username);
     } else {
       console.log('re-attaching login');
@@ -93,9 +97,9 @@ io.on('connection', function (socket) {
       shadowclient.close();
     });
 
-    shadowclient.on('block', function (data) {
+    parsedclient.on('block', function (data) {
       var processedBlock = tabulator.process(data);
-      // console.log('input: ' + JSON.stringify(data));
+      console.log('input: ' + JSON.stringify(data));
       if(shadowclient.loggedIn) { socket.emit('block', processedBlock); }
     });
 

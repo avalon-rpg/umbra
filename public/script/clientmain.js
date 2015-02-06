@@ -200,8 +200,9 @@ $(function() {
       var clen = row.cells.length;
       for(var c=0; c < clen; ++c) {
         var cell = row.cells[c];
-        if(row.header) { $cell = $('<th>').text(cell); }
-        else { $cell = $('<td>').text(cell); }
+        var ansi = ansi_up.ansi_to_html(cell, {use_classes: true});
+        if(row.header) { $cell = $('<th>').html(ansi); }
+        else { $cell = $('<td>').html(ansi); }
         $row.append($cell);
       }
       $table.append($row);
@@ -500,20 +501,22 @@ $(function() {
     }
   }
 
-  socket.on('block', function (data) {
+  socket.on('block', processBlock);
+
+  function processBlock(data) {
     console.log('got block');
     console.log(data);
     var len = data.entries.length;
     for(var i = 0; i < len; ++i) {
       var entry = data.entries[i];
-      entry.monospaced = data.monospaced;
+      //entry.monospaced = data.monospaced;
       processInput(entry);
     }
     if(data.prompt) {
       console.log('prompt: ' + data.prompt);
       addPrompt();
     }
-  });
+  }
 
   function processInput(data) {
     console.log('input: ' + JSON.stringify(data));
@@ -523,6 +526,8 @@ $(function() {
       data.iconClasses = ct.iconClasses;
       data.commsClasses = ct.commsClasses;
       addComms(data);
+    } else if(data.qual == 'block') {
+      processBlock(data);
     } else if(data.qual == 'avmsg') {
       addAvmsg(data);
     } else if(data.qual == 'map') {
