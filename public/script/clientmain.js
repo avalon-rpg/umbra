@@ -501,7 +501,7 @@ $(function() {
     }
   }
 
-  socket.on('block', processBlock);
+  socket.on('block', processInput);
 
   function processBlock(data) {
     console.log('got block');

@@ -98,13 +98,13 @@ io.on('connection', function (socket) {
     });
 
     parsedclient.on('block', function (data) {
-      console.log('================================================================');
-      console.log('before tabulator: ' + JSON.stringify(data));
-      //var processedBlock = tabulator.process(data);
       //console.log('================================================================');
-      //console.log('after tabulator: ' + JSON.stringify(processedBlock));
-      //if(shadowclient.loggedIn) { socket.emit('block', processedBlock); }
-      if(shadowclient.loggedIn) { socket.emit('block', data); }
+      //console.log('before tabulator: ' + JSON.stringify(data, null, 2));
+      var processedBlock = tabulator.tabulate(data);
+      //console.log('================================================================');
+      //console.log('after tabulator: ' + JSON.stringify(processedBlock, null, 2));
+      if(shadowclient.loggedIn) { socket.emit('block', processedBlock); }
+      //if(shadowclient.loggedIn) { socket.emit('block', data); }
     });
 
   }

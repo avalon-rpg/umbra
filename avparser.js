@@ -41,34 +41,38 @@ AvParser.prototype.init = function(shadowclient) {
 
   var blockStack;
   var currentBlock;
-  var emptyStrArray = [''].pop();
 
   function appendOutput(data) {
-    console.log('outputting: ' + JSON.stringify(data));
+    //console.log('appending: ' + JSON.stringify(data));
     if (!currentBlock) {
-      currentBlock = {
-        tags: emptyStrArray,
+      pushBlock({
+        tags: [],
         entries: [data]
-      };
+      });
     } else if (!currentBlock.entries) {
       currentBlock.entries = [data];
     } else {
       currentBlock.entries.push(data);
     }
-    if (!blockStack || blockStack.length == 0) {
-      blockStack = [currentBlock];
-    }
   }
 
-  function enterBlock(newBlock) {
-    var block = newBlock;
-    if(typeof block.tags == 'undefined') {
-      block.tags = emptyStrArray;
+  function pushBlock(block) {
+    if (!blockStack || blockStack.length == 0) {
+      blockStack = [block];
+    } else {
+      blockStack.push(block);
     }
     currentBlock = block;
-    console.log('entering block at depth ' + blockStack.length + ': ' + JSON.stringify(block));
-    blockStack.push(block);
+    //console.log('entering block at depth ' + blockStack.length + ': ' + JSON.stringify(block));
   }
+
+  //function enterBlock(newBlock) {
+  //  var block = newBlock;
+  //  if(typeof block.tags == 'undefined') {
+  //    block.tags = emptyStrArray;
+  //  }
+  //  pushBlock(block);
+  //}
 
   function tagBlock(tag) {
     if(!currentBlock.tags || currentBlock.tags.length == 0) {
@@ -80,10 +84,10 @@ AvParser.prototype.init = function(shadowclient) {
   function exitBlock() {
     if(blockStack.length > 1) {
       var block = blockStack.pop();
-      console.log('================================================================');
-      console.log("popping block: " + JSON.stringify(block));
-      console.log("blockstand depth is now : " + blockStack.length);
-      console.log('================================================================');
+      //console.log('================================================================');
+      //console.log("popping block: " + JSON.stringify(block));
+      //console.log("blockstand depth is now : " + blockStack.length);
+      //console.log('================================================================');
       currentBlock = blockStack.last();
       appendOutput(block);
     }
@@ -95,6 +99,7 @@ AvParser.prototype.init = function(shadowclient) {
     }
     self.emit('block', currentBlock);
     currentBlock = null;
+    blockStack = null;
   }
 
 
@@ -119,15 +124,6 @@ AvParser.prototype.init = function(shadowclient) {
     mapLines = [];
     inMap = false;
   };
-
-  //var fnEndMultilineMsg = function(match) {
-  //  if(inMultilineMsg && multilineMsgData) {
-  //    console.log('ending multiline message');
-  //    appendOutput(multilineMsgData);
-  //  }
-  //  inMultilineMsg = false;
-  //  multilineMsgData = undefined;
-  //};
 
   var sequences = [
     {
@@ -172,7 +168,7 @@ AvParser.prototype.init = function(shadowclient) {
     },{
       regex: /^###begin@ (.+)$/,
       func: function(match) {
-        console.log('multiline message start: ' + match[0]);
+        //console.log('multiline message start: ' + match[0]);
         newBlock = {qual: 'avmsg'};
         var parts = match[1].split('###');
         var partcount = parts.length;
@@ -181,9 +177,13 @@ AvParser.prototype.init = function(shadowclient) {
           var keyarr = part.split('=', 1);
           var key = keyarr[0];
           var value = part.substring(key.length + 1);
-          newBlock[key] = value.trim();
+          if(key == 'tag') {
+            newBlock['tags'] = value.split(' ');
+          } else {
+            newBlock[key] = value.trim();
+          }
         }
-        enterBlock(newBlock);
+        pushBlock(newBlock);
       }
     },{
       regex: /^###end@.*$/,
@@ -191,6 +191,7 @@ AvParser.prototype.init = function(shadowclient) {
     },{
       regex: /^You engage in a moment's deep thought, gathering a sense of the domain\.$/,
       func: function(match, rawLine) {
+        appendOutput({ qual: 'marker', markerFor: 'sphere sense' });
         tagBlock('sphere sense');
       }
     },{
@@ -335,25 +336,6 @@ AvParser.prototype.init = function(shadowclient) {
 
     //if(cleanline.startsWith('###')) { fnEndMultilineMsg([]); }
 
-    //if (cleanline == '###notification begin') {
-    //  inNotification = true;
-    //  return;
-    //}
-    //
-    //if (cleanline == '###notification end')   {
-    //  appendOutput({
-    //    qual: 'notification',
-    //    lines: notificationLines
-    //  });
-    //  inNotification = false;
-    //  notificationLines = [];
-    //  return;
-    //}
-    //
-    //if(inNotification) {
-    //  notificationLines.push(line);
-    //  return;
-    //}
 
     var seqLen = sequences.length;
     for (var i = 0; i < seqLen; i++) {

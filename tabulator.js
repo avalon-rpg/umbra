@@ -9,54 +9,73 @@ if (typeof Array.prototype.flatMap != 'function') {
 function Tabulator() {
 }
 
-var sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s+)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
+var sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s*)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
 
+Tabulator.prototype.tabulate = function (data) {
+  return process(data);
 
-Tabulator.prototype.process = function (block) {
-  var self = this;
-  if(!block.entries || block.entries.length == 0) { return block; }
-
-  var outEntries = [];
-  var rows;
-  var sphereSense = false;
-
-  function pushRows() {
-    if(rows) {
-      outEntries.push({
-        qual: 'table',
-        rows: rows
-      });
-      rows = null;
+  function process(block) {
+    if (!block.entries || block.entries.length == 0) {
+      return block;
     }
-  }
 
-  if(block.tags.indexOf('sphere sense') >= 0) { sphereSense = true; }
+    var outEntries;
+    var rows;
+    var sphereSense = false;
 
-  if(sphereSense) { rows = [{header: true, cells: ['who', 'where', 'health', 'mana']}]; }
+    function flushRows() {
+      if (rows) {
+        //console.log('tabulator flushing: ' + rows.length + " rows");
 
-  var len = block.entries.length;
-  for(i=1; i < len; ++i) {
-    var entry = block.entries[i];
-
-    if(sphereSense) {
-      var match = sphereSenseRegex.exec(entry.line);
-      if(match) {
-        rows.push({
-          header: false,
-          cells: [match[1],match[2],match[3],match[4]]
+        addEntry({
+          qual: 'table',
+          rows: rows
         });
-      } else {
-        pushRows();
-        outEntries.push(self.process(entry));
+        rows = null;
       }
-    } else {
-      outEntries.push(self.process(entry));
     }
-  }
-  pushRows();
 
-  block.entries = outEntries;
-  return block;
+    function addEntry(entry) {
+      //console.log('tabulator adding entry: ' + JSON.stringify(entry, null, 2));
+
+      if(!outEntries || outEntries.length == 0) {
+        outEntries = [process(entry)];
+      } else {
+        outEntries.push(process(entry));
+      }
+    }
+
+    if (block.tags.indexOf('sphere sense') >= 0) {
+      sphereSense = true;
+    }
+
+
+    var len = block.entries.length;
+    for (var i = 0; i < len; ++i) {
+      var entry = block.entries[i];
+      //console.log('tabulator scanning: ' + JSON.stringify(entry, null, 2));
+
+      if (sphereSense) {
+        var match = sphereSenseRegex.exec(entry.line);
+        if (match) {
+          rows.push({
+            header: false,
+            cells: [match[1], match[2], match[3], match[4]]
+          });
+        } else if(entry.qual == 'marker' && entry.markerFor == 'sphere sense') {
+          rows = [{header: true, cells: ['who', 'where', 'health', 'mana']}];
+        } else {
+          addEntry(entry);
+        }
+      } else {
+        addEntry(entry);
+      }
+    }
+    flushRows();
+
+    block.entries = outEntries;
+    return block;
+  }
 };
 
 module.exports = Tabulator;
