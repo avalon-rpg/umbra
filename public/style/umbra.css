@@ -30,6 +30,16 @@ body {
   line-height: 1.3;
 }
 
+.stdio {
+  float: left;
+  clear: both;
+  border-left: 1px solid whitesmoke;
+  margin-top: 3px;
+  border-radius: 10px;
+  width: 100px;
+  margin-left: 10px;
+}
+
 .flecked-bg {
   background: url('/img/dark-flecks.jpg') !important;
   color: #A9A9A9;

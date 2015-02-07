@@ -191,8 +191,8 @@ AvParser.prototype.init = function(shadowclient) {
     },{
       regex: /^You engage in a moment's deep thought, gathering a sense of the domain\.$/,
       func: function(match, rawLine) {
-        appendOutput({ qual: 'marker', markerFor: 'sphere sense' });
-        tagBlock('sphere sense');
+        appendOutput({ qual: 'marker', markerFor: 'spheresense' });
+        tagBlock('spheresense');
       }
     },{
       regex: /^###channel (\S+) (.+)$/,
@@ -351,13 +351,8 @@ AvParser.prototype.init = function(shadowclient) {
 
     //default fallback
     if(line.trim() != '') {
-      if(line.indexOf('   ') >= 0) {
-        monospacedBlock = true;
-      }
-      appendOutput({
-        qual: 'unparsed',
-        line: line
-      });
+      if(line.indexOf('   ') >= 0) { tagBlock('monospaced'); }
+      appendOutput({qual: 'unparsed',  line: line});
     }
   };
 

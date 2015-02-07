@@ -45,9 +45,7 @@ Tabulator.prototype.tabulate = function (data) {
       }
     }
 
-    if (block.tags.indexOf('sphere sense') >= 0) {
-      sphereSense = true;
-    }
+    if (block.tags.indexOf('spheresense') >= 0) { sphereSense = true; }
 
 
     var len = block.entries.length;
@@ -62,7 +60,7 @@ Tabulator.prototype.tabulate = function (data) {
             header: false,
             cells: [match[1], match[2], match[3], match[4]]
           });
-        } else if(entry.qual == 'marker' && entry.markerFor == 'sphere sense') {
+        } else if(entry.qual == 'marker' && entry.markerFor == 'spheresense') {
           rows = [{header: true, cells: ['who', 'where', 'health', 'mana']}];
         } else {
           addEntry(entry);

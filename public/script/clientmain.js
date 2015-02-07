@@ -88,16 +88,17 @@ $(function() {
   }
 
   // Log a message
-  function log (message, options) {
+  function mkUnparsed (message) {
     if(prevMsgType == 'prompt') { addPromptMark(); }
 
     var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
     var $el = $('<div>').addClass('log').html(msghtml);
-    if(options && options.monospaced) {
-      $el.addClass('monospaced');
-    }
-    addMessageElement($el, options);
     prevMsgType = 'log';
+    return $el
+  }
+
+  function log (message, options) {
+    addMessageElement(mkUnparsed(message), options);
   }
 
   function notify (message, options) {
@@ -107,15 +108,19 @@ $(function() {
     prevMsgType = 'notify';
   }
 
-  function addTell (whofrom, message, options) {
+  function mkTell (whofrom, message) {
     var whofromhtml = ansi_up.ansi_to_html(whofrom + ': ', {use_classes: true});
     var msghtml = ansi_up.ansi_to_html(message);
     var $usernameDiv = $('<span class="username"/>').html(whofromhtml).css('color', getUsernameColor(whofrom));
     var $messageBodyDiv = $('<span class="messageBody">').html(msghtml);
     var $messageDiv = $('<li class="message"/>').data('username', whofrom).append($usernameDiv, $messageBodyDiv);
 
-    addMessageElement($messageDiv, options);
     prevMsgType = 'tell';
+    return $messageDiv;
+  }
+
+  function addTell (whofrom, message, options) {
+    addMessageElement(mkTell(whofrom, message), options);
   }
 
   function addPrompt() {
@@ -124,17 +129,12 @@ $(function() {
     }
   }
 
-  function addPromptMark() {
-    var $iconElem = $('<i class="icon caret right prompt">');
-    addMessageElement($iconElem);
-  }
+  function mkPromptMark() { return $iconElem = $('<i class="icon caret right prompt">'); }
+  function addPromptMark() { addMessageElement(mkPromptMark()); }
   
-  function mkIcon(classes) {
-    return $('<i class="' + classes + ' icon">');
-  }
+  function mkIcon(classes) { return $('<i class="' + classes + ' icon">'); }
 
-  function addComms(data) {
-
+  function mkComms(data) {
     var parts = [];
 
     if(data.chan) {
@@ -160,23 +160,30 @@ $(function() {
     var $commsElem = $('<div class="comms ' + data.commsClasses + '">');
     $commsElem.append(mkIcon(data.iconClasses), $commsContentElem);
 
-    addMessageElement($commsElem);
     prevMsgType = 'comms';
+    return $commsElem;
   }
 
-  function addAvmsg(data) {
+  function addComms(data) {
+    addMessageElement(mkComms(data));
+  }
+
+  function mkAvmsg(data) {
     var $elem = $('<div class="avmsg ' + data.tag + '">');
     for (var prop in data) {
       if(prop != 'qual' && prop != 'tag' && prop != 'monospaced' && data.hasOwnProperty(prop)) {
         $elem.append($('<div class="'+prop+'">').text(data[prop]));
       }
     }
-    addMessageElement($elem);
-    // add location reveal handler here
     prevMsgType = 'avmsg';
+    return $elem;
   }
 
-  function addAvmap(data) {
+  function addAvmsg(data) {
+    addMessageElement(mkAvmsg(data));
+  }
+
+  function mkAvmap(data) {
     var $elem = $('<div class="avmap">');
     $elem.append($('<div class="loc">').text(data.loc));
     $elem.append($('<div class="region">').text(data.region));
@@ -185,12 +192,17 @@ $(function() {
       {use_classes: true}
     );
     $elem.append($('<div class="lines">').html(ansiLines));
-    addMessageElement($elem);
-    // add location reveal handler here
+
     prevMsgType = 'avmap';
+    return $elem;
+    // add location reveal handler here
   }
 
-  function addTable(table) {
+  function addAvmap(data) {
+    addMessageElement(mkAvmap(data));
+  }
+
+  function mkTable(table) {
     var $table = $('<table>');
     var rlen = table.rows.length;
     for(var r=0; r < rlen; ++r) {
@@ -207,12 +219,12 @@ $(function() {
       }
       $table.append($row);
     }
-    addMessageElement($table);
+    return $table;
   }
 
-  function elemExists(q) {
-    return ($(q).length > 0);
-  }
+  function addTable(table) { addMessageElement(mkTable(table)); }
+
+  function elemExists(q) { return ($(q).length > 0); }
 
   function concatUserName(user) {
     var str = '';
@@ -296,9 +308,7 @@ $(function() {
   // options.fade - If the element should fade-in (default = true)
   // options.prepend - If the element should prepend
   //   all other messages (default = false)
-  function addMessageElement (el, options) {
-    var $el = $(el);
-
+  function addMessageElement ($el, options) {
     // Setup default options
     if (!options) {
       options = {};
@@ -501,37 +511,57 @@ $(function() {
     }
   }
 
-  socket.on('block', processInput);
+  socket.on('block', function(data) {
+    $elem = processInput(data);
+    if($elem) {
+      addMessageElement($elem);
+    }
+  });
 
   function processBlock(data) {
     console.log('got block');
     console.log(data);
+
+    var elems = [];
+
     var len = data.entries.length;
     for(var i = 0; i < len; ++i) {
       var entry = data.entries[i];
       //entry.monospaced = data.monospaced;
-      processInput(entry);
+      var $el = processInput(entry);
+      if($el) { elems.push($el); }
     }
     if(data.prompt) {
       console.log('prompt: ' + data.prompt);
       addPrompt();
+    }
+
+    if(elems.length > 0) {
+      var $div = $('<div>');
+      if(data.tags && data.tags.length > 0) {
+        $div.addClass(data.tags.join(' '));
+      }
+      $div.append(elems);
+      return $div;
     }
   }
 
   function processInput(data) {
     console.log('input: ' + JSON.stringify(data));
 
+    var $elem;
+
     var ct = lookupCommsType(data.qual);
     if(ct) {
       data.iconClasses = ct.iconClasses;
       data.commsClasses = ct.commsClasses;
-      addComms(data);
+      $elem = mkComms(data);
     } else if(data.entries && data.entries.length > 0) {
-      processBlock(data);
+      $elem = processBlock(data);
     } else if(data.qual == 'avmsg') {
-      addAvmsg(data);
+      $elem = mkAvmsg(data);
     } else if(data.qual == 'map') {
-      addAvmap(data);
+      $elem = mkAvmap(data);
     } else if(data.qual == 'user') {
       //console.log(JSON.stringify(data));
       addUser(data);      
@@ -539,24 +569,26 @@ $(function() {
       //console.log('input: ' + JSON.stringify(data));
       addChannel(data.code, data.name);
     } else if (data.qual == 'table') {
-      addTable(data);
-    } else if(data.qual == 'notification') {
-      var block = '';
-      for(var i = 0; i < data.lines.length; i++) {
-        if(i == 0) {
-          block = data.lines[0];
-        } else {
-          block = block + '\r\n' + data.lines[i];
-        }
-      }
-      notify(block);
+      $elem = mkTable(data);
+    //} else if(data.qual == 'notification') {
+    //  var block = '';
+    //  for(var i = 0; i < data.lines.length; i++) {
+    //    if(i == 0) {
+    //      block = data.lines[0];
+    //    } else {
+    //      block = block + '\r\n' + data.lines[i];
+    //    }
+    //  }
+    //  notify(block);
     } else if(data.qual == 'unparsed') {
-      log(data.line, {monospaced: data.monospaced});
+      $elem = mkUnparsed(data.line);
     } else if(data.qual == 'protocol') {
       handleProto(data.code, data.content);
     } else {
       //console.log('input: ' + JSON.stringify(data));
     }
+
+    return $elem;
   }
 
   var keypadCodes = [
