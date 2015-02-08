@@ -203,21 +203,43 @@ $(function() {
   }
 
   function mkTable(table) {
-    var $table = $('<table>');
-    var rlen = table.rows.length;
-    for(var r=0; r < rlen; ++r) {
-      var row = table.rows[r];
-      var $row = $('<tr>');
 
-      var clen = row.cells.length;
-      for(var c=0; c < clen; ++c) {
-        var cell = row.cells[c];
-        var ansi = ansi_up.ansi_to_html(cell, {use_classes: true});
-        if(row.header) { $cell = $('<th>').html(ansi); }
-        else { $cell = $('<td>').html(ansi); }
-        $row.append($cell);
+    var $table = $('<table class="ui sortable inverted striped celled table">');
+    if(table.header && table.header.rows && table.header.rows.length > 0) {
+      var $header = $('<thead>');
+      var rlen = table.header.rows.length;
+      for(var r=0; r < rlen; ++r) {
+        var row = table.header.rows[r];
+        var $row = $('<tr>');
+
+        var clen = row.length;
+        for(var c=0; c < clen; ++c) {
+          var cell = row[c];
+          var ansi = ansi_up.ansi_to_html(cell, {use_classes: true});
+          var $cell = $('<th>').html(ansi);
+          $row.append($cell);
+        }
+        $header.append($row);
       }
-      $table.append($row);
+      $table.append($header);
+    }
+    if(table.body && table.body.rows && table.body.rows.length > 0) {
+      var $body = $('<tbody>');
+      var rlen = table.body.rows.length;
+      for (var r = 0; r < rlen; ++r) {
+        var row = table.body.rows[r];
+        var $row = $('<tr>');
+
+        var clen = row.length;
+        for (var c = 0; c < clen; ++c) {
+          var cell = row[c];
+          var ansi = ansi_up.ansi_to_html(cell, {use_classes: true});
+          var $cell = $('<td>').html(ansi);
+          $row.append($cell);
+        }
+        $body.append($row);
+      }
+      $table.append($body);
     }
     return $table;
   }
@@ -547,7 +569,8 @@ $(function() {
   }
 
   function processInput(data) {
-    console.log('input: ' + JSON.stringify(data));
+    console.log('input:');
+    console.log(data);
 
     var $elem;
 

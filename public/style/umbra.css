@@ -106,7 +106,7 @@ ul {
   margin-left: 20px;
   background: rgba(64, 128, 255, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #efefef;
+  /*color: #efefef;*/
   clear: both;
   float: left;
   border-radius: 5px;
@@ -247,6 +247,15 @@ ul {
   display: inline-block;
   padding: 2px;
 }
+.monospaced {
+  white-space: pre-wrap;
+  font-family: source-code-pro, Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+}
+
+.messages .block {
+  float: left;
+  clear: both;
+}
 
 .message {
   color: rgb(229,229,229);
@@ -254,8 +263,6 @@ ul {
   float: left;
   clear: both;
   padding-left: 20px;
-  white-space: pre-wrap;
-  font-family: source-code-pro, Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
 }
 
 

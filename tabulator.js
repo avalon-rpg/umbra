@@ -20,18 +20,14 @@ Tabulator.prototype.tabulate = function (data) {
     }
 
     var outEntries;
-    var rows;
+    var table;
     var sphereSense = false;
 
-    function flushRows() {
-      if (rows) {
+    function flushTable() {
+      if (table) {
         //console.log('tabulator flushing: ' + rows.length + " rows");
-
-        addEntry({
-          qual: 'table',
-          rows: rows
-        });
-        rows = null;
+        addEntry(table);
+        table = null;
       }
     }
 
@@ -45,8 +41,33 @@ Tabulator.prototype.tabulate = function (data) {
       }
     }
 
-    if (block.tags.indexOf('spheresense') >= 0) { sphereSense = true; }
+    function addRow(row) {
+      if(!table) {
+        table = {
+          qual: 'table',
+          body: {
+            rows: [row]
+          }
+        };
+      } else if(!table.body) {
+        table.body = {
+          rows: [row]
+        };
+      } else if(!table.body.rows || table.body.rows.length <= 0) {
+        table.body.rows = [row];
+      } else {
+        table.body.rows.push(row);
+      }
 
+    }
+
+    if (block.tags.indexOf('spheresense') >= 0) {
+      sphereSense = true;
+      var idx = block.tags.indexOf('monospaced')
+      if (idx > -1) {
+        block.tags.splice(idx, 1);
+      }
+    }
 
     var len = block.entries.length;
     for (var i = 0; i < len; ++i) {
@@ -56,12 +77,16 @@ Tabulator.prototype.tabulate = function (data) {
       if (sphereSense) {
         var match = sphereSenseRegex.exec(entry.line);
         if (match) {
-          rows.push({
-            header: false,
-            cells: [match[1], match[2], match[3], match[4]]
-          });
+          addRow([match[1], match[2], match[3], match[4]]);
         } else if(entry.qual == 'marker' && entry.markerFor == 'spheresense') {
-          rows = [{header: true, cells: ['who', 'where', 'health', 'mana']}];
+          table = {
+            qual: 'table',
+            header: {
+              rows: [
+                ['who', 'where', 'health', 'mana']
+              ]
+            }
+          };
         } else {
           addEntry(entry);
         }
@@ -69,7 +94,7 @@ Tabulator.prototype.tabulate = function (data) {
         addEntry(entry);
       }
     }
-    flushRows();
+    flushTable();
 
     block.entries = outEntries;
     return block;

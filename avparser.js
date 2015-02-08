@@ -46,7 +46,7 @@ AvParser.prototype.init = function(shadowclient) {
     //console.log('appending: ' + JSON.stringify(data));
     if (!currentBlock) {
       pushBlock({
-        tags: [],
+        tags: ['block'],
         entries: [data]
       });
     } else if (!currentBlock.entries) {
@@ -66,28 +66,18 @@ AvParser.prototype.init = function(shadowclient) {
     //console.log('entering block at depth ' + blockStack.length + ': ' + JSON.stringify(block));
   }
 
-  //function enterBlock(newBlock) {
-  //  var block = newBlock;
-  //  if(typeof block.tags == 'undefined') {
-  //    block.tags = emptyStrArray;
-  //  }
-  //  pushBlock(block);
-  //}
-
   function tagBlock(tag) {
     if(!currentBlock.tags || currentBlock.tags.length == 0) {
       currentBlock.tags = [tag];
     } else {
-      currentBlock.tags.push(tag);
+      if(currentBlock.tags.indexOf(tag) < 0) {
+        currentBlock.tags.push(tag);
+      }
     }
   }
   function exitBlock() {
     if(blockStack.length > 1) {
       var block = blockStack.pop();
-      //console.log('================================================================');
-      //console.log("popping block: " + JSON.stringify(block));
-      //console.log("blockstand depth is now : " + blockStack.length);
-      //console.log('================================================================');
       currentBlock = blockStack.last();
       appendOutput(block);
     }
@@ -127,6 +117,9 @@ AvParser.prototype.init = function(shadowclient) {
 
   var sequences = [
     {
+      regex: /^Initiating CLIENT \/ AVALON protocol codes\.$/,
+      func: function(match) {/* do nothing*/}
+    },{
       regex: /^Vicinity MAP around "(.+)" location:$/,
       func: function(match) {
         mapLoc = match[1];
@@ -178,7 +171,9 @@ AvParser.prototype.init = function(shadowclient) {
           var key = keyarr[0];
           var value = part.substring(key.length + 1);
           if(key == 'tag') {
-            newBlock['tags'] = value.split(' ');
+            var tags = value.split(' ');
+            tags.push('block');
+            newBlock['tags'] = tags;
           } else {
             newBlock[key] = value.trim();
           }
@@ -334,6 +329,7 @@ AvParser.prototype.init = function(shadowclient) {
 
     var cleanline = stripAnsi(line);
 
+
     //if(cleanline.startsWith('###')) { fnEndMultilineMsg([]); }
 
 
@@ -349,9 +345,10 @@ AvParser.prototype.init = function(shadowclient) {
       }
     }
 
+    if(line.indexOf('   ') >= 0) { tagBlock('monospaced'); }
+
     //default fallback
     if(line.trim() != '') {
-      if(line.indexOf('   ') >= 0) { tagBlock('monospaced'); }
       appendOutput({qual: 'unparsed',  line: line});
     }
   };
