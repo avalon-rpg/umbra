@@ -344,7 +344,7 @@ AvParser.prototype.init = function(shadowclient) {
         }
       }
     }
-    
+
     //default fallback
     if(line.trim() != '') {
       appendOutput({qual: 'unparsed',  line: line});
