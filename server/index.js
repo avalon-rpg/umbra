@@ -5,21 +5,27 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 2252;
 
+var Watcher = require('./Watcher').Watcher;
+var WatcherBinding = require('./WatcherBinding').WatcherBinding;
 var ShadowClient = require('./shadowclient');
 var AvParser = require('./avparser');
 var Tabulator = require('./tabulator');
 
 var tabulator = new Tabulator();
 
+var watcher = new Watcher('./web');
+
 server.listen(port, function () {
   console.log('Server listening at port %d', port);
 });
 
 // Routing
-app.use(express.static(__dirname + '/public'));
-app.use(express.static(__dirname + '/node_modules'));
+app.use(express.static(__dirname + '/../web'));
+app.use(express.static(__dirname + '/../node_modules'));
 
 io.on('connection', function (socket) {
+
+  watcher.addClient(new WatcherBinding(socket, watcher));
 
   var shadowclient;
   var parsedclient;

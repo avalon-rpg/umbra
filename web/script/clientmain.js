@@ -486,6 +486,8 @@ $(function() {
     }
   });
 
+  watcherClient = new WatcherClient(socket);
+
   function handleProto(code, content) {
     console.log('###' + code + ' ' + content);
 
