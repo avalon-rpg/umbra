@@ -132,11 +132,11 @@ ul {
 }
 
 .avmsg.location {
-  background: rgba(64, 255, 128, 0.25);
+  /*background: rgba(64, 255, 128, 0.25);*/
 }
 
 .ansi-blue-bg .location {
-  box-shadow: 0px 0px 9px white;
+  /*box-shadow: 0px 0px 9px white;*/
 }
 .avmsg .title {
   background: rgba(64, 128, 255, 0.6);
