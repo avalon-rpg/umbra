@@ -344,13 +344,13 @@ AvParser.prototype.init = function(shadowclient) {
         }
       }
     }
-
-    if(line.indexOf('   ') >= 0) { tagBlock('monospaced'); }
-
+    
     //default fallback
     if(line.trim() != '') {
       appendOutput({qual: 'unparsed',  line: line});
     }
+
+    if(line.indexOf('   ') >= 0) { tagBlock('monospaced'); }
   };
 
 
