@@ -140,7 +140,7 @@ ul {
 }
 
 .ansi-blue-bg .location {
-  /*box-shadow: 0px 0px 9px red;*/
+  box-shadow: 0px 0px 9px red;
 }
 
 .avmsg .title {
