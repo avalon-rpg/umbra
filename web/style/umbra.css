@@ -132,15 +132,15 @@ ul {
 }
 
 .avmsg.location {
-  background: rgba(64, 255, 128, 0.25);
+  /*background: rgba(64, 255, 128, 0.25);*/
 }
 
 .stdio .location {
-  box-shadow: 0px 0px 9px white;
+  /*box-shadow: 0px 0px 9px white;*/
 }
 
 .ansi-blue-bg .location {
-  box-shadow: 0px 0px 9px red;
+  /*box-shadow: 0px 0px 9px red;*/
 }
 
 .avmsg .title {
@@ -265,6 +265,7 @@ ul {
 .messages .block {
   float: left;
   clear: both;
+  width: 100%;
 }
 
 .message {
