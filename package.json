@@ -2,7 +2,7 @@
   "name": "avalon-rpg.shadow-client",
   "version": "0.0.0",
   "description": "A simple web client for Avalon's shadow protocol",
-  "main": "server/index.js",
+  "main": "server/app.js",
   "author": "Kevin Wright",
   "private": true,
   "license": "avalon-rpg",
