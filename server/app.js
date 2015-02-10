@@ -1,6 +1,7 @@
 // Setup basic express server
 var express = require('express');
 var app = express();
+var lessMiddleware = require('less-middleware');
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 2252;
@@ -20,6 +21,7 @@ server.listen(port, function () {
 });
 
 // Routing
+app.use(lessMiddleware(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../node_modules'));
 

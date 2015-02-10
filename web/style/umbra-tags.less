@@ -1,0 +1,275 @@
+
+/* ensure all blocks are full-width and clear of other floating content */
+.messages .block {
+  float: left;
+  clear: both;
+  width: 100%;
+}
+
+/* Basic text, otherwise untagged */
+
+.log {
+  /*color: gray;*/
+  color: rgb(229,229,229);
+  float: left;
+  clear: both;
+  padding-left: 20px;
+  white-space: pre-wrap;
+}
+
+/* fixed-width font, space lines more closely to help visual layouts */
+
+.monospaced {
+  font-family:
+    source-code-pro,
+    Monaco,
+    "Bitstream Vera Sans Mono",
+    "Lucida Console",
+    Terminal,
+    monospace;
+  line-height: 1.1;
+  font-size: smaller;
+  white-space: pre-wrap;
+}
+
+/*
+  stdio divs indicate response from a specified command,
+  indent slightly with a curved white border on the left.
+*/
+.stdio {
+  float: left;
+  clear: both;
+  border-left: 1px solid rgba(255,255,255,0.2);
+  margin-top: 3px;
+  border-radius: 10px;
+  width: 100%;
+  margin-left: 10px;
+}
+
+
+/* This is really here to ensure that ANSI stuff avoids massive padding and has rounded corners */
+
+.log span {
+  border-radius: 5px;
+  padding: 0;
+  display: inline-block;
+}
+
+/* Anything inside a ###msg@ or ###begin@ */
+
+.avmsg {
+  margin-left: 20px;
+  background: rgba(64, 128, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /*color: #efefef;*/
+  clear: both;
+  float: left;
+  border-radius: 5px;
+  padding: 0;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  max-width: 95%;
+  font-family:
+  "Alegreya",
+  "HelveticaNeue-Light",
+  "Helvetica Neue Light",
+  "Helvetica Neue",
+  Helvetica,
+  Arial,
+  "Lucida Grande",
+  sans-serif;
+
+}
+
+.avmsg.environs {
+  background: rgba(64, 255, 128, 0.25);
+}
+
+.avmsg.location {
+  /*background: rgba(64, 255, 128, 0.25);*/
+}
+
+.stdio .location {
+  /*box-shadow: 0px 0px 9px white;*/
+}
+
+.ansi-blue-bg .location {
+  /*box-shadow: 0px 0px 9px red;*/
+}
+
+/* The ###title= text inside an ###msg */
+
+.avmsg .title {
+  background: rgba(64, 128, 255, 0.6);
+  padding: 2px;
+  border-radius: 5px;
+  font-weight: 900;
+}
+
+/* The ###text= text inside an ###msg */
+
+.avmsg .text {
+  padding: 2px;
+}
+
+/* map and moving map */
+.avmap {
+  margin-left: 20px;
+  background: rgba(255, 223, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #efefef;
+  clear: both;
+  float: left;
+  border-radius: 5px;
+  padding: 0;
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
+.avmap .loc {
+  padding: 3px;
+  clear: both;
+}
+
+.avmap .region {
+  padding: 3px;
+  clear: both;
+  border-bottom: solid 1px rgba(255, 255, 255, 0.4);
+}
+
+/* map content: fixed-width lines with no spacing between */
+.avmap .lines {
+  line-height: 1.0;
+  white-space: pre-wrap;
+  font-family:
+    Consolas,
+    Menlo,
+    Monaco,
+    "Bitstream Vera Sans Mono",
+    "Lucida Console",
+    Terminal,
+    monospace;
+}
+
+/* Tells, calling, and bug runes */
+
+
+.comms {
+  clear: both;
+  float: left;
+  padding: 0;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  padding-left: 10px;
+  max-width: 95%;
+}
+
+/* "content" here is everyuthing after the icon */
+
+.comms .commscontent {
+  /* background: rgba(255, 255, 255, 0.2); */
+  color: #efefef;
+  border-radius: 5px;
+  padding: 0;
+  display: inline-block;
+}
+
+/* Absolute position the icon, force it left into the margin */
+.comms .icon {
+  padding-top: 4px;
+  position: absolute;
+  left: 10px;
+}
+
+/* translucent teracotta colour for bug-rune messages */
+.comms.bug .commscontent {
+  background: rgba(253, 126, 80, 0.25);
+  border: solid 1px rgba(253, 126, 80, 0.5);
+}
+
+/* Heavier fornt for the channel name */
+.comms .channel {
+  display: inline-block;
+  padding: 2px;
+  font-weight:700;
+}
+
+/* Translucent white background and bold black text for the person name */
+.comms .who {
+  display: inline-block;
+  padding: 1px;
+  font-weight: bold;
+  background-color: rgba(255,255,255,0.5);
+  color: black;
+  /*border: 1px solid rgb(127,127,127);*/
+  border-radius: 5px;
+}
+
+/* red icon for inbound messages */
+.comms.to .icon, .comms.to .msg {
+  color: rgba(255,96,96,.9);
+}
+
+/* green icon for inbound messages */
+.comms.from .icon { /* , .comms.from .channel { */
+  color: springgreen;
+}
+
+/* coral bug icon  */
+.comms.bug .icon, .comms.bug .channel {
+  color: coral;
+}
+
+/* faint white background for the city, if supplied (only used in novice-calling) */
+.comms .city {
+  display: inline-block;
+  padding: 2px;
+  background-color: rgba(255,255,255,0.2);
+}
+
+.comms .msg {
+  display: inline-block;
+  padding: 2px;
+}
+
+
+
+/*
+
+This class doesn't seem to be used anymore
+
+.message {
+  color: rgb(229,229,229);
+  margin: 5px;
+  float: left;
+  clear: both;
+  padding-left: 20px;
+}
+
+
+.message span {
+  border-radius: 5px;
+}
+
+*/
+
+
+.messages table {
+  margin-top: 5px;
+  clear: both;
+  margin-left: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+.messages table th {
+  font-weight: 700;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-bottom: 1px solid;
+}
+
+.messages table td {
+  padding-left: 2px;
+  padding-right: 2px;
+}

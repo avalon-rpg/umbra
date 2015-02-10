@@ -9,24 +9,11 @@ $(function() {
   }
 
   var FADE_TIME = 150; // ms
-  var TYPING_TIMER_LENGTH = 400; // ms
   var COLORS = [
     '#e21400', '#91580f', '#f8a700', '#f78b00',
     '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
     '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
   ];
-
-  // Gets the color of a username through our hash function
-  function getUsernameColor (username) {
-    // Compute hash code
-    var hash = 7;
-    for (var i = 0; i < username.length; i++) {
-       hash = username.charCodeAt(i) + (hash << 5) - hash;
-    }
-    // Calculate color
-    var index = Math.abs(hash % COLORS.length);
-    return COLORS[index];
-  }
 
   // Initialize varibles
   var $window = $(window);
@@ -108,21 +95,6 @@ $(function() {
     prevMsgType = 'notify';
   }
 
-  function mkTell (whofrom, message) {
-    var whofromhtml = ansi_up.ansi_to_html(whofrom + ': ', {use_classes: true});
-    var msghtml = ansi_up.ansi_to_html(message);
-    var $usernameDiv = $('<span class="username"/>').html(whofromhtml).css('color', getUsernameColor(whofrom));
-    var $messageBodyDiv = $('<span class="messageBody">').html(msghtml);
-    var $messageDiv = $('<li class="message"/>').data('username', whofrom).append($usernameDiv, $messageBodyDiv);
-
-    prevMsgType = 'tell';
-    return $messageDiv;
-  }
-
-  function addTell (whofrom, message, options) {
-    addMessageElement(mkTell(whofrom, message), options);
-  }
-
   function addPrompt() {
     if(prevMsgType == 'log') {
       prevMsgType = 'prompt';
@@ -164,10 +136,6 @@ $(function() {
     return $commsElem;
   }
 
-  function addComms(data) {
-    addMessageElement(mkComms(data));
-  }
-
   function mkAvmsg(data) {
     var $elem = $('<div class="avmsg ' + data.tag + '">');
     for (var prop in data) {
@@ -177,10 +145,6 @@ $(function() {
     }
     prevMsgType = 'avmsg';
     return $elem;
-  }
-
-  function addAvmsg(data) {
-    addMessageElement(mkAvmsg(data));
   }
 
   function mkAvmap(data) {
@@ -196,10 +160,6 @@ $(function() {
     prevMsgType = 'avmap';
     return $elem;
     // add location reveal handler here
-  }
-
-  function addAvmap(data) {
-    addMessageElement(mkAvmap(data));
   }
 
   function mkTable(table) {
@@ -243,8 +203,6 @@ $(function() {
     }
     return $table;
   }
-
-  function addTable(table) { addMessageElement(mkTable(table)); }
 
   function elemExists(q) { return ($(q).length > 0); }
 
