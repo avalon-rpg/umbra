@@ -10,6 +10,7 @@ function Tabulator() {
 }
 
 var sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s*)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
+var staggeredHorizRuleRegex = /-[- ]+/;
 
 Tabulator.prototype.tabulate = function (data) {
   return process(data);
@@ -21,7 +22,7 @@ Tabulator.prototype.tabulate = function (data) {
 
     var outEntries;
     var table;
-    var sphereSense = false;
+    var tableType = '';
 
     function flushTable() {
       if (table) {
@@ -61,12 +62,23 @@ Tabulator.prototype.tabulate = function (data) {
 
     }
 
-    if (block.tags.indexOf('spheresense') >= 0) {
-      sphereSense = true;
-      var idx = block.tags.indexOf('monospaced')
-      if (idx > -1) {
-        block.tags.splice(idx, 1);
+    function unTag(block, tag) {
+      if(block && block.tags && block.tags.length > 0) {
+        var idx = block.tags.indexOf(tag)
+        if (idx > -1) {
+          block.tags.splice(idx, 1);
+        }
       }
+    }
+
+    if (block.tags.indexOf('spheresense') >= 0) {
+      tableType = 'sphereSense';
+      unTag(block, 'monospaced');
+    }
+
+    if (block.tags.indexOf('guilds') >= 0) {
+      tableType = 'guilds';
+      unTag(block, 'monospaced');
     }
 
     var len = block.entries.length;
@@ -74,7 +86,8 @@ Tabulator.prototype.tabulate = function (data) {
       var entry = block.entries[i];
       //console.log('tabulator scanning: ' + JSON.stringify(entry, null, 2));
 
-      if (sphereSense) {
+
+      if (tableType == 'sphereSense') {
         var match = sphereSenseRegex.exec(entry.line);
         if (match) {
           addRow([match[1], match[2], match[3], match[4]]);
@@ -88,6 +101,28 @@ Tabulator.prototype.tabulate = function (data) {
             }
           };
         } else {
+          addEntry(entry);
+        }
+      } else if (tableType == 'guilds') {
+
+        var cols;
+        if(entry.line) { cols = entry.line.split('|'); }
+
+        if(entry.qual == 'marker' && entry.markerFor == 'guilds') {
+          table = {
+            qual: 'table',
+            header: {
+              rows: [
+                ['name', 'head', 'patron', 'where']
+              ]
+            }
+          };
+        } else if (cols && cols.length == 4) { //we got a row
+          addRow([cols[0].trim(), cols[1].trim(), cols[2].trim(), cols[3].trim()]);
+        } else if (staggeredHorizRuleRegex.exec(entry.line)) {
+          //do nothing
+        } else {
+          flushTable();
           addEntry(entry);
         }
       } else {

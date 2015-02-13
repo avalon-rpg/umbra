@@ -2,21 +2,8 @@
 
 $(function() {
 
-  /* depressing workaround for my least favourite browser */
-  var isIE = window.ActiveXObject || "ActiveXObject" in window;
-  if (isIE) {
-    $('.modal').removeClass('fade');
-  }
-
   var FADE_TIME = 150; // ms
-  var COLORS = [
-    '#e21400', '#91580f', '#f8a700', '#f78b00',
-    '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
-    '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
-  ];
 
-  // Initialize varibles
-  var $window = $(window);
 
   var createNewUser = false;
 
@@ -24,10 +11,7 @@ $(function() {
   var $passwordInput = $('#passwordInput'); // Input for username
   var $userlist = $('#user-list');
   var $messages = $('.messages'); // Messages area
-  var $chatArea = $('.chatArea'); // Input message input box
   var $inputMessage = $('#inputMessage'); // Input message input box
-
-  var $loginBtn = $('.loginBtn');
 
   // Prompt for setting a username
   var username;
@@ -38,6 +22,8 @@ $(function() {
   var prevMsgType = '';
 
   var socket = io();
+
+  var styler = new InlineStyler();
 
 
   // Sets the client's username
@@ -78,7 +64,7 @@ $(function() {
   function mkUnparsed (message) {
     if(prevMsgType == 'prompt') { addPromptMark(); }
 
-    var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
+    var msghtml = styler.style(message);
     var $el = $('<div>').addClass('log').html(msghtml);
     prevMsgType = 'log';
     return $el
@@ -89,7 +75,7 @@ $(function() {
   }
 
   function notify (message, options) {
-    var msghtml = ansi_up.ansi_to_html(message, {use_classes: true});
+    var msghtml = styler.style(message);
     var $el = $('<div>').addClass('notification').html(msghtml);
     addMessageElement($el, options);
     prevMsgType = 'notify';
@@ -114,7 +100,7 @@ $(function() {
     }
 
     if(data.who) {
-      var whohtml = ansi_up.ansi_to_html(data.who, {use_classes: true});
+      var whohtml = styler.style(data.who);
       parts.push($('<div class="who">').html(whohtml));
     }
 
@@ -123,7 +109,7 @@ $(function() {
       parts.push($('<div class="city">').html(data.city));
     }
 
-    var msghtml = ansi_up.ansi_to_html(data.msg, {use_classes: true});
+    var msghtml = styler.style(data.msg);
     parts.push($('<div class="msg">').html(msghtml));
 
     var $commsContentElem = $('<div class="commscontent">');
@@ -137,9 +123,13 @@ $(function() {
   }
 
   function mkAvmsg(data) {
-    var $elem = $('<div class="avmsg ' + data.tag + '">');
+    var cssClasses = '';
+    if(data.tags && data.tags.length > 0) {
+      cssClasses = data.tags.join(' ');
+    }
+    var $elem = $('<div class="avmsg ' + cssClasses + '">');
     for (var prop in data) {
-      if(prop != 'qual' && prop != 'tag' && prop != 'monospaced' && data.hasOwnProperty(prop)) {
+      if(prop != 'qual' && prop != 'tags' && prop != 'tag' && prop != 'monospaced' && data.hasOwnProperty(prop)) {
         $elem.append($('<div class="'+prop+'">').text(data[prop]));
       }
     }
@@ -151,10 +141,7 @@ $(function() {
     var $elem = $('<div class="avmap">');
     $elem.append($('<div class="loc">').text(data.loc));
     $elem.append($('<div class="region">').text(data.region));
-    var ansiLines = ansi_up.ansi_to_html(
-      data.lines.join('\n'),
-      {use_classes: true}
-    );
+    var ansiLines = styler.style(data.lines.join('\n'));
     $elem.append($('<div class="lines">').html(ansiLines));
 
     prevMsgType = 'avmap';
@@ -164,7 +151,7 @@ $(function() {
 
   function mkTable(table) {
 
-    var $table = $('<table class="ui sortable inverted striped celled table">');
+    var $table = $('<table class="ui inverted collapsing striped celled table">');
     if(table.header && table.header.rows && table.header.rows.length > 0) {
       var $header = $('<thead>');
       var rlen = table.header.rows.length;
@@ -175,7 +162,7 @@ $(function() {
         var clen = row.length;
         for(var c=0; c < clen; ++c) {
           var cell = row[c];
-          var ansi = ansi_up.ansi_to_html(cell, {use_classes: true});
+          var ansi = styler.style(cell);
           var $cell = $('<th>').html(ansi);
           $row.append($cell);
         }
@@ -193,7 +180,7 @@ $(function() {
         var clen = row.length;
         for (var c = 0; c < clen; ++c) {
           var cell = row[c];
-          var ansi = ansi_up.ansi_to_html(cell, {use_classes: true});
+          var ansi = styler.style(cell);
           var $cell = $('<td>').html(ansi);
           $row.append($cell);
         }
@@ -501,7 +488,7 @@ $(function() {
   });
 
   function processBlock(data) {
-    console.log('got block');
+    console.group('processing block');
     console.log(data);
 
     var elems = [];
@@ -509,7 +496,6 @@ $(function() {
     var len = data.entries.length;
     for(var i = 0; i < len; ++i) {
       var entry = data.entries[i];
-      //entry.monospaced = data.monospaced;
       var $el = processInput(entry);
       if($el) { elems.push($el); }
     }
@@ -524,12 +510,15 @@ $(function() {
         $div.addClass(data.tags.join(' '));
       }
       $div.append(elems);
+      console.groupEnd();
       return $div;
+    } else {
+      console.groupEnd();
     }
   }
 
   function processInput(data) {
-    console.log('input:');
+    console.group('processing input');
     console.log(data);
 
     var $elem;
@@ -570,6 +559,8 @@ $(function() {
     } else {
       //console.log('input: ' + JSON.stringify(data));
     }
+
+    console.groupEnd();
 
     return $elem;
   }

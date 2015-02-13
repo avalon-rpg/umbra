@@ -6,7 +6,6 @@ var EventEmitter = require('events').EventEmitter;
 // Helpful helpers
 
 if (typeof String.prototype.startsWith != 'function') {
-  // see below for better implementation!
   String.prototype.startsWith = function (str){
     return this.indexOf(str) == 0;
   };
@@ -15,13 +14,6 @@ if (typeof String.prototype.startsWith != 'function') {
 if (!Array.prototype.last){
   Array.prototype.last = function(){
     return this[this.length - 1];
-  };
-}
-
-if (typeof RegExp.prototype.withMatch != 'function') {
-  // see below for better implementation!
-  String.prototype.startsWith = function (str){
-    return this.indexOf(str) == 0;
   };
 }
 
@@ -75,18 +67,32 @@ AvParser.prototype.init = function(shadowclient) {
       }
     }
   }
+
   function exitBlock() {
+    if(currentBlock && currentBlock.entries && currentBlock.entries.length == 1) {
+      var soleEntry = currentBlock.entries[0];
+      if(soleEntry.comms) {
+        currentBlock = soleEntry;
+        return false;
+      } else {
+        tagBlock('oneliner');
+      }
+    }
     if(blockStack.length > 1) {
       var block = blockStack.pop();
       currentBlock = blockStack.last();
       appendOutput(block);
+      return true;
+    } else {
+      return false;
     }
   }
 
   function flushOutput() {
-    while(blockStack.length > 1) {
-      exitBlock();
+    while( exitBlock() ){
+      //do nowt
     }
+
     self.emit('block', currentBlock);
     currentBlock = null;
     blockStack = null;
@@ -190,6 +196,12 @@ AvParser.prototype.init = function(shadowclient) {
         tagBlock('spheresense');
       }
     },{
+      regex: /^Guild Name *\| Guildhead *\| Patron Deity *\| Where *$/,
+      func: function(match, rawLine) {
+        appendOutput({ qual: 'marker', markerFor: 'guilds' });
+        tagBlock('guilds');
+      }
+    },{
       regex: /^###channel (\S+) (.+)$/,
       func: function(match) {
         appendOutput({
@@ -202,8 +214,9 @@ AvParser.prototype.init = function(shadowclient) {
       regex: /^Your rune-bug picks up words: (.+)$/,
       func: function(match) {
         appendOutput({
-          chan: 'rune-bug',
           qual: 'rune-bug',
+          chan: 'rune-bug',
+          comms: true,
           msg:  match[1]
         });
       }
@@ -212,8 +225,9 @@ AvParser.prototype.init = function(shadowclient) {
       func: function(match) {
         appendOutput({
           qual: 'novice-calling from',
-          who:  match[1],
           chan: 'novices',
+          comms: true,
+          who:  match[1],
           city: match[2],
           msg: match[3]
         });
@@ -224,6 +238,7 @@ AvParser.prototype.init = function(shadowclient) {
         appendOutput({
           qual: 'novice-calling to',
           chan: 'novices',
+          comms: true,
           city: match[1],
           msg: match[2]
         });
@@ -233,8 +248,9 @@ AvParser.prototype.init = function(shadowclient) {
       func: function(match) {
         appendOutput({
           qual: 'novice-calling from',
-          who:  match[1],
           chan: 'novices',
+          comms: true,
+          who:  match[1],
           msg: match[2]
         });
       }    },{
@@ -242,6 +258,7 @@ AvParser.prototype.init = function(shadowclient) {
       func: function(match) {
         appendOutput({
           qual: 'calling from',
+          comms: true,
           who:  match[1],
           chan: match[2],
           msg: match[3]
@@ -253,6 +270,7 @@ AvParser.prototype.init = function(shadowclient) {
         appendOutput({
           qual: 'calling to',
           who: 'You',
+          comms: true,
           chan: match[1],
           msg: match[2]
         });
@@ -262,8 +280,9 @@ AvParser.prototype.init = function(shadowclient) {
       func: function(match) {
         appendOutput({
           qual: 'tell from',
-          who:  match[1],
           //chan: 'From',
+          comms: true,
+          who:  match[1],
           msg:  match[2]
         });
       }
@@ -272,8 +291,9 @@ AvParser.prototype.init = function(shadowclient) {
       func: function(match) {
         appendOutput({
           qual: 'tell to',
-          who:  match[2],
           //chan: 'To',
+          comms: true,
+          who:  match[2],
           msg:  match[3]
         });
       }
@@ -282,6 +302,7 @@ AvParser.prototype.init = function(shadowclient) {
       func: function(match) {
         appendOutput({
           qual: 'speech from',
+          comms: true,
           who:  match[1],
           msg:  match[3]
         });
@@ -291,6 +312,7 @@ AvParser.prototype.init = function(shadowclient) {
       func: function(match) {
         appendOutput({
           qual: 'speech to',
+          comms: true,
           msg:  match[2]
         });
       }
@@ -329,10 +351,6 @@ AvParser.prototype.init = function(shadowclient) {
 
     var cleanline = stripAnsi(line);
 
-
-    //if(cleanline.startsWith('###')) { fnEndMultilineMsg([]); }
-
-
     var seqLen = sequences.length;
     for (var i = 0; i < seqLen; i++) {
       var entry = sequences[i];
@@ -370,12 +388,10 @@ AvParser.prototype.init = function(shadowclient) {
   });
 
   self.shadowclient.on('avalon connected', function () {
-    self.connected = false;
     self.emit('avalon connected');
   });
 
   self.shadowclient.on('avalon disconnected', function (had_error) {
-    self.connected = false;
     self.emit('avalon disconnected', had_error);
   });
 
