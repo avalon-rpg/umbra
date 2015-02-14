@@ -130,7 +130,8 @@ $(function() {
     var $elem = $('<div class="avmsg ' + cssClasses + '">');
     for (var prop in data) {
       if(prop != 'qual' && prop != 'tags' && prop != 'tag' && prop != 'monospaced' && data.hasOwnProperty(prop)) {
-        $elem.append($('<div class="'+prop+'">').text(data[prop]));
+        var styled = styler.style(data[prop]);
+        $elem.append($('<div class="'+prop+'">').html(styled));
       }
     }
     prevMsgType = 'avmsg';
