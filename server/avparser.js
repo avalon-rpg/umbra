@@ -78,7 +78,7 @@ AvParser.prototype.init = function(shadowclient) {
         tagBlock('oneliner');
       }
     }
-    if(blockStack.length > 1) {
+    if(blockStack && blockStack.length > 1) {
       var block = blockStack.pop();
       currentBlock = blockStack.last();
       appendOutput(block);
