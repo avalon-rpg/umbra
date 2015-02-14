@@ -482,6 +482,8 @@ $(function() {
 
   socket.on('block', function(data) {
     $elem = processInput(data);
+    styler.reset();
+
     if($elem) {
       addMessageElement($elem);
     }

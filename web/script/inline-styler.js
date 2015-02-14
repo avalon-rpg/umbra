@@ -7,11 +7,20 @@ function InlineStyler() {
   this.tagStack = [];
 }
 
+InlineStyler.prototype.reset = function () {
+  console.log("resetting styler");
+  this.fg = this.bg = null;
+  this.bright = false;
+  this.tagStack = [];
+};
+
 InlineStyler.prototype.style = function (txt) {
   var self = this;
   var escaped = self.escape_for_html(txt);
   var ansid = self.ansi_to_html(escaped);
   var styled = self.inline_to_html(ansid);
+  console.log("styled line: " + styled);
+  console.log("retained styles: " + JSON.stringify(self.tagStack));
   return styled;
 
 };
@@ -65,10 +74,13 @@ InlineStyler.prototype.inline_to_html = function (txt) {
     }
   }
 
-  function replacer(match, p1, offset, string) {
+  function replacer(match, p1, p2, offset, string) {
     var pushed = false;
     var popped = false;
-    var tags = p1.split(' ');
+    content = p1 || p2;
+    if(!content) { return ''; }
+
+    var tags = content.split(' ');
     var len = tags.length;
     for(var i = 0; i < len; ++i) {
       var tag = tags[i];
@@ -93,7 +105,7 @@ InlineStyler.prototype.inline_to_html = function (txt) {
     return replacement;
   }
 
-  var regex = /<##(.*?)##>/gm;
+  var regex = /<##(.*?)##>|&lt;##(.*?)##&gt;/gm;
 
   var openingSalvo = spanForStack();
   if(openingSalvo != '') { inSpan = true; }

@@ -16,11 +16,25 @@ describe('Styler', function(){
     var expected = '<span class="tag">lorem, ipsum, blah blah blah</span>';
     assert.equal(output, expected);
   });
+  it('should handle escaped delimiters', function(){
+    var styler = new InlineStyler();
+    var input = "&lt;##tag##&gt;lorem, ipsum, blah blah blah&lt;##/tag##&gt;";
+    var output = styler.inline_to_html(input);
+    var expected = '<span class="tag">lorem, ipsum, blah blah blah</span>';
+    assert.equal(output, expected);
+  });
   it('should auto-close an open tag', function(){
     var styler = new InlineStyler();
     var input = "<##tag##>lorem, ipsum, blah blah blah";
     var output = styler.inline_to_html(input);
     var expected = '<span class="tag">lorem, ipsum, blah blah blah</span>';
+    assert.equal(output, expected);
+  });
+  it('should auto-close multiple open tags', function(){
+    var styler = new InlineStyler();
+    var input = "<##one##>lorem, ipsum, <##two##>blah blah blah";
+    var output = styler.inline_to_html(input);
+    var expected = '<span class="one">lorem, ipsum, </span><span class="one two">blah blah blah</span>';
     assert.equal(output, expected);
   });
   it('should ignore an unmatched closing tag', function(){
@@ -42,6 +56,13 @@ describe('Styler', function(){
     var input = "<##left##>lorem, <##right##>ipsum,<##/left##> blah blah blah<##/right##>";
     var output = styler.inline_to_html(input);
     var expected = '<span class="left">lorem, </span><span class="left right">ipsum,</span><span class="right"> blah blah blah</span>';
+    assert.equal(output, expected);
+  });
+  it('should handle multiple tags in a delimiter', function(){
+    var styler = new InlineStyler();
+    var input = "<##one two##>lorem, <##/one##>ipsum<##/two##>";
+    var output = styler.inline_to_html(input);
+    var expected = '<span class="one two">lorem, </span><span class="two">ipsum</span>';
     assert.equal(output, expected);
   });
   describe('When Reused', function(){
