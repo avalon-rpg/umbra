@@ -16,6 +16,16 @@ describe('Styler', function(){
     var expected = '<span class="tag">lorem, ipsum, blah blah blah</span>';
     assert.equal(output, expected);
   });
+  it('should reset all styles on encountering a tag named reset', function(){
+    var styler = new InlineStyler();
+    var input = "<##one##>lorem, <##two##>ipsum, <##reset##>blah blah blah<##/tag##>";
+    var output = styler.inline_to_html(input);
+    var expected = '<span class="one">lorem, </span><span class="one two">ipsum, </span>blah blah blah';
+    assert.equal(output, expected);
+    var line2 = "xxx";
+    var output2 = styler.inline_to_html(line2);
+    assert.equal(output2, "xxx");
+  });
   it('should handle escaped delimiters', function(){
     var styler = new InlineStyler();
     var input = "&lt;##tag##&gt;lorem, ipsum, blah blah blah&lt;##/tag##&gt;";

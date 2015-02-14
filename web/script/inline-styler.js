@@ -88,6 +88,9 @@ InlineStyler.prototype.inline_to_html = function (txt) {
         tag = tag.substring(1);
         console.log("tag to pop = " + tag);
         popped = popTag(tag) || popped;
+      } else if(tag == "reset") {
+        popped = (self.tagStack && self.tagStack.length > 0);
+        self.tagStack = [];
       } else {
         console.log("tag to push = " + tag);
         pushed = pushTag(tag) || pushed;
