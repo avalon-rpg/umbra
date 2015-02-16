@@ -491,8 +491,7 @@ $(function() {
   });
 
   function processBlock(data) {
-    console.group('processing block');
-    console.log(data);
+    console.log('processing block');
 
     var elems = [];
 
@@ -513,10 +512,7 @@ $(function() {
         $div.addClass(data.tags.join(' '));
       }
       $div.append(elems);
-      console.groupEnd();
       return $div;
-    } else {
-      console.groupEnd();
     }
   }
 
