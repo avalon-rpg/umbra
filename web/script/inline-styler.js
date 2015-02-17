@@ -8,7 +8,7 @@ function InlineStyler() {
 }
 
 InlineStyler.prototype.reset = function () {
-  console.log("resetting styler");
+  //console.log("resetting styler");
   this.fg = this.bg = null;
   this.bright = false;
   this.tagStack = [];
@@ -19,8 +19,8 @@ InlineStyler.prototype.style = function (txt) {
   var escaped = self.escape_for_html(txt);
   var ansid = self.ansi_to_html(escaped);
   var styled = self.inline_to_html(ansid);
-  console.log("styled line: " + styled);
-  console.log("retained styles: " + JSON.stringify(self.tagStack));
+  //console.log("styled line: " + styled);
+  //console.log("retained styles: " + JSON.stringify(self.tagStack));
   return styled;
 
 };
@@ -45,7 +45,7 @@ InlineStyler.prototype.inline_to_html = function (txt) {
   function pushTag(tag) {
     var idx = self.tagStack.indexOf(tag);
     if(idx < 0) {
-      console.log('pushing to tag stack: ' + tag);
+      //console.log('pushing to tag stack: ' + tag);
       self.tagStack.push(tag);
       return true;
     } else {
@@ -59,7 +59,7 @@ InlineStyler.prototype.inline_to_html = function (txt) {
       self.tagStack.splice(idx, 1);
       return true;
     } else {
-      console.log('can\'t pop from tag stack: ' + tag);
+      //console.log('can\'t pop from tag stack: ' + tag);
       return false;
     }
   }
@@ -86,13 +86,13 @@ InlineStyler.prototype.inline_to_html = function (txt) {
       var tag = tags[i];
       if(tag.indexOf("/") == 0) {
         tag = tag.substring(1);
-        console.log("tag to pop = " + tag);
+        //console.log("tag to pop = " + tag);
         popped = popTag(tag) || popped;
       } else if(tag == "reset") {
         popped = (self.tagStack && self.tagStack.length > 0);
         self.tagStack = [];
       } else {
-        console.log("tag to push = " + tag);
+        //console.log("tag to push = " + tag);
         pushed = pushTag(tag) || pushed;
       }
     }

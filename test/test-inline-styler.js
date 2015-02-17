@@ -77,19 +77,19 @@ describe('Styler', function(){
   });
   describe('When Reused', function(){
     var styler = new InlineStyler();
-    it('close an open tag at the end of a line', function(){
+    it('should close an open tag at the end of a line', function(){
       var input = "<##tag##>line 1";
       var output = styler.inline_to_html(input);
       var expected = '<span class="tag">line 1</span>';
       assert.equal(output, expected);
     });
-    it('retain a tag across calls', function(){
+    it('should retain a tag across calls', function(){
       var input = "line 2";
       var output = styler.inline_to_html(input);
       var expected = '<span class="tag">line 2</span>';
       assert.equal(output, expected);
     });
-    it('close a previously opened tag', function(){
+    it('should close a previously opened tag', function(){
       var input = "line 3<##/tag##> now closed";
       var output = styler.inline_to_html(input);
       var expected = '<span class="tag">line 3</span> now closed';

@@ -65,8 +65,8 @@ $(function() {
     if(prevMsgType == 'prompt') { addPromptMark(); }
 
     var msghtml = styler.style(message);
-    var $el = $('<div>').addClass('log').html(msghtml);
-    prevMsgType = 'log';
+    var $el = $('<div>').addClass('unparsed').html(msghtml);
+    prevMsgType = 'unparsed';
     return $el
   }
 
@@ -82,7 +82,7 @@ $(function() {
   }
 
   function addPrompt() {
-    if(prevMsgType == 'log') {
+    if(prevMsgType == 'unparsed') {
       prevMsgType = 'prompt';
     }
   }
@@ -541,16 +541,6 @@ $(function() {
       addChannel(data.code, data.name);
     } else if (data.qual == 'table') {
       $elem = mkTable(data);
-    //} else if(data.qual == 'notification') {
-    //  var block = '';
-    //  for(var i = 0; i < data.lines.length; i++) {
-    //    if(i == 0) {
-    //      block = data.lines[0];
-    //    } else {
-    //      block = block + '\r\n' + data.lines[i];
-    //    }
-    //  }
-    //  notify(block);
     } else if(data.qual == 'unparsed') {
       $elem = mkUnparsed(data.line);
     } else if(data.qual == 'protocol') {
@@ -565,6 +555,10 @@ $(function() {
   }
 
   var keypadCodes = [
+    {code: 37, char: 'l-arr', cmd: ''},
+    {code: 38, char: 'u-arr', cmd: ''},
+    {code: 39, char: 'r-arr', cmd: ''},
+    {code: 40, char: 'd-arr', cmd: ''},
     {code: 111, char: '/', cmd: 'out'},
     {code: 106, char: '*', cmd: 'in'},
     {code: 109, char: '-', cmd: 'up'},
@@ -586,20 +580,27 @@ $(function() {
   $(document).keydown( function (e) {
     if(connected) {
       var str = '';
+      var modKey = false;
 
       if (e.shiftKey) { str = 'shift+' + str; }
-      if (e.ctrlKey)  { str = 'ctrl+' + str;  }
-      if (e.altKey) { str = 'alt+' + str; }
+      if (e.ctrlKey)  { str = 'ctrl+' + str; modKey=true; }
+      if (e.altKey) { str = 'alt+' + str; modKey=true;}
+
+      if(!modKey) {
+        $inputMessage.focus();
+      }
 
       var len = keypadCodes.length;
       for (var i = 0; i < len; i++) {
         var entry = keypadCodes[i];
+        //e.preventDefault(); // return false does the same
         if(entry.code == e.keyCode) {
           str = str + entry.char;
           if(entry.cmd != '') {
             sendMessage(entry.cmd);
+            console.log(str);
+            return false;
           }
-          console.log(str);
         }
       }
     }

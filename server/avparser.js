@@ -38,6 +38,7 @@ AvParser.prototype.init = function(shadowclient) {
     //console.log('appending: ' + JSON.stringify(data));
     if (!currentBlock) {
       pushBlock({
+        qual: 'block',
         tags: ['block'],
         entries: [data]
       });
@@ -93,9 +94,11 @@ AvParser.prototype.init = function(shadowclient) {
       //do nowt
     }
 
-    self.emit('block', currentBlock);
-    currentBlock = null;
-    blockStack = null;
+    if(currentBlock) {
+      self.emit('block', currentBlock);
+      currentBlock = null;
+      blockStack = null;
+    }
   }
 
 
