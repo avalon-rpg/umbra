@@ -7,17 +7,16 @@ $(function() {
 
   var createNewUser = false;
 
-  var $nameInput = $('#nameInput'); // Input for username
-  var $passwordInput = $('#passwordInput'); // Input for username
-  var $userlist = $('#user-list');
-  var $messages = $('.messages'); // Messages area
-  var $inputMessage = $('#inputMessage'); // Input message input box
+  var $outputBox = $('#output-box'); // Messages area
+  var $inputBox = $('#input-box'); // Input message input box
+  var cmdHistory = [];
+  var cmdHistoryPos = -1;
 
   // Prompt for setting a username
   var username;
   var password;
   var connected = false;
-  var $currentInput = $nameInput.focus();
+  var $currentInput = $('#nameInput').focus();
 
   var prevMsgType = '';
 
@@ -28,12 +27,12 @@ $(function() {
 
   // Sets the client's username
   function attemptLogin () {
-    username = cleanInput($nameInput.val().trim());
-    password = cleanInput($passwordInput.val().trim());
+    username = cleanInput($('#nameInput').val().trim());
+    password = cleanInput($('#passwordInput').val().trim());
 
     // If the username is valid
     if (username && password) {
-      $currentInput = $inputMessage.focus();
+      $currentInput = $inputBox.focus();
 
       var loginParams = {
         username: username,
@@ -51,12 +50,46 @@ $(function() {
 
   // Sends a chat message
   function sendMessage (text) {
+    cmdHistory.push(text);
+    cmdHistoryPos = -1;
+
     text = cleanInput(text);
     // if there is a non-empty message and a socket connection
     if (text && connected) {
-      $inputMessage.val('');
+      $inputBox.val('');
       console.log("sent: " + text);
       socket.emit('send', text);
+    }
+  }
+
+  function historyPrev() {
+    if(cmdHistory.length >= 0) {
+      if (cmdHistoryPos == 0) {
+        return;
+      } else if (cmdHistoryPos == -1) {
+        cmdHistoryPos = cmdHistory.length - 1;
+      } else {
+        cmdHistoryPos = cmdHistoryPos - 1;
+      }
+      var cmd = cmdHistory[cmdHistoryPos];
+      $inputBox.val(cmd);
+      $inputBox.focus();
+    }
+  }
+
+  function historyNext() {
+    if(cmdHistory.length >= 0) {
+      var cmd = '';
+      if (cmdHistoryPos == -1) {
+        return;
+      } else if (cmdHistoryPos == cmdHistory.length - 1) {
+        cmdHistoryPos = -1;
+      } else {
+        cmdHistoryPos = cmdHistoryPos + 1;
+      }
+      var cmd = cmdHistory[cmdHistoryPos];
+      $inputBox.val(cmd);
+      $inputBox.focus();
     }
   }
 
@@ -72,13 +105,6 @@ $(function() {
 
   function log (message, options) {
     addMessageElement(mkUnparsed(message), options);
-  }
-
-  function notify (message, options) {
-    var msghtml = styler.style(message);
-    var $el = $('<div>').addClass('notification').html(msghtml);
-    addMessageElement($el, options);
-    prevMsgType = 'notify';
   }
 
   function addPrompt() {
@@ -239,8 +265,7 @@ $(function() {
       var $userPopup = $('<div class="ui card popup" id="player_popup_' + user.name + '"">')
         .append($cardHeader, $cardMeta, $cardContent);
 
-      $userlist.append($userItem);
-      $userlist.append($userPopup);
+      $('#user-list').append($userItem, $userPopup);
 
       $userItem.popup({
         popup    : $('player_popup_' + user.name),
@@ -293,11 +318,11 @@ $(function() {
       $el.hide().fadeIn(FADE_TIME);
     }
     if (options.prepend) {
-      $messages.prepend($el);
+      $outputBox.prepend($el);
     } else {
-      $messages.append($el);
+      $outputBox.append($el);
     }
-    $messages[0].scrollTop = $messages[0].scrollHeight;
+    $outputBox[0].scrollTop = $outputBox[0].scrollHeight;
     $(".nano").nanoScroller();
     $("#output-scroller").nanoScroller({ scroll: 'bottom' });
   }
@@ -312,13 +337,13 @@ $(function() {
   $( document ).on( "click", "a.item", function(event) {
     var cmd = $(this).data('command');
     if(cmd) {
-      $inputMessage.val(cmd + ' ');
-      $inputMessage.focus();
+      $inputBox.val(cmd + ' ');
+      $inputBox.focus();
     }
   });
  
   $('#input-message-form').submit( function(event) {
-    sendMessage($inputMessage.val());
+    sendMessage($inputBox.val());
     event.preventDefault();
   });
 
@@ -555,10 +580,10 @@ $(function() {
   }
 
   var keypadCodes = [
-    {code: 37, char: 'l-arr', cmd: ''},
-    {code: 38, char: 'u-arr', cmd: ''},
-    {code: 39, char: 'r-arr', cmd: ''},
-    {code: 40, char: 'd-arr', cmd: ''},
+    {code: 37, char: 'l-arr'},
+    {code: 38, char: 'u-arr', fn: historyPrev },
+    {code: 39, char: 'r-arr'},
+    {code: 40, char: 'd-arr', fn: historyNext },
     {code: 111, char: '/', cmd: 'out'},
     {code: 106, char: '*', cmd: 'in'},
     {code: 109, char: '-', cmd: 'up'},
@@ -579,6 +604,7 @@ $(function() {
   //this should work better on an iPad
   $(document).keydown( function (e) {
     if(connected) {
+
       var str = '';
       var modKey = false;
 
@@ -596,7 +622,10 @@ $(function() {
         //e.preventDefault(); // return false does the same
         if(entry.code == e.keyCode) {
           str = str + entry.char;
-          if(entry.cmd != '') {
+          if(entry.fn) {
+            entry.fn();
+            return false;
+          } else if(entry.cmd) {
             sendMessage(entry.cmd);
             console.log(str);
             return false;
