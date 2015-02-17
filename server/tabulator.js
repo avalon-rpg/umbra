@@ -71,14 +71,16 @@ Tabulator.prototype.tabulate = function (data) {
       }
     }
 
-    if (block.tags.indexOf('spheresense') >= 0) {
-      tableType = 'sphereSense';
-      unTag(block, 'monospaced');
-    }
+    if(block.tags) {
+      if (block.tags.indexOf('spheresense') >= 0) {
+        tableType = 'sphereSense';
+        unTag(block, 'monospaced');
+      }
 
-    if (block.tags.indexOf('guilds') >= 0) {
-      tableType = 'guilds';
-      unTag(block, 'monospaced');
+      if (block.tags.indexOf('guilds') >= 0) {
+        tableType = 'guilds';
+        unTag(block, 'monospaced');
+      }
     }
 
     var len = block.entries.length;
