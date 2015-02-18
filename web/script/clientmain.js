@@ -86,8 +86,8 @@ $(function() {
         cmdHistoryPos = -1;
       } else {
         cmdHistoryPos = cmdHistoryPos + 1;
+        cmd = cmdHistory[cmdHistoryPos];
       }
-      var cmd = cmdHistory[cmdHistoryPos];
       $inputBox.val(cmd);
       $inputBox.focus();
     }
@@ -418,6 +418,7 @@ $(function() {
       });
       // Display the welcome message
       log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
+      log('***New Feature: You can now use cursor up/down to browse your command history***');
     } else {
       //do validation results
       //$('.autumn.leaf').transition('slide down');
@@ -613,7 +614,7 @@ $(function() {
       if (e.altKey) { str = 'alt+' + str; modKey=true;}
 
       if(!modKey) {
-        $inputMessage.focus();
+        $inputBox.focus();
       }
 
       var len = keypadCodes.length;
