@@ -59,14 +59,18 @@ AvParser.prototype.init = function(shadowclient) {
     //console.log('entering block at depth ' + blockStack.length + ': ' + JSON.stringify(block));
   }
 
+  //returns true if the tag was added
   function tagBlock(tag) {
     if(!currentBlock.tags || currentBlock.tags.length == 0) {
       currentBlock.tags = [tag];
+      return true;
     } else {
       if(currentBlock.tags.indexOf(tag) < 0) {
         currentBlock.tags.push(tag);
+        return true;
       }
     }
+    return false;
   }
 
   function exitBlock() {
@@ -203,6 +207,14 @@ AvParser.prototype.init = function(shadowclient) {
       func: function(match, rawLine) {
         appendOutput({ qual: 'marker', markerFor: 'guilds' });
         tagBlock('guilds');
+      }
+    },{
+      regex: /^(\S) BB: +Read (\d+) out of (\d+)$/,
+      func: function(match, rawLine) {
+        if(tagBlock('bbstatus')) {
+          appendOutput({ qual: 'marker', markerFor: 'bbstatus' });
+        }
+        appendOutput({qual: 'unparsed',  line: rawLine});
       }
     },{
       regex: /^###channel (\S+) (.+)$/,

@@ -10,6 +10,7 @@ function Tabulator() {
 }
 
 var sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s*)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
+var bbstatusRegex = /^(\S+) BB: +Read (\d+) out of (\d+)$/;
 var staggeredHorizRuleRegex = /-[- ]+/;
 
 Tabulator.prototype.tabulate = function (data) {
@@ -81,6 +82,11 @@ Tabulator.prototype.tabulate = function (data) {
         tableType = 'guilds';
         unTag(block, 'monospaced');
       }
+
+      if (block.tags.indexOf('bbstatus') >= 0) {
+        tableType = 'bbstatus';
+        unTag(block, 'monospaced');
+      }
     }
 
     var len = block.entries.length;
@@ -125,6 +131,22 @@ Tabulator.prototype.tabulate = function (data) {
           //do nothing
         } else {
           flushTable();
+          addEntry(entry);
+        }
+      } else if (tableType == 'bbstatus') {
+        var match = bbstatusRegex.exec(entry.line);
+        if (match) {
+          addRow([match[1], match[2], match[3]]);
+        } else if(entry.qual == 'marker' && entry.markerFor == 'bbstatus') {
+          table = {
+            qual: 'table',
+            header: {
+              rows: [
+                ['board', 'read', 'of']
+              ]
+            }
+          };
+        } else {
           addEntry(entry);
         }
       } else {

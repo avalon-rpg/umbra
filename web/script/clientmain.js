@@ -602,7 +602,6 @@ $(function() {
     {code: 105, char: '9', cmd: 'ne'}
   ];
 
-  //this should work better on an iPad
   $(document).keydown( function (e) {
     if(connected) {
 
@@ -612,6 +611,7 @@ $(function() {
       if (e.shiftKey) { str = 'shift+' + str; }
       if (e.ctrlKey)  { str = 'ctrl+' + str; modKey=true; }
       if (e.altKey) { str = 'alt+' + str; modKey=true;}
+      if (e.metaKey) { str = 'meta+' + str; modKey=true;}
 
       if(!modKey) {
         $inputBox.focus();
