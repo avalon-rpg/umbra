@@ -178,7 +178,9 @@ $(function() {
     var $elem = $('<div class="avmap">');
     $elem.append($('<div class="loc">').text(data.loc));
     $elem.append($('<div class="region">').text(data.region));
-    var ansiLines = styler.style(data.lines.join('\n'));
+    // We explicitly DON'T want to support lingering styler backrounds inside maps,
+    // so only run the ANSI phase and not full styling.
+    var ansiLines = styler.ansi_to_html(data.lines.join('\n'));
     $elem.append($('<div class="lines">').html(ansiLines));
 
     prevMsgType = 'avmap';
@@ -546,16 +548,30 @@ $(function() {
     }
   }
 
-  socket.on('block', function(data) {
-    $elem = processInput(data);
-    styler.reset();
+  socket.on('block', function(data) { processInput(data); });
 
-    if($elem) {
-      addMessageElement($elem);
+  function processInput(data) {
+    if(data.qual && data.qual=='root') {
+      if(data.entries) {
+        var len = data.entries.length;
+        for (var i = 0; i < len; ++i) {
+          processInput(data.entries[i]);
+        }
+      } else {
+        //empty root block, skip it
+      }
+    } else {
+      var $elem = processEntry(data);
+      styler.reset();
+
+      if ($elem) {
+        addMessageElement($elem);
+      }
     }
-  });
+  }
 
   function processBlock(data) {
+
     console.log('processing block');
 
     var elems = [];
@@ -563,7 +579,7 @@ $(function() {
     var len = data.entries.length;
     for(var i = 0; i < len; ++i) {
       var entry = data.entries[i];
-      var $el = processInput(entry);
+      var $el = processEntry(entry);
       if($el) { elems.push($el); }
     }
     if(data.prompt) {
@@ -581,7 +597,7 @@ $(function() {
     }
   }
 
-  function processInput(data) {
+  function processEntry(data) {
     console.group('processing input');
     console.log(data);
 
@@ -685,14 +701,6 @@ $(function() {
   $('.ui.dropdown').dropdown();
   $('.ui.accordion').accordion();
 
-  // $('#login-form').submit( function(event) {
-  //   $('#login-modal').modal('hide');
-  //   attemptLogin();
-  //   event.preventDefault();
-  // });
-
-
-  // showLoginModal();
 
 
 });

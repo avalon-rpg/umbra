@@ -45,7 +45,7 @@ function BlockStack() {
 }
 
 BlockStack.prototype.reset = function () {
-  this.current = new Block();
+  this.current = new Block('root');
   this.stack = [this.current];
 };
 
