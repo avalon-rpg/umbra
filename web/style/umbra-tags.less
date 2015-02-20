@@ -1,4 +1,6 @@
-
+@indent: 10px;
+@curve-radius: @indent;
+@vert-spacer: @indent;
 
 .horz-gradient(@color1,@color2) {
   background-image: -webkit-gradient(linear, left top, left top, color-stop(0%, @color1), color-stop(100% @color2));
@@ -23,14 +25,14 @@
 
   .block {
     width: 100%;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: @indent;
+    padding-right: @indent;
     padding-top: 0px;
     padding-bottom: 0px;
     border-left: none;
-    border-radius: 10px;
+    border-radius: @curve-radius;
     margin-top: 0px;
-    margin-left: 10px;
+    margin-left: @indent;
   }
 
   .block > .block {
@@ -44,14 +46,32 @@
   .stdio {
     margin-top: 3px;
     margin-bottom: 3px;
-    margin-left: 10px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    margin-left: @indent;
+    padding-top: @vert-spacer;
+    padding-bottom: @vert-spacer;
     border-left: 3px solid rgba(255,0,0,0.4);
-    border-radius: 10px;
+    border-radius: @curve-radius;
     width: 100%;
     .vert-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.05));
     //  margin-left: 10px;
+
+    .cmd {
+      /* position: absolute; */
+      margin-right: -@indent;
+      font-size: smaller;
+      background: rgb(64,0,0);
+      /* width: auto; */
+      display: inline-block;
+      float: right;
+      border: 1px solid rgb(128,0,0);
+      border-radius: 5px;
+      padding-left: 4px;
+      padding-right: 4px;
+      /* transform: rotate(-90deg); */
+      transform-origin: left top 0;
+      /* color: black; */
+      margin-top: -@vert-spacer;
+    }
   }
 
   .stdio + .stdio {
@@ -200,7 +220,7 @@
   .icon {
     padding-top: 4px;
     position: absolute;
-    left: 10px;
+    left: @indent;
   }
 
   /* translucent teracotta colour for bug-rune messages */

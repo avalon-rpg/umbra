@@ -445,6 +445,17 @@ $(function() {
     $('#toggleLeftSidebar').toggleClass('active');
   });
 
+  $('#toggleFullscreen').click(function () {
+
+    if (screenfull.isFullscreen) {
+      $('#toggleFullscreen').removeClass('compress').addClass('expand');
+      screenfull.exit();
+    } else {
+      $('#toggleFullscreen').removeClass('expand').addClass('compress');
+      screenfull.request();
+    }
+
+  });
 
 
   // Socket events
@@ -591,6 +602,9 @@ $(function() {
       var $div = $('<div>');
       if(data.tags && data.tags.length > 0) {
         $div.addClass(data.tags.join(' '));
+      }
+      if(data.cmd) {
+        $div.append($('<div>').addClass('cmd').text(data.cmd));
       }
       $div.append(elems);
       return $div;
