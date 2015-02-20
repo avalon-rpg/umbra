@@ -25,7 +25,9 @@ InlineStyler.prototype.style = function (txt) {
 
 };
 InlineStyler.prototype.escape_for_html = function (txt) {
-  if(txt) {
+  if(!txt) {
+    return '';
+  } else {
     return txt.replace(/[&<>]/gm, function (str) {
       if (str == "&") return "&amp;";
       if (str == "<") return "&lt;";
@@ -41,6 +43,8 @@ InlineStyler.prototype.linkify = function (txt) {
 };
 
 InlineStyler.prototype.inline_to_html = function (txt) {
+  if(!txt) { return ''; }
+
   var self = this;
   var inSpan = false;
 
@@ -126,6 +130,8 @@ InlineStyler.prototype.inline_to_html = function (txt) {
 
 InlineStyler.prototype.ansi_to_html = function (txt) {
 
+  if(!txt) { return ''; }
+  
   var txtArray = txt.split(/\033\[/);
 
   var first = txtArray.shift(); // the first chunk is not the result of the split
