@@ -11,6 +11,7 @@ var WatcherBinding = require('./WatcherBinding').WatcherBinding;
 var ShadowClient = require('./shadowclient');
 var AvParser = require('./avparser');
 var Tabulator = require('./tabulator');
+var api = require("./api/index");
 
 var tabulator = new Tabulator();
 
@@ -21,9 +22,14 @@ server.listen(port, function () {
 });
 
 // Routing
+app.get("/checkname/", api.checkName);
+app.get("/checkname/:username", api.checkName);
+
 app.use(lessMiddleware(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../node_modules'));
+
+
 
 io.on('connection', function (socket) {
 

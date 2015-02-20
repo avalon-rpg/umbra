@@ -4,7 +4,7 @@ $(function() {
 
   var FADE_TIME = 150; // ms
 
-
+  var loginValidator;
   var createNewUser = false;
 
   var $outputBox = $('#output-box'); // Messages area
@@ -94,21 +94,29 @@ $(function() {
   }
 
   // Log a message
-  function mkUnparsed (message) {
+  function mkLine (data) {
     if(prevMsgType == 'prompt') { addPromptMark(); }
 
-    var msghtml = styler.style(message);
-    var $el = $('<div>').addClass('unparsed').html(msghtml);
-    prevMsgType = 'unparsed';
+    if(data.tags && data.who && data.tags.indexOf("sphere-movement") >= 0) {
+      var previous = $('.sphere-movement.person-'+data.who).remove();
+    }
+    var cssClasses = '';
+    if(data.tags && data.tags.length > 0) {
+      cssClasses = data.tags.join(' ');
+    }
+
+    var msghtml = styler.style(data.line);
+    var $el = $('<div class="' + cssClasses + '">').addClass('line').html(msghtml);
+    prevMsgType = 'line';
     return $el
   }
 
   function log (message, options) {
-    addMessageElement(mkUnparsed(message), options);
+    addMessageElement(mkLine(message), options);
   }
 
   function addPrompt() {
-    if(prevMsgType == 'unparsed') {
+    if(prevMsgType == 'line') {
       prevMsgType = 'prompt';
     }
   }
@@ -165,6 +173,8 @@ $(function() {
   }
 
   function mkAvmap(data) {
+    var oldmaps = $('.avmap');
+    oldmaps.remove();
     var $elem = $('<div class="avmap">');
     $elem.append($('<div class="loc">').text(data.loc));
     $elem.append($('<div class="region">').text(data.region));
@@ -172,6 +182,7 @@ $(function() {
     $elem.append($('<div class="lines">').html(ansiLines));
 
     prevMsgType = 'avmap';
+
     return $elem;
     // add location reveal handler here
   }
@@ -349,11 +360,34 @@ $(function() {
 
 
   $('#newUserDropdown').accordion({
-    onOpen: function () { createNewUser = true; },
-    onClose: function () { createNewUser = false; }
+    onOpen: function () {
+      createNewUser = true;
+      $('#nameInput').removeData('previousValue');
+      $('#nameInput').valid();
+    },
+    onClose: function () {
+      createNewUser = false;
+      $('#nameInput').removeData('previousValue');
+      $('#nameInput').valid();
+    }
   });
 
-  $('#login-form').validate({
+  $.validator.setDefaults({
+    errorClass: 'errorField',
+    errorElement: 'div',
+    errorPlacement: function(error, element) {
+      error.addClass("ui red pointing above ui label error").appendTo( element.closest('div.field') );
+    },
+    highlight: function(element, errorClass, validClass) {
+      $(element).closest("div.field").addClass("error").removeClass("success");
+    },
+    unhighlight: function(element, errorClass, validClass){
+      $(element).closest(".error").removeClass("error").addClass("success");
+    }
+
+  });
+
+  loginValidator = $('#login-form').validate({
     submitHandler: function (form) {
       $('#login-form').transition('pulse');
       attemptLogin();
@@ -364,11 +398,16 @@ $(function() {
     required: true,
     minlength: 3,
     maxlength: 18,
+    remote: {
+      //depends: function(element) { return createNewUser; },
+      url: "/checkname/",
+      data: { 'newUser': function() { return createNewUser; } }
+    },
     messages: {
       required:  'This field is required',
       minlength: 'Your username needs to be at least 3 characters',
       maxlength: 'Your username needs to be less than 18 characters',
-      remote:    'This username is already taken, try another one.'
+      remote:    'This username is unavailable'
     }
   });
 
@@ -567,8 +606,8 @@ $(function() {
       addChannel(data.code, data.name);
     } else if (data.qual == 'table') {
       $elem = mkTable(data);
-    } else if(data.qual == 'unparsed') {
-      $elem = mkUnparsed(data.line);
+    } else if(data.qual == 'line') {
+      $elem = mkLine(data);
     } else if(data.qual == 'protocol') {
       handleProto(data.code, data.content);
     } else {

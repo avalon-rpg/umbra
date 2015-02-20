@@ -355,6 +355,28 @@ AvParser.prototype.init = function(shadowclient) {
           content:  match[2]
         });
       }
+    },{
+      regex: /^(\S+) has just departed beyond the confines of your sphere of control\.$/,
+      func: function(match) {
+        var who = match[1].toLowerCase().replace('(','').replace(')','');
+        appendOutput({
+          qual: 'line',
+          line:  match[0],
+          who: who,
+          tags:  ['sphere-movement', 'sphere-departure', 'person-' + who]
+        });
+      }
+    },{
+      regex: /^(\S+) has just stepped within your sphere of control\.$/,
+      func: function(match) {
+        var who = match[1].toLowerCase().replace('(','').replace(')','');
+        appendOutput({
+          qual: 'line',
+          line:  match[0],
+          who: who,
+          tags:  ['sphere-movement', 'sphere-entry', 'person-' + who]
+        });
+      }
     }
   ];
 
@@ -380,7 +402,7 @@ AvParser.prototype.init = function(shadowclient) {
 
     //default fallback
     if(line.trim() != '') {
-      appendOutput({qual: 'unparsed',  line: line});
+      appendOutput({qual: 'line',  line: line});
     }
 
     if(line.indexOf('   ') >= 0) { tagBlock('monospaced'); }

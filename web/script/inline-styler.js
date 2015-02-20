@@ -25,11 +25,13 @@ InlineStyler.prototype.style = function (txt) {
 
 };
 InlineStyler.prototype.escape_for_html = function (txt) {
-  return txt.replace(/[&<>]/gm, function(str) {
-    if (str == "&") return "&amp;";
-    if (str == "<") return "&lt;";
-    if (str == ">") return "&gt;";
-  });
+  if(txt) {
+    return txt.replace(/[&<>]/gm, function (str) {
+      if (str == "&") return "&amp;";
+      if (str == "<") return "&lt;";
+      if (str == ">") return "&gt;";
+    });
+  }
 };
 
 InlineStyler.prototype.linkify = function (txt) {
