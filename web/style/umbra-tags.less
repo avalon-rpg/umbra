@@ -1,6 +1,6 @@
-@indent: 10px;
-@curve-radius: @indent;
-@vert-spacer: @indent;
+@indent: 8px;
+@curve-radius: 10px;
+@vert-spacer: 10px;
 
 .horz-gradient(@color1,@color2) {
   background-image: -webkit-gradient(linear, left top, left top, color-stop(0%, @color1), color-stop(100% @color2));
@@ -22,6 +22,8 @@
 
 /* ensure all blocks are full-width and clear of other floating content */
 .messages {
+
+  padding: 10px 20px 10px @indent;
 
   .block {
     width: 100%;
@@ -204,9 +206,9 @@
 }
 .comms {
   max-width: 95%;
-  padding-left: 20px;
+  padding-left: 10px;
 
-  /* "content" here is everyuthing after the icon */
+  /* "content" here is everything after the icon */
 
   .commscontent {
     /* background: rgba(255, 255, 255, 0.2); */
@@ -220,7 +222,7 @@
   .icon {
     padding-top: 4px;
     position: absolute;
-    left: @indent;
+    left: 2px;
   }
 
   /* translucent teracotta colour for bug-rune messages */
