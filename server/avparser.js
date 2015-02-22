@@ -116,17 +116,19 @@ AvParser.prototype.init = function(shadowclient) {
 
 
 
-  var fnEndMap = function(match) {
+  function endMapFor(region) {
     appendOutput({
       qual:  'map',
       loc:    mapLoc,
-      region: match[1],
+      region: region,
       lines:  mapLines
     });
     mapLoc = '';
     mapLines = [];
     inMap = false;
-  };
+  }
+
+  var fnEndMap = function(match) { endMapFor(match[1]); };
 
   var sequences = [
     {
@@ -147,7 +149,19 @@ AvParser.prototype.init = function(shadowclient) {
       cond: function() { return inMap; },
       func: fnEndMap
     },{
+      regex: /^Map shows (.*)\. Your location is highlighted\.$/,
+      cond: function() { return inMap; },
+      func: fnEndMap
+    },{
+      regex: /^Map shows (.*) environs with your location highlighted\.$/,
+      cond: function() { return inMap; },
+      func: fnEndMap
+    },{
       regex: /^Map depicts (.*)$/,
+      cond: function() { return inMap; },
+      func: fnEndMap
+    },{
+      regex: /^Map shows (.*)$/,
       cond: function() { return inMap; },
       func: fnEndMap
     },{
@@ -410,6 +424,7 @@ AvParser.prototype.init = function(shadowclient) {
 
 
   var onPrompt = function(prompt) {
+    if(inMap) { endMapFor('unknown'); }
     flushOutput()
   };
 
