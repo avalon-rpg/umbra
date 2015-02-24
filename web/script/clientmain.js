@@ -2,6 +2,12 @@
 
 $(function() {
 
+  var bKeepCommand = true;
+  var bCompleteCommand = true;
+  var lastInput = "";
+
+  var cmd_delimiter = ";";
+
   var FADE_TIME = 150; // ms
 
   var loginValidator;
@@ -10,7 +16,7 @@ $(function() {
   var $outputBox = $('#output-box'); // Messages area
   var $inputBox = $('#input-box'); // Input message input box
   var cmdHistory = [];
-  var cmdHistoryPos = -1;
+  var cmdHistoryPos = 0;
 
   // Prompt for setting a username
   var username;
@@ -50,47 +56,59 @@ $(function() {
 
   // Sends a chat message
   function sendMessage (text) {
-    cmdHistory.push(text);
-    cmdHistoryPos = -1;
-
+    addToCmdHistory(text);
     text = cleanInput(text);
     // if there is a non-empty message and a socket connection
     if (text && connected) {
-      $inputBox.val('');
+      if (!bKeepCommand) $inputBox.val('');
+      $inputBox.select();
       console.log("sent: " + text);
       socket.emit('send', text);
     }
   }
 
+  function addToCmdHistory() {
+    var _ref = $inputBox.val().split(cmd_delimiter);
+    for (var i = 0; i < _ref.length; i++)
+      if (cmdHistory.indexOf(_ref[i]) === -1) // don't add duplicates
+        cmdHistory.unshift(_ref[i]); // add to start of array
+  }
+
+  function completeCommand(line, incr) {
+    if (bCompleteCommand == false || cmdHistory.length == 0) return false;
+
+    var cmds = cmdHistory.filter(function (cmd) {
+      return cmd.indexOf(line) == 0
+    });
+
+    if (cmds.length == 0) return false;
+
+    if (cmdHistoryPos == cmds.length)
+      $inputBox.val(line);
+    else
+      $inputBox.val(cmds[cmdHistoryPos]);
+
+    cmdHistoryPos = cmdHistoryPos + incr;
+    if (cmdHistoryPos > cmds.length) cmdHistoryPos = 0; 
+    if (cmdHistoryPos < 0) cmdHistoryPos = cmds.length;
+    $inputBox.focus();
+  }
+
+  function tabComplete() {
+    if (bCompleteCommand == false) return false;
+    completeCommand(lastInput, 1);
+  }
+
   function historyPrev() {
-    if(cmdHistory.length >= 0) {
-      if (cmdHistoryPos == 0) {
-        return;
-      } else if (cmdHistoryPos == -1) {
-        cmdHistoryPos = cmdHistory.length - 1;
-      } else {
-        cmdHistoryPos = cmdHistoryPos - 1;
-      }
-      var cmd = cmdHistory[cmdHistoryPos];
-      $inputBox.val(cmd);
-      $inputBox.focus();
-    }
+    if (bCompleteCommand == false) return false;
+    completeCommand(lastInput, 1);
+    $inputBox[0].setSelectionRange(lastInput.length, $inputBox.val().length)
   }
 
   function historyNext() {
-    if(cmdHistory.length >= 0) {
-      var cmd = '';
-      if (cmdHistoryPos == -1) {
-        return;
-      } else if (cmdHistoryPos == cmdHistory.length - 1) {
-        cmdHistoryPos = -1;
-      } else {
-        cmdHistoryPos = cmdHistoryPos + 1;
-        cmd = cmdHistory[cmdHistoryPos];
-      }
-      $inputBox.val(cmd);
-      $inputBox.focus();
-    }
+    if (bCompleteCommand == false) return false;
+    completeCommand(lastInput, -1);
+    $inputBox[0].setSelectionRange(lastInput.length, $inputBox.val().length)
   }
 
   // Log a message
@@ -649,27 +667,28 @@ $(function() {
     return $elem;
   }
 
-  var keypadCodes = [
-    {code: 37, char: 'l-arr'},
-    {code: 38, char: 'u-arr', fn: historyPrev },
-    {code: 39, char: 'r-arr'},
-    {code: 40, char: 'd-arr', fn: historyNext },
-    {code: 111, char: '/', cmd: 'out'},
-    {code: 106, char: '*', cmd: 'in'},
-    {code: 109, char: '-', cmd: 'up'},
-    {code: 107, char: '+', cmd: 'down'},
-    {code: 110, char: '.', cmd: ''},
-    {code: 96,  char: '0', cmd: ''},
-    {code: 97,  char: '1', cmd: 'sw'},
-    {code: 98,  char: '2', cmd: 's'},
-    {code: 99,  char: '3', cmd: 'se'},
-    {code: 100, char: '4', cmd: 'w'},
-    {code: 101, char: '5', cmd: ''},
-    {code: 102, char: '6', cmd: 'e'},
-    {code: 103, char: '7', cmd: 'nw'},
-    {code: 104, char: '8', cmd: 'n'},
-    {code: 105, char: '9', cmd: 'ne'}
-  ];
+  var keypadCodes = {
+    9: {char: 'tab', fn: tabComplete },
+    37: {char: 'l-arr'},
+    38: {char: 'u-arr', fn: historyPrev },
+    39: {char: 'r-arr'},
+    40: {char: 'd-arr', fn: historyNext },
+    111: {char: '/', cmd: 'out'},
+    106: {char: '*', cmd: 'in'},
+    109: {char: '-', cmd: 'up'},
+    107: {char: '+', cmd: 'down'},
+    110: {char: '.', cmd: ''},
+    96: { char: '0', cmd: ''},
+    97: { char: '1', cmd: 'sw'},
+    98: { char: '2', cmd: 's'},
+    99: { char: '3', cmd: 'se'},
+    100: {char: '4', cmd: 'w'},
+    101: {char: '5', cmd: ''},
+    102: {char: '6', cmd: 'e'},
+    103: {char: '7', cmd: 'nw'},
+    104: {char: '8', cmd: 'n'},
+    105: {char: '9', cmd: 'ne'}
+  }
 
   $(document).keydown( function (e) {
     if(connected) {
@@ -686,23 +705,26 @@ $(function() {
         $inputBox.focus();
       }
 
-      var len = keypadCodes.length;
-      for (var i = 0; i < len; i++) {
-        var entry = keypadCodes[i];
-        //e.preventDefault(); // return false does the same
-        if(entry.code == e.keyCode) {
-          str = str + entry.char;
-          if(entry.fn) {
-            entry.fn();
-            return false;
-          } else if(entry.cmd) {
-            sendMessage(entry.cmd);
-            console.log(str);
-            return false;
-          }
+      var entry = keypadCodes[e.keyCode];
+      if(entry) {
+        str = str + entry.char;
+        if(entry.fn) {
+          entry.fn();
+          return false;
+        } else if(entry.cmd) {
+          sendMessage(entry.cmd);
+          console.log(str);
+          return false;
         }
       }
     }
+  });
+
+  $("#input-box").keyup( function (e) {
+    if (keypadCodes[e.keyCode] || e.keyCode == 13) return;
+
+    cmdHistoryPos = 0;
+    lastInput = $inputBox.val();
   });
 
   /////////////////////////////////////////////
