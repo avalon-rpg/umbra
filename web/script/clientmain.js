@@ -29,6 +29,8 @@ $(function() {
   var socket = io();
 
   var styler = new InlineStyler();
+  //iScroll
+  //var outputScroller;
 
 
   // Sets the client's username
@@ -303,6 +305,7 @@ $(function() {
         on       : 'hover'
       });
 
+      //nano
       $('#leftSidebarScroll').nanoScroller();
     }
   }
@@ -318,6 +321,7 @@ $(function() {
         .append($('<span>').text(name));//.append($badge);
 
       $('#calling-list').append($elem);
+      //nano
       $('#leftSidebarScroll').nanoScroller();
 
       if(code == 'ccc') { $('#city-stat').text(name); }
@@ -353,9 +357,14 @@ $(function() {
     } else {
       $outputBox.append($el);
     }
+
+    //nanoscroller
     $outputBox[0].scrollTop = $outputBox[0].scrollHeight;
     $(".nano").nanoScroller();
     $("#output-scroller").nanoScroller({ scroll: 'bottom' });
+
+    //iScroll
+    //scrollToBottom(outputScroller);
   }
 
   // Prevents input from having injected markup
@@ -727,11 +736,25 @@ $(function() {
     lastInput = $inputBox.val();
   });
 
+  function scrollToBottom(scroller) {
+    setTimeout(function () {
+      scroller.refresh();
+      scroller.scrollTo(0, scroller.maxScrollY, 0);
+    }, 0);
+  };
+
   /////////////////////////////////////////////
   // Page initialisation
 
   //turn on nano-scrollbars
-  //$(".nano").nanoScroller();
+  $(".nano").nanoScroller();
+
+  //iScroll
+  //outputScroller = new IScroll('#output-scroller', {
+  //  mouseWheel: true,
+  //  disableMouse: true,
+  //  scrollbars: true
+  //});
 
   //initialise clicky bits
   $('.ui.dropdown').dropdown();
