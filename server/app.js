@@ -7,7 +7,6 @@ var app = express();
 var server = app.listen(process.env.PORT || 2252);
 var io = require('socket.io')(server);
 
-var lessMiddleware = require('less-middleware');
 var Watcher = require('./Watcher').Watcher;
 var WatcherBinding = require('./WatcherBinding').WatcherBinding;
 var ShadowClient = require('./shadowclient');
@@ -28,7 +27,6 @@ app.use(compression())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-app.use(lessMiddleware(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../node_modules'));
 
