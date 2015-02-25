@@ -2,7 +2,6 @@
 var express = require('express');
 var compression = require('compression');
 var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser')
 
 var app = express();
 var server = app.listen(process.env.PORT || 2252);
@@ -28,7 +27,6 @@ app.use(compression())
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use(cookieParser())
 
 app.use(lessMiddleware(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../web'));
