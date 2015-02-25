@@ -2,7 +2,7 @@
 
 $(function() {
 
-  var bKeepCommand = true;
+  var bKeepCommand = false;
   var bCompleteCommand = true;
   var lastInput = "";
 
@@ -132,7 +132,7 @@ $(function() {
   }
 
   function log (message, options) {
-    addMessageElement(mkLine(message), options);
+    addMessageElements(mkLine(message), options);
   }
 
   function addPrompt() {
@@ -142,7 +142,7 @@ $(function() {
   }
 
   function mkPromptMark() { return $iconElem = $('<i class="icon caret right prompt">'); }
-  function addPromptMark() { addMessageElement(mkPromptMark()); }
+  function addPromptMark() { addMessageElements(mkPromptMark()); }
   
   function mkIcon(classes) { return $('<i class="' + classes + ' icon">'); }
 
@@ -336,7 +336,7 @@ $(function() {
   // options.fade - If the element should fade-in (default = true)
   // options.prepend - If the element should prepend
   //   all other messages (default = false)
-  function addMessageElement ($el, options) {
+  function addMessageElements ($el, options) {
     // Setup default options
     if (!options) {
       options = {};
@@ -350,7 +350,13 @@ $(function() {
 
     // Apply options
     if (options.fade) {
-      $el.hide().fadeIn(FADE_TIME);
+      if($el instanceof Array) {
+        for(var i = 0; i < $el.length; ++i) {
+          $el[i].hide().fadeIn(FADE_TIME);
+        }
+      } else {
+        $el.hide().fadeIn(FADE_TIME);
+      }
     }
     if (options.prepend) {
       $outputBox.prepend($el);
@@ -537,7 +543,7 @@ $(function() {
     }
   });
 
-  watcherClient = new WatcherClient(socket);
+  var watcherClient = new WatcherClient(socket);
 
   function handleProto(code, content) {
     console.log('###' + code + ' ' + content);
@@ -599,11 +605,11 @@ $(function() {
         //empty root block, skip it
       }
     } else {
-      var $elem = processEntry(data);
+      var $elems = processEntry(data);
       styler.reset();
 
-      if ($elem) {
-        addMessageElement($elem);
+      if ($elems) {
+        addMessageElements($elems);
       }
     }
   }
@@ -612,7 +618,11 @@ $(function() {
 
     console.log('processing block');
 
+    if(data.tags && data.tags.indexOf('oneliner') >= 0) {
+      return processEntry(data.entries[0]);
+    }
     var elems = [];
+    var breakout = true;
 
     var len = data.entries.length;
     for(var i = 0; i < len; ++i) {
@@ -642,19 +652,19 @@ $(function() {
     console.group('processing input');
     console.log(data);
 
-    var $elem;
+    var $elems;
 
     var ct = lookupCommsType(data.qual);
     if(ct) {
       data.iconClasses = ct.iconClasses;
       data.commsClasses = ct.commsClasses;
-      $elem = mkComms(data);
+      $elems = mkComms(data);
     } else if(data.entries && data.entries.length > 0) {
-      $elem = processBlock(data);
+      $elems = processBlock(data);
     } else if(data.qual == 'avmsg') {
-      $elem = mkAvmsg(data);
+      $elems = mkAvmsg(data);
     } else if(data.qual == 'map') {
-      $elem = mkAvmap(data);
+      $elems = mkAvmap(data);
     } else if(data.qual == 'user') {
       //console.log(JSON.stringify(data));
       addUser(data);      
@@ -662,9 +672,9 @@ $(function() {
       //console.log('input: ' + JSON.stringify(data));
       addChannel(data.code, data.name);
     } else if (data.qual == 'table') {
-      $elem = mkTable(data);
+      $elems = mkTable(data);
     } else if(data.qual == 'line') {
-      $elem = mkLine(data);
+      $elems = mkLine(data);
     } else if(data.qual == 'protocol') {
       handleProto(data.code, data.content);
     } else {
@@ -673,7 +683,7 @@ $(function() {
 
     console.groupEnd();
 
-    return $elem;
+    return $elems;
   }
 
   var keypadCodes = {

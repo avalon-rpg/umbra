@@ -1,4 +1,4 @@
-@indent: 8px;
+@indent: 10px;
 @curve-radius: 10px;
 @vert-spacer: 10px;
 
@@ -23,23 +23,26 @@
 /* ensure all blocks are full-width and clear of other floating content */
 .messages {
 
-  padding: 10px 20px 10px @indent;
+  //top, right, bottom, left
+  padding: @vert-spacer @indent @vert-spacer 2*@indent;
 
-  .block {
+  .block, .line {
     width: 100%;
-    padding-left: @indent;
+    padding-left: 0px;
     padding-right: @indent;
     padding-top: 0px;
     padding-bottom: 0px;
     border-left: none;
     border-radius: @curve-radius;
     margin-top: 0px;
-    margin-left: @indent;
+    margin-left: 0px;
   }
 
   .block > .block {
-    margin-left: 0px;
+    margin-left: @indent;
   }
+
+
 
   /*
   stdio divs indicate response from a specified command,
@@ -48,10 +51,11 @@
   .stdio {
     margin-top: 3px;
     margin-bottom: 3px;
-    margin-left: @indent;
+    margin-left: -(@indent + 3px);
+    padding-left: @indent - 3px;
     padding-top: @vert-spacer;
     padding-bottom: @vert-spacer;
-    border-left: 3px solid rgba(255,0,0,0.4);
+    border-left: 3px solid rgb(79, 136, 67);
     border-radius: @curve-radius;
     width: 100%;
     .vert-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.05));
@@ -131,6 +135,7 @@
   /*color: #efefef;*/
   border-radius: 5px;
   padding: 0;
+  margin-left: -3px;
   margin-top: 3px;
   margin-bottom: 3px;
   max-width: 95%;
@@ -206,7 +211,6 @@
 }
 .comms {
   max-width: 95%;
-  padding-left: 10px;
 
   /* "content" here is everything after the icon */
 
