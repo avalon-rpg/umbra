@@ -1,11 +1,14 @@
 // Setup basic express server
 var express = require('express');
-var app = express();
-var lessMiddleware = require('less-middleware');
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
-var port = process.env.PORT || 2252;
+var compression = require('compression');
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser')
 
+var app = express();
+var server = app.listen(process.env.PORT || 2252);
+var io = require('socket.io')(server);
+
+var lessMiddleware = require('less-middleware');
 var Watcher = require('./Watcher').Watcher;
 var WatcherBinding = require('./WatcherBinding').WatcherBinding;
 var ShadowClient = require('./shadowclient');
@@ -17,19 +20,24 @@ var tabulator = new Tabulator();
 
 var watcher = new Watcher('./web');
 
-server.listen(port, function () {
-  console.log('Server listening at port %d', port);
-});
-
 // Routing
 app.get("/checkname/", api.checkName);
 app.get("/checkname/:username", api.checkName);
+
+app.use(compression())
+
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.use(cookieParser())
 
 app.use(lessMiddleware(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../node_modules'));
 
-
+app.post("/", function (req, res, next) {
+  res.cookie('umbralogin', JSON.stringify(req.body), { maxAge: 60000, httpOnly: false });
+  res.sendfile("index.html", {root: __dirname + '/../web'});
+});
 
 io.on('connection', function (socket) {
 

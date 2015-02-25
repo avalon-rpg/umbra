@@ -1,4 +1,4 @@
-
+function readCookie(n){n+='=';for(var a=document.cookie.split(/;\s*/),i=a.length-1;i>=0;i--)if(!a[i].indexOf(n))return a[i].replace(n,'');}
 
 $(function() {
 
@@ -29,6 +29,14 @@ $(function() {
   var socket = io();
 
   var styler = new InlineStyler();
+
+  if (readCookie("umbralogin")) {
+    var loginData = JSON.parse(decodeURIComponent(readCookie("umbralogin")));
+    loginData.create = loginData.create == "yes";
+    socket.emit('attempt login', loginData);
+  }
+
+
   //iScroll
   //var outputScroller;
 
