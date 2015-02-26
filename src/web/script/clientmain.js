@@ -692,10 +692,10 @@ $(function() {
       $elems = mkAvmap(data);
     } else if(data.qual == 'user') {
       //console.log(JSON.stringify(data));
-      addUser(data);      
+      //addUser(data);
     } else if(data.qual == 'channel') {
       //console.log('input: ' + JSON.stringify(data));
-      addChannel(data.code, data.name);
+      //addChannel(data.code, data.name);
     } else if (data.qual == 'table') {
       $elems = mkTable(data);
     } else if(data.qual == 'line') {
