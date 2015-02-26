@@ -10,7 +10,7 @@ function Tabulator() {
 }
 
 var sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s*)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
-var bbstatusRegex = /^(\S+) BB: +Read (\d+) out of (\d+)$/;
+var bbstatusRegex = /^(.*): +Read (\d+) out of (\d+)$/;
 var staggeredHorizRuleRegex = /-[- ]+/;
 
 Tabulator.prototype.tabulate = function (data) {
