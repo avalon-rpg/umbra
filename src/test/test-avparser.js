@@ -41,7 +41,7 @@ describe('an AvParser', function () {
       qual: "block",
       tags: ["block", "oneliner"],
       entries: [
-        {line: "this line is not special", qual: "unparsed"}
+        {line: "this line is not special", qual: "line"}
       ]
     }]);
   });
@@ -58,8 +58,8 @@ describe('an AvParser', function () {
       qual: "block",
       tags: ["block"],
       entries: [
-        {line: "line 1", qual: "unparsed"},
-        {line: "line 2", qual: "unparsed"}
+        {line: "line 1", qual: "line"},
+        {line: "line 2", qual: "line"}
       ]
     }]);
   });
@@ -80,9 +80,9 @@ describe('an AvParser', function () {
       qual: "block",
       tags: ["block", "monospaced"],
       entries: [
-        {line: "line 1", qual: "unparsed"},
-        {line: "line   2", qual: "unparsed"},
-        {line: "line 3", qual: "unparsed"}
+        {line: "line 1", qual: "line"},
+        {line: "line   2", qual: "line"},
+        {line: "line 3", qual: "line"}
       ]
     }]);
   });
