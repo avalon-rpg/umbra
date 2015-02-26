@@ -496,7 +496,18 @@ $(function() {
       screenfull.request();
     }
 
-  });
+  })
+
+
+  function openHelp() {
+    var help = $("#searchHelp input").val();
+    window.open('http://www.avalon-rpg.com/help/search?page='+help,'_blank','width=600,height=800,scrollbars=1');
+  };
+  $("#searchHelp input").keyup(function(e) {
+    if (e.keyCode == 13) openHelp(); // will usually be blocked
+  })
+  $("#searchHelp i.icon").click(openHelp);
+
 
 
   // Socket events
