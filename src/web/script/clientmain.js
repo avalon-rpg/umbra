@@ -734,6 +734,8 @@ $(function() {
   }
 
   $(document).keydown( function (e) {
+    if($('#search-help').is(":focus")) {return;}
+
     if(connected) {
 
       var str = '';
@@ -745,6 +747,7 @@ $(function() {
       if (e.metaKey) { str = 'meta+' + str; modKey=true;}
 
       if(!modKey) {
+
         $inputBox.focus();
       }
 
