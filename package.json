@@ -11,7 +11,7 @@
     "start": "forever start ./build/server/app.js",
     "stop": "forever stop ./build/server/app.js",
     "restart": "forever restart ./build/server/app.js",
-    "test": "mocha -R spec --recursive ./build/test/*.js"
+    "test": "mocha --harmony -R spec --recursive ./build/test/*.js"
   },
   "dependencies": {
     "ansi_up": "1.1.3",
