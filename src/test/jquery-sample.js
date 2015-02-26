@@ -7,6 +7,7 @@ describe('jquery', function () {
   jsdom();
 
   before(function () {
+    Contextify = require('contextify-blah');
     $ = require('jquery');
   });
 
