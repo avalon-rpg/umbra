@@ -443,6 +443,7 @@ $(function() {
   });
 
   $('#nameInput').rules('add', {
+    onkeyup: false,
     required: true,
     minlength: 3,
     maxlength: 18,
