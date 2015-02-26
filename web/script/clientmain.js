@@ -36,6 +36,9 @@ $(function() {
     socket.emit('attempt login', loginData);
   }
 
+  var canVibrate = "vibrate" in navigator || "mozVibrate" in navigator;
+  if (canVibrate && !("vibrate" in navigator))
+      navigator.vibrate = navigator.mozVibrate;
 
   //iScroll
   //var outputScroller;
@@ -181,6 +184,8 @@ $(function() {
     $commsElem.append(mkIcon(data.iconClasses), $commsContentElem);
 
     prevMsgType = 'comms';
+
+    if (canVibrate) navigator.vibrate([30, 0, 30]);
     return $commsElem;
   }
 
