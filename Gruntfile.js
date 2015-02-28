@@ -1,13 +1,43 @@
+/*
+Build process:
+
+1. less:dist
+
+   convert all src/web/style/umbra.less => build/web/style/umbra.css
+   This will @include all other less/css files needed
+
+2. riot:dist
+
+   compile riot tag files from src/web/tags/*.tag into src-gen/web/tags/*.js
+   The resulting js is not minified
+
+3. babel:dist
+
+   babel compile es6 files from src/web/script/ into src-gen/web/babel/
+   generates a corresponding map file for each output
+
+4. copy:
+
+   3rd party scripts into src-gen/web/3rdparty
+
+5. concat_with_sourcemaps:dist
+
+   concat all js files currently in src-gen/web into src-gen/web/concatted/umbra.js
+   Therefore including:
+     - src-gen/web/babel
+     - src-gen/web/tags
+     - 3rdparty scripts
+
+
+ */
+
+
 module.exports = function(grunt) {
-  var jsFiles = [
-    'src/web/script/inline-styler.js',
-    'src/web/script/jquery-validation/jquery.validate.js',
-    'src/web/script/jquery.nanoscroller.js',
-    'src/web/semantic-ui/semantic.js',
-    'src/web/script/screenfull.js',
-    'src/web/script/watcherClient.js',
-    'src/web/script/clientmain.js',
-    'src-gen/web/tags/*.js'
+  var thirdparty_scripts = [
+    'src/web/thirdparty/semantic-ui/semantic.js',
+    'src/web/thirdparty/jquery-validation/jquery.validate.js',
+    'src/web/thirdparty/jquery.nanoscroller.js',
+    'src/web/thirdparty/screenfull.js'
   ];
 
   grunt.initConfig({
@@ -46,23 +76,23 @@ module.exports = function(grunt) {
       options: {
         sourceMap: true
       },
-      server: {
-        files: [{
-          expand: true,
-          cwd: 'src/server',
-          src: '**/*.es6',
-          dest: 'src-gen/server/',
-          ext: '.js'
-        }]
-      },
-      web: {
+      dist: {
         files: [{
           expand: true,
           cwd: 'src/web/script',
-          src: '**/*.es6',
-          dest: 'src-gen/web/script/',
+          src: ['**/*.es6'],
+          dest: 'src-gen/web/babel/',
           ext: '.js'
         }]
+      }
+    },
+    concat: {
+      options: {
+        sourceMap: true
+      },
+      dist: {
+        src: ['src-gen/web/thirdparty/*.js','src-gen/web/babel/*.js','src-gen/web/script/*.js','src-gen/web/tags/*.js'],
+        dest: 'src-gen/web/concatted/umbra.js'
       }
     },
     uglify: {
@@ -72,19 +102,42 @@ module.exports = function(grunt) {
           '<%= grunt.template.today("yyyy-mm-dd") %> */',
         sourceMap: true,
         sourceMapName: 'build/web/script/umbra.map',
-        mangle: false
+        sourceMapIn: 'src-gen/web/concatted/umbra.js.map',
+        mangle: true
       },
       web: {
         files: {
-          'build/web/script/umbra.js': jsFiles
+          'build/web/script/umbra.js': 'src-gen/web/concatted/umbra.js'
         }
       }
     },
     copy: {
-      main: {
+      web_thirdparty: {
+        files: [
+          {expand: true, flatten: true, src: thirdparty_scripts, dest: 'src-gen/web/thirdparty' }
+        ]
+      },
+      web_scripts: {
+        files: [
+          {expand: true, cwd: 'src/web/script', src: '**/*.js', dest: 'src-gen/web/script' }
+        ]
+      },
+      node_scripts: {
         files: [
           // includes files within path
-          {expand: true, cwd: 'src', src: ['**'], dest: 'build/'},
+          {expand: true, cwd: 'src/server', src: ['**'], dest: 'build/server'}
+        ]
+      },
+      web_img: {
+        files: [
+          // includes files within path
+          {expand: true, cwd: 'src/web/img', src: ['**'], dest: 'build/web/img'}
+        ]
+      },
+      web_html: {
+        files: [
+          // includes files within path
+          {expand: true, cwd: 'src/web', src: ['**/*.html'], dest: 'build/web'}
         ]
       }
     },
@@ -109,9 +162,17 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-concat-sourcemaps');
   grunt.loadNpmTasks('grunt-riot');
   grunt.loadNpmTasks('grunt-babel');
 
   //don't watch by default, 'grunt watch' works perfectly well without killing CI
-  grunt.registerTask('default', ["less", "riot", "babel", "uglify", 'copy']);
+  grunt.registerTask('default', [
+    'less',
+    'riot',
+    'babel',
+    'copy',
+    'concat',
+    'uglify'
+  ]);
 };
