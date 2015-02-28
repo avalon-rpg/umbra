@@ -34,6 +34,7 @@ Build process:
 
 module.exports = function(grunt) {
   var thirdparty_scripts = [
+    //'node_modules/grunt-riot/node_modules/riot/riot.js',
     'src/web/thirdparty/semantic-ui/semantic.js',
     'src/web/thirdparty/jquery-validation/jquery.validate.js',
     'src/web/thirdparty/jquery.nanoscroller.js',
@@ -50,10 +51,12 @@ module.exports = function(grunt) {
             '<%= grunt.template.today("yyyy-mm-dd") %> */',
           compress: true,
           cleancss: true,
+          strictUnits: true,
           sourceMap: true,
           sourceMapFilename: "build/web/style/umbra.css.map",
           sourceMapURL: "/style/umbra.css.map",
-          sourceMapBasepath: "build/web/style/"
+          sourceMapBasepath: '/style',
+          outputSourceFiles: true
         },
         src: ['src/web/style/umbra.less'],
         dest: 'build/web/style/umbra.css'
@@ -88,7 +91,8 @@ module.exports = function(grunt) {
     },
     concat: {
       options: {
-        sourceMap: true
+        sourceMap: true,
+        sourceMapStyle: 'embed'
       },
       dist: {
         src: ['src-gen/web/thirdparty/*.js','src-gen/web/babel/*.js','src-gen/web/script/*.js','src-gen/web/tags/*.js'],
@@ -102,6 +106,7 @@ module.exports = function(grunt) {
           '<%= grunt.template.today("yyyy-mm-dd") %> */',
         sourceMap: true,
         sourceMapName: 'build/web/script/umbra.map',
+        sourceMapIncludeSources : true,
         sourceMapIn: 'src-gen/web/concatted/umbra.js.map',
         mangle: true
       },

@@ -7,10 +7,10 @@
   "private": true,
   "license": "avalon-rpg",
   "scripts": {
-    "once": "node ./build/server/app.js",
-    "start": "forever start ./build/server/app.js",
-    "stop": "forever stop ./build/server/app.js",
-    "restart": "forever restart ./build/server/app.js",
+    "once": "node --harmony ./build/server/app.js",
+    "start": "forever start -c \"node --harmony\" ./build/server/app.js",
+    "stop": "forever stop -c \"node --harmony\" ./build/server/app.js",
+    "restart": "forever restart -c \"node --harmony\" ./build/server/app.js",
     "test": "mocha --harmony -R spec --recursive ./build/test/*.js"
   },
   "dependencies": {
