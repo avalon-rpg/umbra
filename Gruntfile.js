@@ -1,17 +1,19 @@
 module.exports = function(grunt) {
   var jsFiles = [
-    "src/web/script/inline-styler.js",
-    "src/web/script/jquery-validation/jquery.validate.js",
-    "src/web/script/jquery.nanoscroller.js",
-    "src/web/semantic-ui/semantic.js",
-    "src/web/script/screenfull.js",
-    "src/web/script/watcherClient.js",
-    "src/web/script/clientmain.js"
+    'src/web/script/inline-styler.js',
+    'src/web/script/jquery-validation/jquery.validate.js',
+    'src/web/script/jquery.nanoscroller.js',
+    'src/web/semantic-ui/semantic.js',
+    'src/web/script/screenfull.js',
+    'src/web/script/watcherClient.js',
+    'src/web/script/clientmain.js',
+    'src-gen/web/tags/*.js'
   ];
 
   grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
     less: {
-      dev: {
+      dist: {
         options: {
           stripBanners: true,
           banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
@@ -27,7 +29,42 @@ module.exports = function(grunt) {
         dest: 'build/web/style/umbra.css'
       }
     },
-    pkg: grunt.file.readJSON('package.json'),
+    riot: {
+      options:{
+        template : 'jade',
+        type : 'es6'
+      },
+      dist: {
+        expand: true,
+        cwd: 'src/web/tags',
+        src: '**/*.tag',
+        dest: 'src-gen/web/tags',
+        ext: '.js'
+      }
+    },
+    babel: {
+      options: {
+        sourceMap: true
+      },
+      server: {
+        files: [{
+          expand: true,
+          cwd: 'src/server',
+          src: '**/*.es6',
+          dest: 'src-gen/server/',
+          ext: '.js'
+        }]
+      },
+      web: {
+        files: [{
+          expand: true,
+          cwd: 'src/web/script',
+          src: '**/*.es6',
+          dest: 'src-gen/web/script/',
+          ext: '.js'
+        }]
+      }
+    },
     uglify: {
       options: {
         stripBanners: true,
@@ -37,7 +74,7 @@ module.exports = function(grunt) {
         sourceMapName: 'build/web/script/umbra.map',
         mangle: false
       },
-      my_target: {
+      web: {
         files: {
           'build/web/script/umbra.js': jsFiles
         }
@@ -72,7 +109,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-riot');
+  grunt.loadNpmTasks('grunt-babel');
 
   //don't watch by default, 'grunt watch' works perfectly well without killing CI
-  grunt.registerTask('default', ["less", "uglify", 'copy']);
+  grunt.registerTask('default', ["less", "riot", "babel", "uglify", 'copy']);
 };

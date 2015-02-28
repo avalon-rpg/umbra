@@ -228,7 +228,7 @@ AvParser.prototype.init = function(shadowclient) {
         if(tagBlock('bbstatus')) {
           appendOutput({ qual: 'marker', markerFor: 'bbstatus' });
         }
-        appendOutput({qual: 'unparsed',  line: rawLine});
+        appendOutput({qual: 'line',  line: rawLine});
       }
     },{
       regex: /^###channel (\S+) (.+)$/,
