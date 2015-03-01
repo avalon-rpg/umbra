@@ -7,6 +7,8 @@ var app = express();
 var server = app.listen(process.env.UMBRA_PORT || 2252);
 var io = require('socket.io')(server);
 
+var MobileDetect = require('mobile-detect');
+
 var Watcher = require('./Watcher').Watcher;
 var WatcherBinding = require('./WatcherBinding').WatcherBinding;
 var ShadowClient = require('./shadowclient');
@@ -22,21 +24,34 @@ var watcher = new Watcher('./web');
 app.get("/checkname/", api.checkName);
 app.get("/checkname/:username", api.checkName);
 
-app.use(compression())
+app.use(compression());
 
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+
+
+app.post("/", function (req, res, next) {
+  "use strict";
+  res.cookie('umbralogin', JSON.stringify(req.body), { maxAge: 60000, httpOnly: false });
+  res.sendfile('index.html', {root: __dirname + '/../web'});
+});
+
+app.get("/", function (req, res, next) {
+  "use strict";
+  let md = new MobileDetect(req.headers['user-agent']);
+  var fileback = 'index.html';
+  if(md.tablet())      { fileback = 'tablet.html'; }
+  else if( md.phone()) { fileback = 'phone.html'; }
+  res.sendfile(fileback, {root: __dirname + '/../web'});
+});
 
 app.use(express.static(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../../node_modules'));
 
-app.post("/", function (req, res, next) {
-  res.cookie('umbralogin', JSON.stringify(req.body), { maxAge: 60000, httpOnly: false });
-  res.sendfile("index.html", {root: __dirname + '/../web'});
-});
 
 io.on('connection', function (socket) {
-
+  "use strict";
   watcher.addClient(new WatcherBinding(socket, watcher));
 
   var shadowclient;

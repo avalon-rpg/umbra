@@ -33,12 +33,14 @@ Build process:
 
 
 module.exports = function(grunt) {
+  "use strict";
   var thirdparty_scripts = [
     //'node_modules/grunt-riot/node_modules/riot/riot.js',
     'src/web/thirdparty/semantic-ui/semantic.js',
     'src/web/thirdparty/jquery-validation/jquery.validate.js',
     'src/web/thirdparty/jquery.nanoscroller.js',
     'src/web/thirdparty/screenfull.js'
+    //'src/web/thirdparty/modernizr.js'
   ];
 
   grunt.initConfig({
@@ -46,6 +48,7 @@ module.exports = function(grunt) {
     less: {
       dist: {
         options: {
+          dumpLineNumbers: true,
           stripBanners: true,
           banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
             '<%= grunt.template.today("yyyy-mm-dd") %> */',
@@ -144,6 +147,16 @@ module.exports = function(grunt) {
           // includes files within path
           {expand: true, cwd: 'src/web', src: ['**/*.html'], dest: 'build/web'}
         ]
+      },
+      web_semantic: {
+        files: {
+          'build/web/style/semantic.min.css': 'src/web/thirdparty/semantic-ui/semantic.min.css'
+        }
+      },
+      web_fonts: {
+        files: [
+          {expand: true, cwd: 'src/web', src: ['**/*.woff2'], dest: 'build/web'}
+        ]
       }
     },
     watch: {
@@ -162,7 +175,7 @@ module.exports = function(grunt) {
     }
   });
 
-
+  grunt.loadNpmTasks('grunt-contrib-jade');
   grunt.loadNpmTasks("grunt-contrib-less");
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks('grunt-contrib-uglify');

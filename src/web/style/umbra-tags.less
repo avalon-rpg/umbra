@@ -56,27 +56,28 @@
     padding-top: @vert-spacer;
     padding-bottom: @vert-spacer;
     border-left: 3px solid rgb(79, 136, 67);
+    border-top: 3px solid rgb(79, 136, 67);
     border-radius: @curve-radius;
     width: 100%;
-    .vert-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    //.vert-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.05));
     //  margin-left: 10px;
 
     .cmd {
       /* position: absolute; */
-      margin-right: -@indent;
       font-size: smaller;
-      background: rgb(64,0,0);
+      //background: rgb(64,0,0);
       /* width: auto; */
-      display: inline-block;
+      //display: inline-block;
       float: right;
-      border: 1px solid rgb(128,0,0);
-      border-radius: 5px;
+      border: 3px solid rgb(79, 136, 67);
+      border-radius: @curve-radius;
       padding-left: 4px;
       padding-right: 4px;
       /* transform: rotate(-90deg); */
-      transform-origin: left top 0;
+      //transform-origin: left top 0;
       /* color: black; */
-      margin-top: -@vert-spacer;
+      margin-top: -(3 + @vert-spacer);
+      margin-right: (-@indent);
     }
   }
 
@@ -87,6 +88,7 @@
 
   .ui.table {
     background: inherit !important;
+    margin-top: 0px;
 
     th {
       color: white !important;
@@ -150,7 +152,7 @@
     background: rgba(64, 128, 255, 0.6);
     padding: 2px;
     border-radius: 5px;
-    font-weight: 900;
+    font-weight: 700;
   }
 
   /* The ###text= text inside an ###msg */

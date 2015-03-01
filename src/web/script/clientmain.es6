@@ -15,6 +15,8 @@ $(function() {
 
   var $outputBox = $('#output-box'); // Messages area
   var $inputBox = $('#input-box'); // Input message input box
+  var $nameInput = $('#nameInput');
+  var $passwordInput = $('#passwordInput');
   var cmdHistory = [];
   var cmdHistoryPos = 0;
 
@@ -22,7 +24,7 @@ $(function() {
   var username;
   var password;
   var connected = false;
-  var $currentInput = $('#nameInput').focus();
+  var $currentInput = $nameInput.focus();
 
   var prevMsgType = '';
 
@@ -46,8 +48,8 @@ $(function() {
 
   // Sets the client's username
   function attemptLogin () {
-    username = cleanInput($('#nameInput').val().trim());
-    password = cleanInput($('#passwordInput').val().trim());
+    username = cleanInput($nameInput.val().trim());
+    password = cleanInput($passwordInput.val().trim());
 
     // If the username is valid
     if (username && password) {
@@ -766,7 +768,7 @@ $(function() {
     }
   });
 
-  $("#input-box").keyup( function (e) {
+  $inputBox.keyup( function (e) {
     if (keypadCodes[e.keyCode] || e.keyCode == 13) return;
 
     cmdHistoryPos = 0;
