@@ -149,9 +149,9 @@ module.exports = function(grunt) {
         ]
       },
       web_semantic: {
-        files: {
-          'build/web/style/semantic.min.css': 'src/web/thirdparty/semantic-ui/semantic.min.css'
-        }
+        files: [
+          {expand: true, cwd: 'src/web/thirdparty/semantic-ui', src: '**/*', dest: 'build/web/semantic-ui' }
+        ]
       },
       web_fonts: {
         files: [

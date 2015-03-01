@@ -41,8 +41,8 @@ app.get("/", function (req, res, next) {
   "use strict";
   let md = new MobileDetect(req.headers['user-agent']);
   var fileback = 'index.html';
-  if(md.tablet())      { fileback = 'tablet.html'; }
-  else if( md.phone()) { fileback = 'phone.html'; }
+  //if(md.tablet())      { fileback = 'tablet.html'; }
+  //else if( md.phone()) { fileback = 'phone.html'; }
   res.sendfile(fileback, {root: __dirname + '/../web'});
 });
 
