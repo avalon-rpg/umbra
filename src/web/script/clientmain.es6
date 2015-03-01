@@ -786,7 +786,7 @@ $(function() {
   // Page initialisation
 
   //turn on nano-scrollbars
-  $(".nano").nanoScroller();
+  $(".nano").nanoScroller({ iOSNativeScrolling: true });
 
   //iScroll
   //outputScroller = new IScroll('#output-scroller', {
