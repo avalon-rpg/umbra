@@ -1,4 +1,5 @@
-var fs = require('fs');
+'use strict';
+let fs = require('fs');
 
 exports.WatcherBinding = WatcherBinding;
 
@@ -53,8 +54,10 @@ WatcherBinding.prototype.updateFile = function(filename) {
 };
 
 WatcherBinding.prototype.disconnect = function() {
-  for (var filename in this.watchedFiles) {
-    this.watcher.stopWatching(filename);
+  for (let filename in this.watchedFiles) {
+    if (this.watchedFiles.hasOwnProperty(filename)) {
+      this.watcher.stopWatching(filename);
+    }
   }
   this.watcher.removeClient(this);
 };

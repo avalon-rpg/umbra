@@ -1,6 +1,6 @@
+'use strict';
 
-
-if (typeof Array.prototype.flatMap != 'function') {
+if (typeof Array.prototype.flatMap !== 'function') {
   Array.prototype.flatMap = function (lambda) {
     return Array.prototype.concat.apply([], this.map(lambda));
   };
@@ -9,21 +9,21 @@ if (typeof Array.prototype.flatMap != 'function') {
 function Tabulator() {
 }
 
-var sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s*)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
-var bbstatusRegex = /^(.*): +Read (\d+) out of (\d+)$/;
-var staggeredHorizRuleRegex = /-[- ]+/;
+const sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s*)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
+const bbstatusRegex = /^(.*): +Read (\d+) out of (\d+)$/;
+const staggeredHorizRuleRegex = /-[- ]+/;
 
 Tabulator.prototype.tabulate = function (data) {
   return process(data);
 
   function process(block) {
-    if (!block.entries || block.entries.length == 0) {
+    if (!block.entries || block.entries.length === 0) {
       return block;
     }
 
-    var outEntries;
-    var table;
-    var tableType = '';
+    let outEntries;
+    let table;
+    let tableType = '';
 
     function flushTable() {
       if (table) {
@@ -89,17 +89,17 @@ Tabulator.prototype.tabulate = function (data) {
       }
     }
 
-    var len = block.entries.length;
-    for (var i = 0; i < len; ++i) {
-      var entry = block.entries[i];
+    let len = block.entries.length;
+    for (let i = 0; i < len; ++i) {
+      let entry = block.entries[i];
       //console.log('tabulator scanning: ' + JSON.stringify(entry, null, 2));
 
 
-      if (tableType == 'sphereSense') {
+      if (tableType === 'sphereSense') {
         var match = sphereSenseRegex.exec(entry.line);
         if (match) {
           addRow([match[1], match[2], match[3], match[4]]);
-        } else if(entry.qual == 'marker' && entry.markerFor == 'spheresense') {
+        } else if(entry.qual === 'marker' && entry.markerFor === 'spheresense') {
           table = {
             qual: 'table',
             header: {
@@ -111,12 +111,12 @@ Tabulator.prototype.tabulate = function (data) {
         } else {
           addEntry(entry);
         }
-      } else if (tableType == 'guilds') {
+      } else if (tableType === 'guilds') {
 
         var cols;
         if(entry.line) { cols = entry.line.split('|'); }
 
-        if(entry.qual == 'marker' && entry.markerFor == 'guilds') {
+        if(entry.qual === 'marker' && entry.markerFor === 'guilds') {
           table = {
             qual: 'table',
             header: {
@@ -133,11 +133,11 @@ Tabulator.prototype.tabulate = function (data) {
           flushTable();
           addEntry(entry);
         }
-      } else if (tableType == 'bbstatus') {
-        var match = bbstatusRegex.exec(entry.line);
+      } else if (tableType === 'bbstatus') {
+        let match = bbstatusRegex.exec(entry.line);
         if (match) {
           addRow([match[1], match[2], match[3]]);
-        } else if(entry.qual == 'marker' && entry.markerFor == 'bbstatus') {
+        } else if(entry.qual === 'marker' && entry.markerFor === 'bbstatus') {
           table = {
             qual: 'table',
             header: {

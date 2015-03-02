@@ -1,5 +1,6 @@
-var fs   = require('fs')
-  , path = require('path');
+'use strict';
+let fs   = require('fs');
+let path = require('path');
 
 exports.Watcher = Watcher;
 
@@ -22,7 +23,7 @@ function Watcher(webDirectory, rewrite) {
       var replacement = parts[1];
       return function (str) { 
         return str.replace(regex, replacement);
-      }
+      };
     } else {
       throw new Error('Rewrite must be of the form "regex:replacement".');
     }
@@ -44,15 +45,16 @@ Watcher.prototype.getFilenameForHref = function(href) {
   // Remove any querystring junk.
   // e.g. "foo/bar.css?abc=123" --> "foo/bar.css"
   href = href.split('?')[0];
-  var filename = path.join(this.webDirectory, href);
+  let filename = path.join(this.webDirectory, href);
   return filename;
 };
 
 Watcher.prototype.startWatching = function(filename) {
+  let self = this;
   console.log('Watching file: ' + filename);
   if (filename in this.fileWatcherCount) {
     // already watching this file, so just increment the client count.
-    this.fileWatcherCount[filename]++;
+    self.fileWatcherCount[filename]++;
   } else {
     fs.watchFile(
       filename,
@@ -64,9 +66,7 @@ Watcher.prototype.startWatching = function(filename) {
 
   function fileChanged() {
     console.log('File changed: ' + filename);
-    this.clients.forEach(function(client) {
-      client.updateFile(filename);
-    });
+    self.clients.forEach( (client) => client.updateFile(filename) );
   }
 };
 
@@ -74,9 +74,9 @@ Watcher.prototype.stopWatching = function(filename) {
   if (!(filename in this.fileWatcherCount)) return;
 
   var watcherCount = --this.fileWatcherCount[filename];
-  if (watcherCount == 0) {
+  if (watcherCount === 0) {
     delete this.fileWatcherCount[filename];
     fs.unwatchFile(filename);
     console.log('Stopped watching file: ' + filename);
   }
-}
+};
