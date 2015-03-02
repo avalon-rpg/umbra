@@ -644,6 +644,9 @@ $(function() {
 
     console.log('processing block');
 
+    if(data.cmd && data.cmd === 'PROTOCOL') {
+      return;
+    }
     if(data.tags && data.tags.indexOf('oneliner') >= 0) {
       return processEntry(data.entries[0]);
     }
