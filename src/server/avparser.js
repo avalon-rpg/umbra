@@ -232,6 +232,16 @@ AvParser.prototype.init = function(shadowclient) {
         appendOutput({qual: 'line',  line: rawLine});
       }
     },{
+      //de-dupling locations in oracular watch
+      regex: /^At "(.*)": (At \1: )(.*)\.$/,
+      func: function(match, rawLine) {
+        let spammyBit = match[2];
+        appendOutput({
+          qual: 'line',
+          line: rawLine.replace(spammyBit, '')
+        });
+      }
+    },{
       regex: /^###channel (\S+) (.+)$/,
       func: function(match) {
         appendOutput({
