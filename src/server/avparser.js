@@ -246,19 +246,15 @@ AvParser.prototype.init = function(shadowclient) {
         let suppress = false;
         let txt = match[1];
 
-        console.log('rune: ' + txt);
         //If this corresponds to speech already in the block, skip it
         if(currentBlock && currentBlock.entries) {
           currentBlock.entries.forEach(function (entry) {
-            console.log('testing: ' + JSON.stringify(entry));
             //matching text
             if(entry.comms && txt.indexOf(entry.msg) >= 0) {
               if (entry.qual === 'speech to' || entry.qual === 'tell to') {
-                console.log('matched');
                 //from us!
                 suppress = true;
               } else if (entry.who &&  txt.indexOf(entry.who) >= 0) {
-                console.log('matched');
                 //matching person
                 suppress = true;
               }
