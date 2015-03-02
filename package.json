@@ -8,9 +8,9 @@
   "license": "avalon-rpg",
   "scripts": {
     "once": "node --harmony ./build/server/app.js",
-    "start": "forever start -c \"node --harmony\" ./build/server/app.js",
-    "stop": "forever stop -c \"node --harmony\" ./build/server/app.js",
-    "restart": "forever restart -c \"node --harmony\" ./build/server/app.js",
+    "start": "pm2 start ./build/server/app.js --node-args=\"--harmony\"",
+    "stop": "pm2 stop ./build/server/app.js --node-args=\"--harmony\"",
+    "restart": "pm2 restart ./build/server/app.js --node-args=\"--harmony\"",
     "test": "mocha --harmony -R spec --recursive ./build/test/*.js"
   },
   "dependencies": {
@@ -25,6 +25,7 @@
     "jade": "1.9.2",
     "jquery": "1.11.2",
     "mobile-detect": "^0.4.3",
+    "pm2": "^0.12.6",
     "socket.io": "1.3.4",
     "strip-ansi": "2.0.1",
     "watchr": "2.4.13"
