@@ -435,7 +435,6 @@ AvParser.prototype.init = function(shadowclient) {
 
   var onLine = function (line) {
 
-    console.log('line: ' + line);
     let cleanline = stripAnsi(line);
 
     let seqLen = sequences.length;

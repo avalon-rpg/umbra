@@ -266,10 +266,16 @@ $(function() {
     return $table;
   }
 
+  function mkLoginAnnouncement(user) {
+    //###user@ ###prefix Buccaneer ###name Blueskull ###suffix  ###profession Knight ###guild Warriors ###city Parrius
+    let nameSpan = concatUserNameHtml(user);
+    return $('<div class="login announcement">').html(nameSpan + ' has just logged in');
+  }
+
   function elemExists(q) { return ($(q).length > 0); }
 
   function concatUserName(user) {
-    var str = '';
+    let str = '';
     if(user.prefix && user.prefix.trim() != '') {
       str = str + user.prefix + ' ';
     }
@@ -280,6 +286,20 @@ $(function() {
       }
       str = str + user.suffix + ' ';
     }
+    return str;
+  }
+
+  function concatUserNameHtml(user) {
+    let str = '<span class="user">';
+    if(user.prefix && user.prefix.trim() != '') {
+      str = str + `<span class="prefix">${user.prefix}</span> `;
+    }
+    str = str +`<span class="name">${user.name}</span>`;
+    if(user.suffix && user.suffix.trim() != '') {
+      if(user.suffix[0] != ',') { str = str + ' '; }
+      str = str + `<span class="suffix">${user.suffix}</span>`;
+    }
+    str = str + "</span>";
     return str;
   }
 
@@ -702,6 +722,7 @@ $(function() {
     } else if(data.qual == 'user') {
       //console.log(JSON.stringify(data));
       //addUser(data);
+      $elems = mkLoginAnnouncement(data);
     } else if(data.qual == 'channel') {
       //console.log('input: ' + JSON.stringify(data));
       addChannel(data.code, data.name);
