@@ -440,11 +440,13 @@ $(function() {
   $('#newUserDropdown').accordion({
     onOpen: function () {
       createNewUser = true;
+      $("#login-form-title").text("Create New User");
       $('#nameInput').removeData('previousValue');
       $('#nameInput').valid();
     },
     onClose: function () {
       createNewUser = false;
+      $("#login-form-title").text("Login");
       $('#nameInput').removeData('previousValue');
       $('#nameInput').valid();
     }
