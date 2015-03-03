@@ -187,7 +187,7 @@ $(function() {
 
     prevMsgType = 'comms';
 
-    if (canVibrate) navigator.vibrate([30, 0, 30]);
+    if (canVibrate) navigator.vibrate([50, 100, 50]);
     return $commsElem;
   }
 
