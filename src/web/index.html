@@ -67,7 +67,7 @@
             <div id="output-box" class="messages">
 
               <div id="introText">
-                <div class="ui top black attached message">
+                <div class="ui top small black attached message">
                   <p>UMBRA is a HTML client for anyone unable to use our Lumiere or Javalon, specifically mobile users. It is engineered to take you into Avalon no matter what stands in the way!</p>
 
                   <p><i>This software is in beta and we advise everyone to first try another client at this point in time. That said, if you <b>do</b> decide to try it, then please feel free to report any issues via the BUG command!</i></p>
@@ -76,17 +76,16 @@
 
               <div id="login-form-outer">
               <form class="ui form" id="login-form" action="#">
-                <div class="ui top attached header">
-                  <p id="login-form-title">Login</p>
-                </div>
-                <div class="ui bottom attached segment fields">
-                  <div class="eight wide field">
-                    <label>Player name</label>
-                    <input name="name" id="nameInput" type="text">
-                  </div>
-                  <div class="eight wide input field">
-                    <label>Password</label>
-                    <input name="password" id="passwordInput" type="password">
+                <div class="ui segment">
+                  <div class="fields">
+                    <div class="eight wide field">
+                      <label>Player name</label>
+                      <input name="name" id="nameInput" type="text">
+                    </div>
+                    <div class="eight wide input field">
+                      <label>Password</label>
+                      <input name="password" id="passwordInput" type="password">
+                    </div>
                   </div>
                   <div id="newUserDropdown" class="sixteen wide ui accordion field">
                     <div class="title">
@@ -103,7 +102,7 @@
                         <input name="confirmPassword" id="confirmPasswordInput" type="password">
                       </div>
                       <div class="inline fields">
-                        <label for="gender">Gender:</label>s
+                        <label for="gender">Gender:</label>
                         <div class="field">
                           <div class="ui radio checkbox">
                             <input id="genderMaleInput" type="radio" name="gender" value="male" checked="">
@@ -121,7 +120,7 @@
                     </div>
                   </div>
                   <div class="field">
-                    <input class="ui submit button" name="login" type="submit" value="Make it So..." />
+                    <input id="form-submit-button" class="ui submit button" name="login" type="submit" value="Login" />
                   </div>
                 </div>
               </form>

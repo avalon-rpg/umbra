@@ -440,13 +440,13 @@ $(function() {
   $('#newUserDropdown').accordion({
     onOpen: function () {
       createNewUser = true;
-      $("#login-form-title").text("Create New User");
+      $("#form-submit-button").val("Create New User");
       $('#nameInput').removeData('previousValue');
       $('#nameInput').valid();
     },
     onClose: function () {
       createNewUser = false;
-      $("#login-form-title").text("Login");
+      $("#form-submit-button").val("Login");
       $('#nameInput').removeData('previousValue');
       $('#nameInput').valid();
     }
@@ -468,6 +468,7 @@ $(function() {
   });
 
   loginValidator = $('#login-form').validate({
+    onkeyup: false,
     submitHandler: function (form) {
       $('#login-form').transition('pulse');
       attemptLogin();
@@ -475,7 +476,6 @@ $(function() {
   });
 
   $('#nameInput').rules('add', {
-    onkeyup: false,
     required: true,
     minlength: 3,
     maxlength: 18,
