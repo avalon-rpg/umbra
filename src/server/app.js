@@ -56,8 +56,9 @@ io.on('connection', function (socket) {
   let parsedclient;
   let username = "undefined";
   let self = this;
+  let playerAddress = socket.request.connection.remoteAddress;
 
-  console.log('Websocket connected');
+  console.log('Websocket connected from: ' + playerAddress);
 
   socket.on('reconnect', function () {
     console.log('websocket reconnected');

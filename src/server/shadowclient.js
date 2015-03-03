@@ -87,9 +87,8 @@ ShadowClient.prototype.init = function(params) {
       console.log('login prompt seen');
       let loginline;
       if(self.create) {
-        console.log('attempting to log in new user ' + self.username);
+        console.log('attempting to log in new user ' + self.username + ' with email ' + self.email);
         loginline = '###ack create ' + self.username + ' ' + self.password + ' ' + self.gender + ' ' + self.email;
-        console.log(loginline);
       } else {
         console.log('attempting to log in existing user ' + self.username);
         loginline = '###ack login ' + self.username + ' ' + self.password;

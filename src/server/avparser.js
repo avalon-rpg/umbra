@@ -435,13 +435,14 @@ AvParser.prototype.init = function(shadowclient) {
 
   var onLine = function (line) {
 
-    var cleanline = stripAnsi(line);
+    console.log('line: ' + line);
+    let cleanline = stripAnsi(line);
 
-    var seqLen = sequences.length;
-    for (var i = 0; i < seqLen; i++) {
-      var entry = sequences[i];
+    let seqLen = sequences.length;
+    for (let i = 0; i < seqLen; i++) {
+      let entry = sequences[i];
       if(entry.cond === undefined || entry.cond()) {
-        var match = entry.regex.exec(cleanline);
+        let match = entry.regex.exec(cleanline);
         if (match) {
           entry.func(match, line);
           return;
