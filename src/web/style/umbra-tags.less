@@ -24,16 +24,14 @@
 .messages {
 
   //top, right, bottom, left
-  padding: @vert-spacer @indent @vert-spacer 2*@indent;
+  padding: @vert-spacer @indent @vert-spacer @indent;
 
   .block, .line {
     width: 100%;
     padding-left: 0px;
-    padding-right: @indent;
     padding-top: 0px;
     padding-bottom: 0px;
-    border-left: none;
-    border-radius: @curve-radius;
+    border: none;
     margin-top: 0px;
     margin-left: 0px;
   }
@@ -51,33 +49,14 @@
   .stdio {
     margin-top: 3px;
     margin-bottom: 3px;
-    margin-left: -(@indent + 3px);
-    padding-left: @indent - 3px;
     padding-top: @vert-spacer;
     padding-bottom: @vert-spacer;
-    border-left: 3px solid rgb(79, 136, 67);
-    border-top: 3px solid rgb(79, 136, 67);
-    border-radius: @curve-radius;
     width: 100%;
-    //.vert-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-    //  margin-left: 10px;
-
     .cmd {
-      /* position: absolute; */
+      color: rgb(37, 188, 36);
       font-size: smaller;
-      //background: rgb(64,0,0);
-      /* width: auto; */
-      //display: inline-block;
       float: right;
-      border: 3px solid rgb(79, 136, 67);
-      border-radius: @curve-radius;
       padding-left: 4px;
-      padding-right: 4px;
-      /* transform: rotate(-90deg); */
-      //transform-origin: left top 0;
-      /* color: black; */
-      margin-top: -(3 + @vert-spacer);
-      margin-right: (-@indent);
     }
   }
 
@@ -132,10 +111,6 @@
 /* Anything inside a ###msg@ or ###begin@ */
 
 .avmsg {
-  background: rgba(64, 128, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  /*color: #efefef;*/
-  border-radius: 5px;
   padding: 0;
   margin-left: -3px;
   margin-top: 3px;
@@ -149,7 +124,7 @@
   }
 
   & > .title {
-    background: rgba(64, 128, 255, 0.6);
+    color: yellow;
     padding: 2px;
     border-radius: 5px;
     font-weight: 700;
@@ -175,10 +150,7 @@
 
 /* map and moving map */
 .avmap {
-  background: rgba(255, 223, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #efefef;
-  border-radius: 5px;
   padding: 0;
   margin-top: 3px;
   margin-bottom: 3px;
@@ -186,11 +158,12 @@
 
   & > .loc {
     padding: 3px;
+    color: yellow;
   }
 
   & > .region {
     padding: 3px;
-    border-bottom: solid 1px rgba(255, 255, 255, 0.4);
+    color: yellowgreen;
   }
 
   /* map content: fixed-width lines with no spacing between */
@@ -224,11 +197,8 @@
     display: inline-block;
   }
 
-  /* Absolute position the icon, force it left into the margin */
   .icon {
     padding-top: 4px;
-    position: absolute;
-    left: 2px;
   }
 
   /* translucent teracotta colour for bug-rune messages */
