@@ -125,7 +125,7 @@
                       <!-- <div class="ui secondary submit button" type="submit" value="create">Create</div> -->
                     </div>
                   </div>
-                  <div>
+                  <div class="field">
                     <input class="ui submit button" name="login" type="submit" value="Make it So..." />
                   </div>
                 </div>
@@ -139,7 +139,10 @@
       <div class="ui bottom attached basic segment" id="input-segment">
         <form class="ui form" id="input-message-form" action="#" >
           <div class="field">
-            <input class="pale" id="input-box" placeholder="Type here..."/>
+            <div class="ui icon input">
+              <input class="pale" autocorrect="off" type="text" autocapitalize="off" id="input-box" placeholder="Type here..."/>
+              <i class="icon send" id="input-box-send"></i>
+            </div>
           </div>
         </form>
       </div>    

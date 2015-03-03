@@ -432,6 +432,10 @@ $(function() {
     event.preventDefault();
   });
 
+  $("#input-box-send").click( function(event) {
+    sendMessage($inputBox.val());
+  });
+
 
   $('#newUserDropdown').accordion({
     onOpen: function () {
