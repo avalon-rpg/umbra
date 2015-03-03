@@ -5,3 +5,4 @@
 *.sublime-project
 *.log
 /build/
+/src-gen/

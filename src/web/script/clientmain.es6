@@ -15,6 +15,8 @@ $(function() {
 
   var $outputBox = $('#output-box'); // Messages area
   var $inputBox = $('#input-box'); // Input message input box
+  var $nameInput = $('#nameInput');
+  var $passwordInput = $('#passwordInput');
   var cmdHistory = [];
   var cmdHistoryPos = 0;
 
@@ -22,7 +24,7 @@ $(function() {
   var username;
   var password;
   var connected = false;
-  var $currentInput = $('#nameInput').focus();
+  var $currentInput = $nameInput.focus();
 
   var prevMsgType = '';
 
@@ -46,8 +48,8 @@ $(function() {
 
   // Sets the client's username
   function attemptLogin () {
-    username = cleanInput($('#nameInput').val().trim());
-    password = cleanInput($('#passwordInput').val().trim());
+    username = cleanInput($nameInput.val().trim());
+    password = cleanInput($passwordInput.val().trim());
 
     // If the username is valid
     if (username && password) {
@@ -264,10 +266,16 @@ $(function() {
     return $table;
   }
 
+  function mkLoginAnnouncement(user) {
+    //###user@ ###prefix Buccaneer ###name Blueskull ###suffix  ###profession Knight ###guild Warriors ###city Parrius
+    let nameSpan = concatUserNameHtml(user);
+    return $('<div class="login announcement">').html(nameSpan + ' has just logged in');
+  }
+
   function elemExists(q) { return ($(q).length > 0); }
 
   function concatUserName(user) {
-    var str = '';
+    let str = '';
     if(user.prefix && user.prefix.trim() != '') {
       str = str + user.prefix + ' ';
     }
@@ -278,6 +286,20 @@ $(function() {
       }
       str = str + user.suffix + ' ';
     }
+    return str;
+  }
+
+  function concatUserNameHtml(user) {
+    let str = '<span class="user">';
+    if(user.prefix && user.prefix.trim() != '') {
+      str = str + `<span class="prefix">${user.prefix}</span> `;
+    }
+    str = str +`<span class="name">${user.name}</span>`;
+    if(user.suffix && user.suffix.trim() != '') {
+      if(user.suffix[0] != ',') { str = str + ' '; }
+      str = str + `<span class="suffix">${user.suffix}</span>`;
+    }
+    str = str + "</span>";
     return str;
   }
 
@@ -324,6 +346,14 @@ $(function() {
   }
 
   function addChannel(code, name) {
+    if(code == 'ccc') { $('#city-stat').text(name); }
+    if(code == 'ccg') { $('#guild-stat').text(name); }
+    if(code == 'ccp') { $('#profession-stat').text(name); }
+    if(code == 'cco') { $('#order-stat').text(name); }
+
+    /*
+    old sidebar code
+
     if(0 == $('#channel_' + code).length) {
       // var $badge = $('<span class="badge"/>').text('42');
       var $label = $('<div class="ui label">').text(code);
@@ -336,12 +366,8 @@ $(function() {
       $('#calling-list').append($elem);
       //nano
       $('#leftSidebarScroll').nanoScroller();
-
-      if(code == 'ccc') { $('#city-stat').text(name); }
-      if(code == 'ccg') { $('#guild-stat').text(name); }
-      if(code == 'ccp') { $('#profession-stat').text(name); }
-      if(code == 'cco') { $('#order-stat').text(name); }
     }
+    */
   }
 
   // Adds a message element to the messages and scrolls to the bottom
@@ -623,14 +649,14 @@ $(function() {
     if(data.qual && data.qual=='root') {
       if(data.entries) {
         var len = data.entries.length;
-        for (var i = 0; i < len; ++i) {
+        for (let i = 0; i < len; ++i) {
           processInput(data.entries[i]);
         }
       } else {
         //empty root block, skip it
       }
     } else {
-      var $elems = processEntry(data);
+      let $elems = processEntry(data);
       styler.reset();
 
       if ($elems) {
@@ -658,6 +684,10 @@ $(function() {
     if(data.prompt) {
       console.log('prompt: ' + data.prompt);
       addPrompt();
+    }
+
+    if(data.cmd && data.cmd === 'PROTOCOL') {
+      return;
     }
 
     if(elems.length > 0) {
@@ -693,9 +723,10 @@ $(function() {
     } else if(data.qual == 'user') {
       //console.log(JSON.stringify(data));
       //addUser(data);
+      $elems = mkLoginAnnouncement(data);
     } else if(data.qual == 'channel') {
       //console.log('input: ' + JSON.stringify(data));
-      //addChannel(data.code, data.name);
+      addChannel(data.code, data.name);
     } else if (data.qual == 'table') {
       $elems = mkTable(data);
     } else if(data.qual == 'line') {
@@ -767,7 +798,7 @@ $(function() {
     }
   });
 
-  $("#input-box").keyup( function (e) {
+  $inputBox.keyup( function (e) {
     if (keypadCodes[e.keyCode] || e.keyCode == 13) return;
 
     cmdHistoryPos = 0;
@@ -785,7 +816,7 @@ $(function() {
   // Page initialisation
 
   //turn on nano-scrollbars
-  $(".nano").nanoScroller();
+  $(".nano").nanoScroller({ iOSNativeScrolling: true });
 
   //iScroll
   //outputScroller = new IScroll('#output-scroller', {

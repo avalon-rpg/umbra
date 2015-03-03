@@ -1,14 +1,14 @@
-var util = require('util');
-var net = require('net');
-var binary = require('binary');
+'use strict';
+let util = require('util');
+let net = require('net');
+let binary = require('binary');
 
+let EventEmitter = require('events').EventEmitter;
 
-var EventEmitter = require('events').EventEmitter;
-
-if (typeof String.prototype.startsWith != 'function') {
+if (typeof String.prototype.startsWith !== 'function') {
   // see below for better implementation!
   String.prototype.startsWith = function (str){
-    return this.indexOf(str) == 0;
+    return this.indexOf(str) === 0;
   };
 }
 
@@ -20,7 +20,7 @@ function ShadowClient(params) {
 util.inherits(ShadowClient, EventEmitter);
 
 ShadowClient.prototype.init = function(params) {
-  var self = this;
+  let self = this;
 
   self.username = params.username;
   self.password = params.password;
@@ -35,11 +35,11 @@ ShadowClient.prototype.init = function(params) {
     self.emit('avalon connected');
   });
 
-  var IAC = 255;
-  var GA  = 249;
-  var gaSeq = new Buffer([IAC,GA]);
+  const IAC = 255;
+  const GA  = 249;
+  const gaSeq = new Buffer([IAC,GA]);
 
-  var onLine = function (line) {
+  let onLine = function (line) {
     if(!self.loggedIn) {
       if(self.loggingIn) {
         if(line.startsWith('###ACK LOGIN OK')) {
@@ -81,15 +81,14 @@ ShadowClient.prototype.init = function(params) {
     self.emit('line', line);
   };
 
-  var onPrompt = function (prompt) {
-    if(!self.badCredentials && prompt.indexOf('What is the name of your character?') == 0) {
+  let onPrompt = function (prompt) {
+    if(!self.badCredentials && prompt.indexOf('What is the name of your character?') === 0) {
       self.loggingIn = true;
       console.log('login prompt seen');
-      var loginline;
+      let loginline;
       if(self.create) {
-        console.log('attempting to log in new user ' + self.username);
+        console.log('attempting to log in new user ' + self.username + ' with email ' + self.email);
         loginline = '###ack create ' + self.username + ' ' + self.password + ' ' + self.gender + ' ' + self.email;
-        console.log(loginline);
       } else {
         console.log('attempting to log in existing user ' + self.username);
         loginline = '###ack login ' + self.username + ' ' + self.password;
@@ -105,11 +104,11 @@ ShadowClient.prototype.init = function(params) {
   var parser = binary().loop(function (end, vars) {
     this.scan('gablock', gaSeq).tap( function(vars) {
       if(vars.hasOwnProperty('gablock')) {
-        var block = vars.gablock.toString('ascii');
-        var lines = block.split("\r\n");
-        var lineCount = lines.length;
-        for (var i = 0; i < lineCount; i++) {
-          if(i == lineCount - 1) { onPrompt(lines[i]); }
+        let block = vars.gablock.toString('ascii');
+        let lines = block.split("\r\n");
+        let lineCount = lines.length;
+        for (let i = 0; i < lineCount; i++) {
+          if(i === lineCount - 1) { onPrompt(lines[i]); }
           else                   { onLine(lines[i]); }
         }
       }

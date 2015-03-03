@@ -1,50 +1,64 @@
+'use strict';
 // Setup basic express server
-var express = require('express');
-var compression = require('compression');
-var bodyParser = require('body-parser');
+let express = require('express');
+let compression = require('compression');
+let bodyParser = require('body-parser');
 
-var app = express();
-var server = app.listen(process.env.UMBRA_PORT || 2252);
-var io = require('socket.io')(server);
+let app = express();
+let server = app.listen(process.env.UMBRA_PORT || 2252);
+let io = require('socket.io')(server);
 
-var Watcher = require('./Watcher').Watcher;
-var WatcherBinding = require('./WatcherBinding').WatcherBinding;
-var ShadowClient = require('./shadowclient');
-var AvParser = require('./avparser');
-var Tabulator = require('./tabulator');
-var api = require("./api/index");
+let MobileDetect = require('mobile-detect');
 
-var tabulator = new Tabulator();
+let Watcher = require('./Watcher').Watcher;
+let WatcherBinding = require('./WatcherBinding').WatcherBinding;
+let ShadowClient = require('./shadowclient');
+let AvParser = require('./avparser');
+let Tabulator = require('./tabulator');
+let api = require("./api/index");
 
-var watcher = new Watcher('./web');
+let tabulator = new Tabulator();
+
+let watcher = new Watcher('./web');
 
 // Routing
 app.get("/checkname/", api.checkName);
 app.get("/checkname/:username", api.checkName);
 
-app.use(compression())
+app.use(compression());
 
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+
+
+app.post("/", function (req, res, next) {
+  res.cookie('umbralogin', JSON.stringify(req.body), { maxAge: 60000, httpOnly: false });
+  res.sendfile('index.html', {root: __dirname + '/../web'});
+});
+
+app.get("/", function (req, res, next) {
+  //let md = new MobileDetect(req.headers['user-agent']);
+  let fileback = 'index.html';
+  //if(md.tablet())      { fileback = 'tablet.html'; }
+  //else if( md.phone()) { fileback = 'phone.html'; }
+  res.sendfile(fileback, {root: __dirname + '/../web'});
+});
 
 app.use(express.static(__dirname + '/../web'));
 app.use(express.static(__dirname + '/../../node_modules'));
 
-app.post("/", function (req, res, next) {
-  res.cookie('umbralogin', JSON.stringify(req.body), { maxAge: 60000, httpOnly: false });
-  res.sendfile("index.html", {root: __dirname + '/../web'});
-});
 
 io.on('connection', function (socket) {
-
   watcher.addClient(new WatcherBinding(socket, watcher));
 
-  var shadowclient;
-  var parsedclient;
-  var username = "undefined";
-  var self = this;
+  let shadowclient;
+  let parsedclient;
+  let username = "undefined";
+  let self = this;
+  let playerAddress = socket.request.connection.remoteAddress;
 
-  console.log('Websocket connected');
+  console.log('Websocket connected from: ' + playerAddress);
 
   socket.on('reconnect', function () {
     console.log('websocket reconnected');
@@ -63,7 +77,7 @@ io.on('connection', function (socket) {
 
   socket.on('confirm login', function (params) {
     console.log('index.js attempt login for ' + params.username);
-    if(!shadowclient || !shadowclient.connected || shadowclient.username != params.username) {
+    if(!shadowclient || !shadowclient.connected || shadowclient.username !== params.username) {
       console.log('fresh login required');
       username = params.username;
       shadowclient = new ShadowClient(params);
@@ -110,7 +124,7 @@ io.on('connection', function (socket) {
     });
 
     shadowclient.on('avalon disconnected', function (had_error) {
-      console.log('avalon disconnected for ' + username)
+      console.log('avalon disconnected for ' + username);
       socket.emit('avalon disconnected', had_error);
       shadowclient.close();
     });
@@ -118,7 +132,7 @@ io.on('connection', function (socket) {
     parsedclient.on('block', function (data) {
       //console.log('================================================================');
       //console.log('before tabulator: ' + JSON.stringify(data, null, 2));
-      var processedBlock = tabulator.tabulate(data);
+      let processedBlock = tabulator.tabulate(data);
       //console.log('================================================================');
       //console.log('after tabulator: ' + JSON.stringify(processedBlock, null, 2));
       if(shadowclient.loggedIn) { socket.emit('block', processedBlock); }

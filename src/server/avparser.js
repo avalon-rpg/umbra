@@ -1,3 +1,4 @@
+'use strict';
 var util = require('util');
 var stripAnsi = require('strip-ansi');
 var EventEmitter = require('events').EventEmitter;
@@ -5,9 +6,9 @@ var EventEmitter = require('events').EventEmitter;
 /////////////////////////////////////////
 // Helpful helpers
 
-if (typeof String.prototype.startsWith != 'function') {
+if (typeof String.prototype.startsWith !== 'function') {
   String.prototype.startsWith = function (str){
-    return this.indexOf(str) == 0;
+    return this.indexOf(str) === 0;
   };
 }
 
@@ -28,7 +29,7 @@ function AvParser(shadowclient) {
 util.inherits(AvParser, EventEmitter);
 
 AvParser.prototype.init = function(shadowclient) {
-  var self = this;
+  let self = this;
   self.shadowclient = shadowclient;
 
   var blockStack;
@@ -50,7 +51,7 @@ AvParser.prototype.init = function(shadowclient) {
   }
 
   function pushBlock(block) {
-    if (!blockStack || blockStack.length == 0) {
+    if (!blockStack || blockStack.length === 0) {
       blockStack = [block];
     } else {
       blockStack.push(block);
@@ -61,7 +62,7 @@ AvParser.prototype.init = function(shadowclient) {
 
   //returns true if the tag was added
   function tagBlock(tag) {
-    if(!currentBlock.tags || currentBlock.tags.length == 0) {
+    if(!currentBlock.tags || currentBlock.tags.length === 0) {
       currentBlock.tags = [tag];
       return true;
     } else {
@@ -74,7 +75,7 @@ AvParser.prototype.init = function(shadowclient) {
   }
 
   function exitBlock() {
-    if(currentBlock && currentBlock.entries && currentBlock.entries.length == 1) {
+    if(currentBlock && currentBlock.entries && currentBlock.entries.length === 1) {
       var soleEntry = currentBlock.entries[0];
       if(soleEntry.comms) {
         currentBlock = soleEntry;
@@ -142,7 +143,7 @@ AvParser.prototype.init = function(shadowclient) {
       }
     },{
       regex: /^Map depicts (.*)\. Your location is highlighted\.$/,
-      cond: function() { return inMap; },
+      cond: () => inMap,
       func: fnEndMap
     },{
       regex: /^Map depicts (.*) environs with your location highlighted\.$/,
@@ -189,18 +190,18 @@ AvParser.prototype.init = function(shadowclient) {
       regex: /^###begin@ (.+)$/,
       func: function(match) {
         //console.log('multiline message start: ' + match[0]);
-        newBlock = {qual: 'avmsg'};
-        var parts = match[1].split('###');
-        var partcount = parts.length;
+        let newBlock = {qual: 'avmsg'};
+        let parts = match[1].split('###');
+        let partcount = parts.length;
         for (var i = 1; i < partcount; i++) {
           var part = parts[i];
           var keyarr = part.split('=', 1);
           var key = keyarr[0];
           var value = part.substring(key.length + 1);
-          if(key == 'tag') {
+          if(key === 'tag') {
             var tags = value.split(' ');
             tags.push('block');
-            newBlock['tags'] = tags;
+            newBlock.tags = tags;
           } else {
             newBlock[key] = value.trim();
           }
@@ -231,6 +232,16 @@ AvParser.prototype.init = function(shadowclient) {
         appendOutput({qual: 'line',  line: rawLine});
       }
     },{
+      //de-dupling locations in oracular watch
+      regex: /^At "(.*)": (At \1: )(.*)\.$/,
+      func: function(match, rawLine) {
+        let spammyBit = match[2];
+        appendOutput({
+          qual: 'line',
+          line: rawLine.replace(spammyBit, '')
+        });
+      }
+    },{
       regex: /^###channel (\S+) (.+)$/,
       func: function(match) {
         appendOutput({
@@ -242,12 +253,36 @@ AvParser.prototype.init = function(shadowclient) {
     },{
       regex: /^Your rune-bug picks up words: (.+)$/,
       func: function(match) {
-        appendOutput({
-          qual: 'rune-bug',
-          chan: 'rune-bug',
-          comms: true,
-          msg:  match[1]
-        });
+        let suppress = false;
+        let txt = match[1];
+
+        //If this corresponds to speech already in the block, skip it
+        if(currentBlock && currentBlock.entries) {
+          currentBlock.entries.forEach(function (entry) {
+            //matching text
+            if(entry.comms && txt.indexOf(entry.msg) >= 0) {
+              if (entry.qual === 'speech to' || entry.qual === 'tell to') {
+                //from us!
+                suppress = true;
+              } else if (entry.who &&  txt.indexOf(entry.who) >= 0) {
+                //matching person
+                suppress = true;
+              }
+            }
+            //TODO: if there's an existing entry from "someone" or "a shadowy figure"
+            // match that as well and rewrite the name
+
+          });
+        }
+
+        if(!suppress) {
+          appendOutput({
+            qual: 'rune-bug',
+            chan: 'rune-bug',
+            comms: true,
+            msg: txt
+          });
+        }
       }
     },{
       regex: /^(\S+) novice-calls from (.+?): "(.*)"$/,
@@ -400,13 +435,13 @@ AvParser.prototype.init = function(shadowclient) {
 
   var onLine = function (line) {
 
-    var cleanline = stripAnsi(line);
+    let cleanline = stripAnsi(line);
 
-    var seqLen = sequences.length;
-    for (var i = 0; i < seqLen; i++) {
-      var entry = sequences[i];
-      if(entry.cond == undefined || entry.cond()) {
-        var match = entry.regex.exec(cleanline);
+    let seqLen = sequences.length;
+    for (let i = 0; i < seqLen; i++) {
+      let entry = sequences[i];
+      if(entry.cond === undefined || entry.cond()) {
+        let match = entry.regex.exec(cleanline);
         if (match) {
           entry.func(match, line);
           return;
@@ -415,7 +450,7 @@ AvParser.prototype.init = function(shadowclient) {
     }
 
     //default fallback
-    if(line.trim() != '') {
+    if(line.trim() !== '') {
       appendOutput({qual: 'line',  line: line});
     }
 
@@ -425,7 +460,7 @@ AvParser.prototype.init = function(shadowclient) {
 
   var onPrompt = function(prompt) {
     if(inMap) { endMapFor('unknown'); }
-    flushOutput()
+    flushOutput();
   };
 
   ///////////////////////////////////////////
