@@ -107,9 +107,10 @@ AvParser.prototype.init = function(shadowclient) {
   }
 
 
-  var inMap = false;
-  var mapLoc = '';
-  var mapLines = [];
+  let inMap = false;
+  let mapLoc = '';
+  let mapLines = [];
+  let umbraMsg = false;
 
   // needs handling:
   //
@@ -133,6 +134,24 @@ AvParser.prototype.init = function(shadowclient) {
 
   var sequences = [
     {
+      regex: /^UmBrA:\s$/,
+      func: function(match) {
+        umbraMsg = true;
+      }
+    },{
+      regex: /^(.*) >>> (.*)$/,
+      cond: () => umbraMsg,
+      func: function(match, rawLine) {
+        umbraMsg = false;
+        appendOutput({
+          qual: 'umbra',
+          chan: 'umbra',
+          who: match[1],
+          comms: true,
+          msg: match[2]
+        });
+      }
+    },{
       regex: /^Initiating CLIENT \/ AVALON protocol codes\.$/,
       func: function(match) {/* do nothing*/}
     },{
@@ -167,7 +186,7 @@ AvParser.prototype.init = function(shadowclient) {
       func: fnEndMap
     },{
       regex: /^.*$/,
-      cond: function() { return inMap; },
+      cond: () => inMap,
       func: function(match, rawLine) {
         mapLines.push(rawLine);
       }
@@ -444,7 +463,10 @@ AvParser.prototype.init = function(shadowclient) {
         let match = entry.regex.exec(cleanline);
         if (match) {
           entry.func(match, line);
+          //console.log('matched [' + cleanline + '] vs [' + entry.regex + ']');
           return;
+        } else {
+          //console.log('testing [' + cleanline + '] vs [' + entry.regex + ']');
         }
       }
     }
@@ -459,6 +481,7 @@ AvParser.prototype.init = function(shadowclient) {
 
 
   var onPrompt = function(prompt) {
+    umbraMsg = false;
     if(inMap) { endMapFor('unknown'); }
     flushOutput();
   };

@@ -695,15 +695,16 @@ $(function() {
   }
 
   var commsTypes = [
-    { name: 'calling from',        commsClasses: 'from', iconClasses: 'comment'    },
-    { name: 'calling to',          commsClasses: 'to',   iconClasses: 'comment'    },
-    { name: 'novice-calling from', commsClasses: 'from', iconClasses: 'student'    },
-    { name: 'novice-calling to',   commsClasses: 'to',   iconClasses: 'student'    },
-    { name: 'tell from',           commsClasses: 'from', iconClasses: 'reply'      },
-    { name: 'tell to',             commsClasses: 'to',   iconClasses: 'share'      },
-    { name: 'speech from',         commsClasses: 'from', iconClasses: 'quote left' },
-    { name: 'speech to',           commsClasses: 'to',   iconClasses: 'quote left' },
-    { name: 'rune-bug',            commsClasses: 'bug',  iconClasses: 'bug'        }
+    { name: 'calling from',        commsClasses: 'from',  iconClasses: 'comment'    },
+    { name: 'calling to',          commsClasses: 'to',    iconClasses: 'comment'    },
+    { name: 'novice-calling from', commsClasses: 'from',  iconClasses: 'student'    },
+    { name: 'novice-calling to',   commsClasses: 'to',    iconClasses: 'student'    },
+    { name: 'tell from',           commsClasses: 'from',  iconClasses: 'reply'      },
+    { name: 'tell to',             commsClasses: 'to',    iconClasses: 'share'      },
+    { name: 'speech from',         commsClasses: 'from',  iconClasses: 'quote left' },
+    { name: 'speech to',           commsClasses: 'to',    iconClasses: 'quote left' },
+    { name: 'rune-bug',            commsClasses: 'bug',   iconClasses: 'bug'        },
+    { name: 'umbra',               commsClasses: 'umbra', iconClasses: 'cloud'      }
   ];
 
   function lookupCommsType(name) {
