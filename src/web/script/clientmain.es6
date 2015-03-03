@@ -1,12 +1,33 @@
 function readCookie(n){n+='=';for(var a=document.cookie.split(/;\s*/),i=a.length-1;i>=0;i--)if(!a[i].indexOf(n))return a[i].replace(n,'');}
 
+window.umbra = {
+  settings: {},
+  defaults: {
+    "keepCommand": false,
+    "completeCommand": true,
+    "cmdDelimiter": ";",
+    "debug": false,
+    "autologin": false
+    // username
+    // password
+  },
+  load() {
+    this.settings = JSON.parse(localStorage["umbra"]);
+    return this;
+  },
+  save() {
+    localStorage["umbra"] = JSON.stringify(this.settings);
+    return this;
+  },
+  get(key) { return this.settings[key] || this.defaults[key]; },
+  set(key, value) {
+    this.settings[key] = value;
+    return this;
+  },
+};
+
 $(function() {
-
-  var bKeepCommand = false;
-  var bCompleteCommand = true;
   var lastInput = "";
-
-  var cmd_delimiter = ";";
 
   var FADE_TIME = 150; // ms
 
@@ -32,15 +53,36 @@ $(function() {
 
   var styler = new InlineStyler();
 
+  if (localStorage && localStorage.umbra)
+    window.umbra.settings = JSON.parse(localStorage.umbra);
+
   if (readCookie("umbralogin")) {
-    var loginData = JSON.parse(decodeURIComponent(readCookie("umbralogin")));
-    loginData.create = loginData.create == "yes";
-    socket.emit('attempt login', loginData);
+    let loginParams = JSON.parse(decodeURIComponent(readCookie("umbralogin")));
+    loginParams.create = loginParams.create == "yes";
+
+    umbra.set("username", loginParams.username)
+      .set("password", loginParams.password)
+      .save();
+
+    socket.emit('attempt login', loginParams);
+  } else if (umbra.get("username") && umbra.get("password")) {
+    if (umbra.get("autologin")) {
+      let loginParams = {
+        username: umbra.get("username"),
+        password: umbra.get("password"),
+        create: false
+      };
+      socket.emit('attempt login', loginParams);
+    } else {
+      $("#nameInput").val(umbra.get("username"));
+      $("#passwordInput").val(umbra.get("password"));
+    }
   }
 
   var canVibrate = "vibrate" in navigator || "mozVibrate" in navigator;
   if (canVibrate && !("vibrate" in navigator))
       navigator.vibrate = navigator.mozVibrate;
+
 
   //iScroll
   //var outputScroller;
@@ -64,6 +106,11 @@ $(function() {
         loginParams['gender'] = $('input[name=gender]:checked').val();
         loginParams['email'] = $('#emailInput').val().trim();
       }
+
+      umbra.set("username", loginParams.username)
+        .set("password", loginParams.password)
+        .set("autologin", $('.rememberme.checkbox').checkbox('is checked'));
+
       // Tell the server your username
       socket.emit('attempt login', loginParams);
     }
@@ -71,26 +118,31 @@ $(function() {
 
   // Sends a chat message
   function sendMessage (text) {
+    if (!text) text = $inputBox.val();
     addToCmdHistory(text);
     text = cleanInput(text);
     // if there is a non-empty message and a socket connection
     if (text && connected) {
-      if (!bKeepCommand) $inputBox.val('');
+      if (!umbra.get("keepCommand")) $inputBox.val('');
       $inputBox.select();
-      console.log("sent: " + text);
-      socket.emit('send', text);
+
+      var _ref = text.split(umbra.get("cmdDelimiter"));
+      for (var i = 0; i < _ref.length; i++) {
+        if (umbra.get("debug")) console.log("sent: " + _ref[i]);
+        socket.emit('send', _ref[i]);
+      }
     }
   }
 
   function addToCmdHistory() {
-    var _ref = $inputBox.val().split(cmd_delimiter);
+    var _ref = $inputBox.val().split(umbra.get("cmdDelimiter"));
     for (var i = 0; i < _ref.length; i++)
       if (cmdHistory.indexOf(_ref[i]) === -1) // don't add duplicates
         cmdHistory.unshift(_ref[i]); // add to start of array
   }
 
   function completeCommand(line, incr) {
-    if (bCompleteCommand == false || cmdHistory.length == 0) return false;
+    if (umbra.get("completeCommand") === false || cmdHistory.length == 0) return false;
 
     var cmds = cmdHistory.filter(function (cmd) {
       return cmd.indexOf(line) == 0
@@ -110,18 +162,18 @@ $(function() {
   }
 
   function tabComplete() {
-    if (bCompleteCommand == false) return false;
+    if (umbra.get("completeCommand") === false) return false;
     completeCommand(lastInput, 1);
   }
 
   function historyPrev() {
-    if (bCompleteCommand == false) return false;
+    if (umbra.get("completeCommand") === false) return false;
     completeCommand(lastInput, 1);
     $inputBox[0].setSelectionRange(lastInput.length, $inputBox.val().length)
   }
 
   function historyNext() {
-    if (bCompleteCommand == false) return false;
+    if (umbra.get("completeCommand") === false) return false;
     completeCommand(lastInput, -1);
     $inputBox[0].setSelectionRange(lastInput.length, $inputBox.val().length)
   }
@@ -436,6 +488,11 @@ $(function() {
     sendMessage($inputBox.val());
   });
 
+  $("#logOut").click( function(event) {
+    sendMessage("qq");
+  })
+
+
 
   $('#newUserDropdown').accordion({
     onOpen: function () {
@@ -554,6 +611,7 @@ $(function() {
   socket.on('login result', function (data) {
     if(data.success) {
       connected = true;
+      umbra.save();
       $('#login-form-outer').transition({
         animation: 'vertical flip',
         onComplete: function() { $('#introText').transition('vertical flip'); }
@@ -574,6 +632,8 @@ $(function() {
 
   socket.on('avalon disconnected', function (data) {
     log('*** AVALON DISCONNECTED ***');
+    connected = false;
+
     var $form = $('#login-form-outer');
     //$form.remove();
     $('.messages').append($form);
@@ -581,6 +641,10 @@ $(function() {
     $('#login-form-outer').transition({
       animation: 'vertical flip'
     });
+    $outputBox[0].scrollTop = $outputBox[0].scrollHeight;
+    $(".nano").nanoScroller();
+    $("#output-scroller").nanoScroller({ scroll: 'bottom' });
+
   });
 
   socket.on('disconnect', function () {
@@ -603,7 +667,7 @@ $(function() {
   var watcherClient = new WatcherClient(socket);
 
   function handleProto(code, content) {
-    console.log('###' + code + ' ' + content);
+    if (umbra.get("debug")) console.log('###' + code + ' ' + content);
 
     if(code == 'playername') {
       $('#playername').text(content);
@@ -673,7 +737,7 @@ $(function() {
 
   function processBlock(data) {
 
-    console.log('processing block');
+    if (umbra.get("debug")) console.log('processing block');
 
     if(data.tags && data.tags.indexOf('oneliner') >= 0) {
       return processEntry(data.entries[0]);
@@ -688,7 +752,7 @@ $(function() {
       if($el) { elems.push($el); }
     }
     if(data.prompt) {
-      console.log('prompt: ' + data.prompt);
+      if (umbra.get("debug")) console.log('prompt: ' + data.prompt);
       addPrompt();
     }
 
@@ -710,8 +774,8 @@ $(function() {
   }
 
   function processEntry(data) {
-    console.group('processing input');
-    console.log(data);
+    if (umbra.get("debug")) console.group('processing input');
+    if (umbra.get("debug")) console.log(data);
 
     var $elems;
 
@@ -743,7 +807,7 @@ $(function() {
       //console.log('input: ' + JSON.stringify(data));
     }
 
-    console.groupEnd();
+    if (umbra.get("debug")) console.groupEnd();
 
     return $elems;
   }
@@ -785,7 +849,6 @@ $(function() {
       if (e.metaKey) { str = 'meta+' + str; modKey=true;}
 
       if(!modKey) {
-
         $inputBox.focus();
       }
 
@@ -797,7 +860,7 @@ $(function() {
           return false;
         } else if(entry.cmd) {
           sendMessage(entry.cmd);
-          console.log(str);
+          if (umbra.get("debug")) console.log(str);
           return false;
         }
       }
@@ -834,6 +897,7 @@ $(function() {
   //initialise clicky bits
   $('.ui.dropdown').dropdown();
   $('.ui.accordion').accordion();
+  $('.ui.checkbox').checkbox();
 
 
 
