@@ -19,7 +19,7 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 </head>
-<body class="pushable">
+<body>
 
 
 
@@ -33,15 +33,15 @@
     <div class="ui dropdown item">
       <i class="ui child icon"></i>
       <span id="playername">Avalon Umbra - v0.92 beta</span>
-      <div class="menu">
+      <div class="menu infobar">
         <div class="item" id="logOut"><i class="power icon"></i> Log Out</div>
         <div class="item"><i class="tag icon"></i> Guild: <span id="guild-stat">[guild]</span></div>
         <div class="item"><i class="tags icon"></i> Profession: <span id="profession-stat">[profession]</span></div>
         <div class="item"><i class="university icon"></i> City: <span id="city-stat">[city]</span></div>
         <div class="item"><i class="sun icon"></i> Order: <span id="order-stat">[order]</span></div>
 
-        <div class="item"><i class="lab icon"></i> Health: <span id="health-stat">[health]</span> / <span id="max-health-stat">[max-health]</span></div>
-        <div class="item"><i class="lab icon"></i> Mana: <span id="mana-stat">[mana]</span> / <span id="max-mana-stat">[max-mana]</span></div>
+        <div class="item"><div class="health bar"></div><i class="lab icon"></i> Health: <span id="health-stat">[health]</span> / <span id="max-health-stat">[max-health]</span></div>
+        <div class="item"><div class="mana bar"></div><i class="lab icon"></i> Mana: <span id="mana-stat">[mana]</span> / <span id="max-mana-stat">[max-mana]</span></div>
         <div class="item"><i class="trophy icon"></i> Level: <span id="level-stat">[level]</span> + <span id="xp-stat">[xp]</span>%</div>
         <div class="item"><i class="student icon"></i> Lessons: <span id="lessons-stat">[lessons]</span></div>
         <div class="item"><i class="paw icon"></i> Bloodlust: <span id="bloodlust-stat">[bloodlust]</span></div>
@@ -61,7 +61,10 @@
   </div>
 
   <!-- Main Body -->
-  <div class="pusher full height flecked-bg">
+  <div class="sidebar">
+    <div class="map"></div>
+  </div>
+  <div class="full height flecked-bg">
       <div class="ui basic segment paler" id="output-segment">
         <div class="nano" id="output-scroller">
           <div class="nano-content">

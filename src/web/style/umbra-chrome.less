@@ -5,11 +5,8 @@
 }
 
 body {
-  background: url('/img/dark-flecks.jpg');
-  /*background-size: 100% 100%;*/
-
+  background: black;
   -webkit-font-smoothing: antialiased;
-
   font-family:
     "Museo",
     "Alegreya",
@@ -28,11 +25,8 @@ body {
 
 
 .flecked-bg {
-  /* background: url('/img/dark-flecks.jpg') !important; */
   background:black !important;
   color: #CCCCCC;
-
-  /*background-size: 100% 100%;*/
 }
 
 
@@ -75,6 +69,7 @@ ul {
 
 .full.height {
   height: 100%;
+  overflow: hidden;
 }
 
 #output-segment {
@@ -295,4 +290,40 @@ ul {
 @keyframes shimmer {
   0%   { background-position: top left; }
   100% { background-position: top right; }
+}
+
+.sidebar {
+  display: none;
+}
+@media @desktop {
+  .sidebar {
+    display: block;
+    position: absolute;
+    top: 0px;
+    height: 100%;
+    padding-top: 38px;
+    width: 200px;
+    .map {
+      font-size: 13px;
+    }
+  }
+  .full.height {
+    margin-left: 200px;
+  }
+}
+
+.infobar {
+  .bar {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 0%;
+    height: 1px;
+    &.health {
+      background: red;
+    }
+    &.mana {
+      background: blue;
+    }
+  }
 }

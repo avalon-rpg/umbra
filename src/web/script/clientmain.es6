@@ -11,6 +11,7 @@ window.umbra = {
     // username
     // password
   },
+  protocol: {},
   load() {
     this.settings = JSON.parse(localStorage["umbra"]);
     return this;
@@ -271,7 +272,10 @@ $(function() {
     $elem.append($('<div class="lines">').html(ansiLines));
 
     prevMsgType = 'avmap';
-
+    if ($(".sidebar").is(":visible")) {
+      $(".sidebar .map").html($elem.clone());
+      return null;
+    }
     return $elem;
     // add location reveal handler here
   }
@@ -666,7 +670,10 @@ $(function() {
 
   var watcherClient = new WatcherClient(socket);
 
-  function handleProto(code, content) {
+  function handleProto(e, data) {
+    var code = data.code;
+    var content = data.content;
+
     if (umbra.get("debug")) console.log('###' + code + ' ' + content);
 
     if(code == 'playername') {
@@ -677,10 +684,12 @@ $(function() {
       var split = content.split(" ");
       $('#health-stat').text(split[0]);
       $('#max-health-stat').text(split[1]);
+      $(".infobar .health.bar").css("width", split[0]/split[1]*100 + "%");
     } else if(code == 'mana') {
       var split = content.split(" ");
       $('#mana-stat').text(split[0]);
       $('#max-mana-stat').text(split[1]);
+      $(".infobar .mana.bar").css("width", split[0]/split[1]*100 + "%");
     } else if(code == 'level') {
       $('#level-stat').text(content);
     } else if(code == 'xp') {
@@ -803,7 +812,7 @@ $(function() {
     } else if(data.qual == 'line') {
       $elems = mkLine(data);
     } else if(data.qual == 'protocol') {
-      handleProto(data.code, data.content);
+      $(umbra).trigger("protocol", data);
     } else {
       //console.log('input: ' + JSON.stringify(data));
     }
@@ -900,7 +909,10 @@ $(function() {
   $('.ui.accordion').accordion();
   $('.ui.checkbox').checkbox();
 
-
+  $(umbra).on("protocol", handleProto);
+  $(umbra).on("protocol", function (e, data) {
+    umbra.protocol[data.code] = data.content;
+  });
 
 });
 
