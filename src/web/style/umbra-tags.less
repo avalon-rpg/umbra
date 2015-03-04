@@ -1,6 +1,6 @@
 @indent: 10px;
-@curve-radius: 10px;
-@vert-spacer: 10px;
+@curve-radius: 1em;
+@vert-spacer: 1em;
 
 .horz-gradient(@color1,@color2) {
   background-image: -webkit-gradient(linear, left top, left top, color-stop(0%, @color1), color-stop(100% @color2));
@@ -43,8 +43,8 @@
   .stdio {
     margin-top: 3px;
     margin-bottom: 3px;
-    padding-top: @vert-spacer;
-    padding-bottom: @vert-spacer;
+    padding-top: (@vert-spacer / 2);
+    padding-bottom: (@vert-spacer / 2);
     width: 100%;
     .cmd {
       color: rgb(37, 188, 36);
