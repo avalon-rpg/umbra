@@ -46,8 +46,12 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     less: {
-      dist: {
+      umbra: {
         options: {
+          plugins: [
+            new (require('less-plugin-autoprefix'))()
+            //new (require('less-plugin-clean-css'))()
+          ],
           dumpLineNumbers: true,
           stripBanners: true,
           banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
@@ -61,8 +65,30 @@ module.exports = function(grunt) {
           sourceMapBasepath: '/style',
           outputSourceFiles: true
         },
-        src: ['src/web/style/umbra.less'],
+        src: 'src/web/style/umbra.less',
         dest: 'build/web/style/umbra.css'
+      },
+      themes: {
+        options: {
+          plugins: [
+            new (require('less-plugin-autoprefix'))()
+            //new (require('less-plugin-clean-css'))()
+          ],
+          dumpLineNumbers: true,
+          stripBanners: true,
+          banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+          '<%= grunt.template.today("yyyy-mm-dd") %> */',
+          compress: false,
+          cleancss: true,
+          strictUnits: true
+        },
+        files: [{
+          expand: true,
+          cwd: 'src/web/style',
+          src: ['*-theme.less'],
+          dest: 'build/web/style/',
+          ext: '.css'
+        }]
       }
     },
     riot: {

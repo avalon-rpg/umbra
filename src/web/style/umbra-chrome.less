@@ -6,7 +6,7 @@
 
 body {
   background: black;
-  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
   font-family:
     "Museo",
     "Alegreya",
@@ -158,19 +158,8 @@ ul {
 ---------------*/
 
 .ui.transparent.input {
-  ::-webkit-input-placeholder { /* WebKit browsers */
+  ::placeholder {
     color:    #fff;
-  }
-  :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-     color:    #fff;
-     opacity:  1;
-  }
-  ::-moz-placeholder { /* Mozilla Firefox 19+ */
-     color:    #fff;
-     opacity:  1;
-  }
-  :-ms-input-placeholder { /* Internet Explorer 10+ */
-     color:    #fff;
   }
 }
 
@@ -189,22 +178,6 @@ ul {
   height: auto;
   white-space: nowrap;
   overflow: hidden;
-  -webkit-transition:
-    0.3s width ease,
-    0.5s transform ease
-  ;
-  -moz-transition:
-    0.3s width ease,
-    0.5s transform ease
-  ;
-  -o-transition:
-    0.3s width ease,
-    0.5s transform ease
-  ;
-  -ms-transition:
-    0.3s width ease,
-    0.5s transform ease
-  ;
   transition:
     0.3s width ease,
     0.5s transform ease
@@ -217,18 +190,6 @@ ul {
   top: auto;
   left: 54px;
   opacity: 0;
-  -webkit-transition:
-    0.3s opacity 0.3s
-  ;
-  -moz-transition:
-    0.3s opacity 0.3s
-  ;
-  -o-transition:
-    0.3s opacity 0.3s
-  ;
-  -ms-transition:
-    0.3s opacity 0.3s
-  ;
   transition:
     0.3s opacity 0.3s
   ;
@@ -246,51 +207,6 @@ ul {
 }
 
 
-.shimmer {
-  color: rgba(255,255,255,0.8);
-  background: -webkit-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff));
-  background: -moz-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff));
-  background: gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff));
-  -webkit-background-size: 125px 100%;
-  -moz-background-size: 125px 100%;
-  background-size: 125px 100%;
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  background-clip: text;
-  -webkit-animation-name: shimmer;
-  -moz-animation-name: shimmer;
-  animation-name: shimmer;
-  -webkit-animation-duration: 2s;
-  -moz-animation-duration: 2s;
-  animation-duration: 2s;
-  -webkit-animation-iteration-count: infinite;
-  -moz-animation-iteration-count: infinite;
-  animation-iteration-count: infinite;
-  background-repeat: no-repeat;
-  background-position: 0 0;
-}
-
-.shimmer.red-fg {
-  color: rgba(255,64,64,0.8);
-
-}
-
-@-moz-keyframes shimmer {
-  0%   { background-position: top left; }
-  100% { background-position: top right; }
-}
-@-webkit-keyframes shimmer {
-  0%   { background-position: top left; }
-  100% { background-position: top right; }
-}
-@-o-keyframes shimmer {
-  0%   { background-position: top left; }
-  100% { background-position: top right; }
-}
-@keyframes shimmer {
-  0%   { background-position: top left; }
-  100% { background-position: top right; }
-}
 
 .sidebar {
   display: none;

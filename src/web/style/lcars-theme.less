@@ -1,0 +1,46 @@
+@indent: 2em;
+@vert-spacer: 1em;
+@curve-radius: 1em;
+@thick-width: 0.3em;
+
+.messages {
+  //       t            r       b            l
+  padding: @vert-spacer @indent @vert-spacer @indent;
+  position: relative;
+}
+
+.comms {
+  padding-left: 0px;
+
+  .icon {
+    position: absolute;
+    margin: 0px;
+    left: 0.125em;
+  }
+
+}
+
+.stdio {
+  border-left: @thick-width solid rgb(79, 136, 67);
+  border-top: @thick-width solid rgb(79, 136, 67);
+  border-radius: @curve-radius;
+  margin-left: -(@indent / 2);
+  padding-left: ( (@indent / 2) - @thick-width );
+
+  .cmd {
+    font-size: smaller;
+    float: right;
+    border: @thick-width solid rgb(79, 136, 67);
+    border-radius: @curve-radius;
+    padding-right: 4px;
+    margin-top: -(@vert-spacer * 1.25);
+    margin-right: 0;
+  }
+}
+
+.avmsg {
+  background: indigo;
+  border: 1px solid grey;
+  padding-left: (@curve-radius / 4);
+  border-radius: @curve-radius;
+}

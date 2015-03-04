@@ -494,9 +494,13 @@ $(function() {
 
   $("#logOut").click( function(event) {
     sendMessage("qq");
-  })
+  });
 
-
+  $(".theme.select").click( function(event) {
+    let themename = $(this).data("themename");
+    let href = `/style/${themename}-theme.css?#`;
+    $('#theme-stylesheet').attr('href', href);
+  });
 
   $('#newUserDropdown').accordion({
     onOpen: function () {
