@@ -42,7 +42,7 @@ app.get("/", function (req, res, next) {
   let fileback = 'index.html';
   //if(md.tablet())      { fileback = 'tablet.html'; }
   //else if( md.phone()) { fileback = 'phone.html'; }
-  res.sendfile(fileback, {root: __dirname + '/../web'});
+  res.sendFile(fileback, {root: __dirname + '/../web'});
 });
 
 app.use(express.static(__dirname + '/../web'));

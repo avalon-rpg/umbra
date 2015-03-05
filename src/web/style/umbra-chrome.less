@@ -1,5 +1,7 @@
 /* Fix user-agent */
 
+html * {max-height:1000000px;}
+
 * {
   box-sizing: border-box;
 }
@@ -22,14 +24,6 @@ body {
   font-weight: 500;
   font-size: 0.95em;
 }
-
-
-
-.flecked-bg {
-  background:black !important;
-  color: #CCCCCC;
-}
-
 
 ul {
   list-style: none;
@@ -94,7 +88,7 @@ ul {
   position: absolute;
   width: 100%;
 //  overflow:auto;
-  height: auto; //for nano
+  height: auto !important; //for nano
   top: 40px;
   bottom: 40px;
 }
@@ -224,7 +218,7 @@ ul {
       font-size: 13px;
     }
   }
-  .full.height {
+  #right-pane {
     margin-left: 200px;
   }
 }
