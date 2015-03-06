@@ -27,6 +27,13 @@ window.umbra = {
   }
 };
 
+function getParameterByName(name) {
+  let cleanName = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+  let regex = new RegExp("[\\?&]" + cleanName + "=([^&#]*)");
+  let results = regex.exec(location.search);
+  return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
+};
+
 $(function() {
   var lastInput = "";
 
@@ -57,6 +64,21 @@ $(function() {
   if (localStorage && localStorage.umbra)
     window.umbra.settings = JSON.parse(localStorage.umbra);
 
+  function attemptLogin(params) {
+    let host = getParameterByName('host');
+    let port = getParameterByName('port');
+    if(host) {
+      console.log('host = ' + host);
+      params.host = host;
+    }
+    if(port) {
+      console.log('port = ' + port);
+      params.port = port;
+    }
+
+    socket.emit('attempt login', params);
+  };
+
   if (readCookie("umbralogin")) {
     let loginParams = JSON.parse(decodeURIComponent(readCookie("umbralogin")));
     loginParams.create = loginParams.create == "yes";
@@ -65,7 +87,7 @@ $(function() {
       .set("password", loginParams.password)
       .save();
 
-    socket.emit('attempt login', loginParams);
+    attemptLogin(loginParams);
   } else if (umbra.get("username") && umbra.get("password")) {
     if (umbra.get("autologin")) {
       let loginParams = {
@@ -73,7 +95,7 @@ $(function() {
         password: umbra.get("password"),
         create: false
       };
-      socket.emit('attempt login', loginParams);
+      attemptLogin(loginParams);
     } else {
       $("#nameInput").val(umbra.get("username"));
       $("#passwordInput").val(umbra.get("password"));
@@ -90,7 +112,7 @@ $(function() {
 
 
   // Sets the client's username
-  function attemptLogin () {
+  function attemptManualLogin () {
     username = cleanInput($nameInput.val().trim());
     password = cleanInput($passwordInput.val().trim());
 
@@ -104,16 +126,19 @@ $(function() {
         create: createNewUser        
       };
       if(createNewUser) {
-        loginParams['gender'] = $('input[name=gender]:checked').val();
-        loginParams['email'] = $('#emailInput').val().trim();
+        loginParams.gender = $('input[name=gender]:checked').val();
+        loginParams.email = $('#emailInput').val().trim();
       }
+
+
+
 
       umbra.set("username", loginParams.username)
         .set("password", loginParams.password)
         .set("autologin", $('.rememberme.checkbox').checkbox('is checked'));
 
       // Tell the server your username
-      socket.emit('attempt login', loginParams);
+      attemptLogin(loginParams);
     }
   }
 
@@ -536,7 +561,7 @@ $(function() {
     onkeyup: false,
     submitHandler: function (form) {
       $('#login-form').transition('pulse');
-      attemptLogin();
+      attemptManualLogin();
     }
   });
 
@@ -668,6 +693,16 @@ $(function() {
         password: password,
         create: false
       };
+      let host = getParameterByName('host');
+      let port = getParameterByName('port');
+      if(host) {
+        console.log('host = ' + host);
+        loginParams.host = host;
+      }
+      if(port) {
+        console.log('port = ' + ports);
+        loginParams.port = port;
+      }
       socket.emit('confirm login', loginParams);
     }
   });

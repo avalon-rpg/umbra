@@ -22,17 +22,21 @@ util.inherits(ShadowClient, EventEmitter);
 ShadowClient.prototype.init = function(params) {
   let self = this;
 
+  self.host = params.host || '184.173.130.145';
+  self.port = params.port || 23;
   self.username = params.username;
   self.password = params.password;
   self.gender = params.gender;
   self.email = params.email || '';
   self.create = params.create || false;
 
+  self.emit('attempting avalon login to host: ' + self.host + ', port: ' + self. port);
+
   // console.log('ShadowLogin initialising as: ' + JSON.stringify(self));
 
-  this.conn = net.connect({port: 23, host: '184.173.130.145'}, function() {
+  this.conn = net.connect({port: self.port, host: self.host}, function() {
     self.connected = true;
-    self.emit('avalon connected');
+    self.emit('avalon connected, host: ' + self.host + ', port: ' + self.port);
   });
 
   const IAC = 255;

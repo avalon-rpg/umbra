@@ -68,7 +68,8 @@ io.on('connection', function (socket) {
   // SOCKET EVENTS 
 
   socket.on('attempt login', function (params) {
-    console.log('index.js attempt login for ' + params.username);
+    console.log('attempting login for ' + params.username);
+    console.log('host = ' + params.host);
     username = params.username;
     shadowclient = new ShadowClient(params);
     parsedclient = new AvParser(shadowclient);
@@ -76,7 +77,8 @@ io.on('connection', function (socket) {
   });
 
   socket.on('confirm login', function (params) {
-    console.log('index.js attempt login for ' + params.username);
+    console.log('confirming login for ' + params.username);
+    console.log('host = ' + params.host);
     if(!shadowclient || !shadowclient.connected || shadowclient.username !== params.username) {
       console.log('fresh login required');
       username = params.username;
