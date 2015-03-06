@@ -24,7 +24,7 @@ window.umbra = {
   set(key, value) {
     this.settings[key] = value;
     return this;
-  },
+  }
 };
 
 $(function() {
@@ -826,33 +826,39 @@ $(function() {
     return $elems;
   }
 
-  var keypadCodes = {
-    9: {char: 'tab', fn: tabComplete },
-    37: {char: 'l-arr'},
-    38: {char: 'u-arr', fn: historyPrev },
-    39: {char: 'r-arr'},
-    40: {char: 'd-arr', fn: historyNext },
-    111: {char: '/', cmd: 'out'},
-    106: {char: '*', cmd: 'in'},
-    109: {char: '-', cmd: 'up'},
-    107: {char: '+', cmd: 'down'},
-    110: {char: '.', cmd: ''},
-    96: { char: '0', cmd: ''},
-    97: { char: '1', cmd: 'sw'},
-    98: { char: '2', cmd: 's'},
-    99: { char: '3', cmd: 'se'},
-    100: {char: '4', cmd: 'w'},
-    101: {char: '5', cmd: ''},
-    102: {char: '6', cmd: 'e'},
-    103: {char: '7', cmd: 'nw'},
-    104: {char: '8', cmd: 'n'},
-    105: {char: '9', cmd: 'ne'}
-  }
+  const keypadCodes = {
+    9:   {char: 'tab',   fn: tabComplete },
+    37:  {char: 'l-arr'},
+    38:  {char: 'u-arr', fn: historyPrev },
+    39:  {char: 'r-arr'},
+    40:  {char: 'd-arr', fn: historyNext },
+    111: {char: 'num /', cmd: 'out'},
+    106: {char: 'num *', cmd: 'in'},
+    109: {char: 'num -', cmd: 'up'},
+    107: {char: 'num +', cmd: 'down'},
+    110: {char: 'num .', cmd: ''},
+    96:  {char: 'num 0', cmd: ''},
+    97:  {char: 'num 1', cmd: 'sw'},
+    98:  {char: 'num 2', cmd: 's'},
+    99:  {char: 'num 3', cmd: 'se'},
+    100: {char: 'num 4', cmd: 'w'},
+    101: {char: 'num 5', cmd: ''},
+    102: {char: 'num 6', cmd: 'e'},
+    103: {char: 'num 7', cmd: 'nw'},
+    104: {char: 'num 8', cmd: 'n'},
+    105: {char: 'num 9', cmd: 'ne'}
+  };
 
   $(document).keydown( function (e) {
     if($('#search-help').is(":focus")) {return;}
 
     if(connected) {
+
+      let macroCmd = lookupMacroCmd(e);
+      if(macroCmd) {
+        sendMessage(macroCmd);
+        return false;
+      }
 
       var str = '';
       var modKey = false;
