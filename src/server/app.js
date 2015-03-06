@@ -120,6 +120,7 @@ io.on('connection', function (socket) {
       socket.emit('login result', data);
       if(data.success) {
         shadowclient.write('protocol on\r\n');
+        shadowclient.write('macrolist\r\n');
       } else {
         shadowclient.close();
       }

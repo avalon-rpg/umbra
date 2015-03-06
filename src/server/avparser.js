@@ -35,6 +35,12 @@ AvParser.prototype.init = function(shadowclient) {
   var blockStack;
   var currentBlock;
 
+  let inMap = false;
+  let mapLoc = '';
+  let mapLines = [];
+  let umbraMsg = false;
+  let inMacroList = false;
+
   function appendOutput(data) {
     //console.log('appending: ' + JSON.stringify(data));
     if (!currentBlock) {
@@ -75,6 +81,10 @@ AvParser.prototype.init = function(shadowclient) {
   }
 
   function exitBlock() {
+    if(inMacroList) {
+      inMacroList = false;
+      return true;
+    }
     if(currentBlock && currentBlock.entries && currentBlock.entries.length === 1) {
       var soleEntry = currentBlock.entries[0];
       if(soleEntry.comms) {
@@ -107,10 +117,7 @@ AvParser.prototype.init = function(shadowclient) {
   }
 
 
-  let inMap = false;
-  let mapLoc = '';
-  let mapLines = [];
-  let umbraMsg = false;
+
 
   // needs handling:
   //
@@ -137,6 +144,29 @@ AvParser.prototype.init = function(shadowclient) {
       regex: /^UmBrA:\s$/,
       func: function(match) {
         umbraMsg = true;
+      }
+    },{
+      regex: /^(\d+) (.*)$/,
+      cond: () => inMacroList,
+      func: function(match) {
+        appendOutput({
+          qual:    'protocol',
+          code:    'macro',
+          content:  match[0],
+          macroId:  match[1],
+          macroDef: match[2]
+        });
+      }
+    },{
+      regex: /^###macro (\d+) (.*)$/,
+      func: function(match) {
+        appendOutput({
+          qual:    'protocol',
+          code:    'macro',
+          content:  match[1] + ' ' + match[2],
+          macroId:  match[1],
+          macroDef: match[2]
+        });
       }
     },{
       regex: /^(.*) >>> (.*)$/,
@@ -225,7 +255,11 @@ AvParser.prototype.init = function(shadowclient) {
             newBlock[key] = value.trim();
           }
         }
-        pushBlock(newBlock);
+        if(newBlock.cmd && newBlock.cmd === 'MACROLIST') {
+          inMacroList = true;
+        } else {
+          pushBlock(newBlock);
+        }
       }
     },{
       regex: /^###end@.*$/,
@@ -482,6 +516,7 @@ AvParser.prototype.init = function(shadowclient) {
 
   var onPrompt = function(prompt) {
     umbraMsg = false;
+    inMacroList = false;
     if(inMap) { endMapFor('unknown'); }
     flushOutput();
   };

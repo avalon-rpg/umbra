@@ -35,31 +35,33 @@ function getParameterByName(name) {
 };
 
 $(function() {
-  var lastInput = "";
+  let lastInput = "";
 
-  var FADE_TIME = 150; // ms
+  let FADE_TIME = 150; // ms
 
-  var loginValidator;
-  var createNewUser = false;
+  let loginValidator;
+  let createNewUser = false;
 
-  var $outputBox = $('#output-box'); // Messages area
-  var $inputBox = $('#input-box'); // Input message input box
-  var $nameInput = $('#nameInput');
-  var $passwordInput = $('#passwordInput');
-  var cmdHistory = [];
-  var cmdHistoryPos = 0;
+  let $outputBox = $('#output-box'); // Messages area
+  let $inputBox = $('#input-box'); // Input message input box
+  let $nameInput = $('#nameInput');
+  let $passwordInput = $('#passwordInput');
+  let cmdHistory = [];
+  let cmdHistoryPos = 0;
 
   // Prompt for setting a username
-  var username;
-  var password;
-  var connected = false;
-  var $currentInput = $nameInput.focus();
+  let username;
+  let password;
+  let connected = false;
+  let $currentInput = $nameInput.focus();
 
-  var prevMsgType = '';
+  let macros = [];
 
-  var socket = io();
+  let prevMsgType = '';
 
-  var styler = new InlineStyler();
+  let socket = io();
+
+  let styler = new InlineStyler();
 
   if (localStorage && localStorage.umbra)
     window.umbra.settings = JSON.parse(localStorage.umbra);
@@ -739,6 +741,12 @@ $(function() {
       $('#bloodlust-stat').text(content);
     } else if(code == 'alignment') {
       $('#alignment-stat').text(content);
+    } else if(code == 'macro') {
+      if(data.macroDef === 'NO CONTENT') {
+        delete macros[data.macroId];
+      } else {
+        macros[data.macroId] = data.macroDef;
+      }
     }
   }
 
@@ -884,43 +892,57 @@ $(function() {
     105: {char: 'num 9', cmd: 'ne'}
   };
 
-  $(document).keydown( function (e) {
-    if($('#search-help').is(":focus")) {return;}
+  function onKeyDown(e) {
+    if ($('#search-help').is(":focus")) {
+      return;
+    }
 
-    if(connected) {
-
-      let macroCmd = lookupMacroCmd(e);
-      if(macroCmd) {
-        sendMessage(macroCmd);
+    if (connected) {
+      let macroId = lookupMacroCmd(e);
+      if (macroId && macroId > 0 && macros[macroId]) {
+        sendMessage('' + macroId);
         return false;
       }
 
       var str = '';
       var modKey = false;
 
-      if (e.shiftKey) { str = 'shift+' + str; }
-      if (e.ctrlKey)  { str = 'ctrl+' + str; modKey=true; }
-      if (e.altKey) { str = 'alt+' + str; modKey=true;}
-      if (e.metaKey) { str = 'meta+' + str; modKey=true;}
+      if (e.shiftKey) {
+        str = 'shift+' + str;
+      }
+      if (e.ctrlKey) {
+        str = 'ctrl+' + str;
+        modKey = true;
+      }
+      if (e.altKey) {
+        str = 'alt+' + str;
+        modKey = true;
+      }
+      if (e.metaKey) {
+        str = 'meta+' + str;
+        modKey = true;
+      }
 
-      if(!modKey) {
+      if (!modKey) {
         $inputBox.focus();
       }
 
       var entry = keypadCodes[e.keyCode];
-      if(entry) {
+      if (entry) {
         str = str + entry.char;
-        if(entry.fn) {
+        if (entry.fn) {
           entry.fn();
           return false;
-        } else if(entry.cmd) {
+        } else if (entry.cmd) {
           sendMessage(entry.cmd);
           if (umbra.get("debug")) console.log(str);
           return false;
         }
       }
     }
-  });
+  };
+
+  $(document).keydown( onKeyDown );
 
   $inputBox.keyup( function (e) {
     if (keypadCodes[e.keyCode] || e.keyCode == 13) return;
