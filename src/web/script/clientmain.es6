@@ -34,6 +34,7 @@ function getParameterByName(name) {
   return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
 };
 
+
 $(function() {
   let lastInput = "";
 
@@ -49,11 +50,16 @@ $(function() {
   let cmdHistory = [];
   let cmdHistoryPos = 0;
 
+  let scrollPos = 0;
+  let scrollMax = 0;
+  let pinScroll = false;
+
   // Prompt for setting a username
   let username;
   let password;
   let connected = false;
   let $currentInput = $nameInput.focus();
+
 
   let macros = [];
 
@@ -487,9 +493,30 @@ $(function() {
     }
 
     //nanoscroller
-    $outputBox[0].scrollTop = $outputBox[0].scrollHeight;
-    $(".nano").nanoScroller();
-    $("#output-scroller").nanoScroller({ scroll: 'bottom' });
+
+    $("#output-scroller").nanoScroller(); //refresh for the size of the content
+
+    if(pinScroll) {
+      $("#output-scroller").nanoScroller({flash: true});
+    } else {
+      $("#output-scroller").nanoScroller({scroll: 'bottom'});
+    }
+
+
+    //console.log('post ' + outputScroller.contentScrollTop + ' .. ' + outputScroller.maxScrollTop);
+
+
+    //$('#input-indicator').transition({
+    //  animation: 'hide'
+    //}).transition({
+    //  animation: 'slide down',
+    //  allowRepeats: true
+    //}).transition({
+    //  animation: 'slide up',
+    //  allowRepeats: true
+    //}).transition({
+    //  animation: 'hide'
+    //});
 
     //iScroll
     //scrollToBottom(outputScroller);
@@ -964,6 +991,13 @@ $(function() {
   //turn on nano-scrollbars
   $(".nano").nanoScroller({ iOSNativeScrolling: true });
 
+  $("#output-scroller").on("update", function(event, vals){
+    scrollPos = vals.position;
+    scrollMax = vals.maximum;
+    pinScroll = (scrollMax - scrollPos) > 50;
+  });
+
+
   //iScroll
   //outputScroller = new IScroll('#output-scroller', {
   //  mouseWheel: true,
@@ -975,6 +1009,8 @@ $(function() {
   $('.ui.dropdown').dropdown();
   $('.ui.accordion').accordion();
   $('.ui.checkbox').checkbox();
+
+  $('#input-indicator').transition();
 
   $(umbra).on("protocol", handleProto);
   $(umbra).on("protocol", function (e, data) {
