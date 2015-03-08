@@ -301,7 +301,7 @@ $(function() {
     var $elem = $('<div class="avmap">');
     $elem.append($('<div class="region">').text(data.region));
     $elem.append($('<div class="loc">').text(data.loc));
-    // We explicitly DON'T want to support lingering styler backrounds inside maps,
+    // We explicitly DON'T want to support lingering styler backgrounds inside maps,
     // so only run the ANSI phase and not full styling.
     var ansiLines = styler.ansi_to_html(data.lines.join('\n'));
     $elem.append($('<div class="lines">').html(ansiLines));
