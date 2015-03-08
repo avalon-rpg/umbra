@@ -20,7 +20,7 @@
 
 @bright-black: #737171;
 @bright-red: #ee2e24;
-@bright-green: #00853e;
+@bright-green: #00FC75;
 @bright-yellow: #ffd204;
 @bright-blue: #009ddc;
 @bright-magenta: #98005d;
@@ -117,8 +117,11 @@ body {
 
 // Override colors
 
-.avmsg > .title {
+.avmsg > .title, .avmap > .loc {
 	color: @yellow;
+}
+.avmap > .region {
+	color: @bright-green;
 }
 
 #input-box-outer, #input-box, #input-segment {
@@ -172,6 +175,16 @@ body {
 	color: @bright-white;
 }
 
+.comms.bug .icon,
+.comms.bug .channel {
+	color: @red;
+}
+
+.comms.bug .commscontent {
+    background: none;
+    border: none;
+}
+
 .comms .channel {
 	padding: 0 5px;
 }
@@ -181,4 +194,21 @@ body {
 
 .messages .block, .messages .line {
 	white-space: pre-wrap;
+}
+
+
+.sidebar {
+	.map {
+		font-size: 13px;
+		.avmap {
+			width: 100%;
+			> .loc, > .region {
+				text-align: center;
+			}
+			.lines {
+				width: 180px;
+				margin: auto;
+			}
+		}
+	}
 }
