@@ -6,6 +6,7 @@ let bodyParser = require('body-parser');
 
 let app = express();
 let server = app.listen(process.env.UMBRA_PORT || 2252);
+console.log("Listening on %s", process.env.UMBRA_PORT || 2252);
 let io = require('socket.io')(server);
 
 let MobileDetect = require('mobile-detect');

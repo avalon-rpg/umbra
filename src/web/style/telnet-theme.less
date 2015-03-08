@@ -1,10 +1,184 @@
-@import "nihilist-theme.less";
+@indent: 1em;
+@curve-radius: 1em;
+@vert-spacer: 1em;
+
+@bordercolor: #2D2D2D;
+
+@black: #17181A;
+@white: #d9d8d8;
+
+@foreground: @white;
+@background: @black;
+
+@red: #ee2e24;
+@darkred: #ee2e24;
+@green: #00853e;
+@yellow: #ffd204;
+@blue: #009ddc;
+@magenta: #98005d;
+@cyan: #85cebc;
+
+@bright-black: #737171;
+@bright-red: #ee2e24;
+@bright-green: #00853e;
+@bright-yellow: #ffd204;
+@bright-blue: #009ddc;
+@bright-magenta: #98005d;
+@bright-cyan: #85cebc;
+@bright-white: #ffffff;
+
+.black-fg { color: @black !important; }
+.red-fg { color: @red !important; }
+.green-fg { color: @green !important; }
+.yellow-fg { color: @yellow !important; }
+.blue-fg { color: @blue !important; }
+.magenta-fg { color: @magenta !important; }
+.cyan-fg { color: @cyan !important; }
+.white-fg { color: @white !important; }
+
+.bright-black-fg { color: @bright-black !important; }
+.bright-red-fg { color: @bright-red !important; }
+.bright-green-fg { color: @bright-green !important; }
+.bright-yellow-fg { color: @bright-yellow !important; }
+.bright-blue-fg { color: @bright-blue !important; }
+.bright-magenta-fg { color: @bright-magenta !important; }
+.bright-cyan-fg { color: @bright-cyan !important; }
+.bright-white-fg { color: @bright-white !important; }
+
+.black-bg { background-color: @black; }
+.red-bg { background-color: @darkred !important; }
+.green-bg { background-color: @green !important; }
+.yellow-bg { background-color: @yellow !important; }
+.blue-bg { background-color: @background !important; }
+.magenta-bg { background-color: @magenta !important; }
+.cyan-bg { background-color: @cyan !important; }
+.white-bg { background-color: @white !important; }
+
+.bright-black-bg { background-color: @bright-black !important; }
+.bright-red-bg { background-color: @bright-red !important; }
+.bright-green-bg { background-color:  @bright-green !important; }
+.bright-yellow-bg { background-color: @bright-yellow !important; }
+.bright-blue-bg { background-color: @bright-blue !important; }
+.bright-magenta-bg { background-color: @bright-magenta !important; }
+.bright-cyan-bg { background-color: @bright-cyan !important; }
+.bright-white-bg { background-color: @bright-white !important; }
+
+.blue-bg.black-fg {
+	background: @background !important;
+	color: @blue !important;
+}
+
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono);
 
 body {
-  font-family: monaco, "Courier New", Courier, monospace;
-  font-weight: 700;
+  background: @black;
+  color: @foreground;
+  font-smoothing: antialiased;
+  line-height: 1.3;
+  font-weight: normal;
+  font-size: 13px;
+
+  font-family: "Droid Sans Mono", "DejaVu Sans Mono", monospace;
+  letter-spacing: -1px;
 }
+
+.messages {
+
+  //top, right, bottom, left
+  padding: @vert-spacer @indent @vert-spacer @indent;
+
+  .block, .line {
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border: none;
+    margin-top: 0;
+    margin-left: 0;
+  }
+
+  .block > .block {
+    margin-left: @indent;
+  }
+
+}
+
 
 .block span {
   border-radius: 0;
+}
+
+// hide stuff
+
+.messages .stdio {
+	> .cmd {
+		display: none;
+	}
+}
+
+// Override colors
+
+.avmsg > .title {
+	color: @yellow;
+}
+
+#input-box-outer, #input-box, #input-segment {
+	background: @background;
+	color: @foreground;
+	border: none;
+}
+#input-segment {
+	border-top: 1px solid @bordercolor;
+}
+
+::-webkit-input-placeholder {
+   color: darken(@foreground, 10%);
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   color: darken(@foreground, 10%);  
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   color: darken(@foreground, 10%);  
+}
+
+:-ms-input-placeholder {  
+   color: darken(@foreground, 10%);  
+}
+
+.nano {
+	> .nano-pane {
+		background: none;
+		> .nano-slider {
+			background: @bordercolor;
+		}
+	}
+}
+
+.comms.from .icon {
+	color: @green;
+}
+.comms.to .icon {
+	color: @yellow;
+}
+.comms.to .msg {
+	color: @foreground;
+}
+
+.comms .who {
+	padding: 0px 5px;
+	background: none;
+	border-radius: none;
+	color: @bright-white;
+}
+
+.comms .channel {
+	padding: 0 5px;
+}
+.comms .msg {
+	padding: 0 5px;
+}
+
+.messages .block, .messages .line {
+	white-space: pre-wrap;
 }

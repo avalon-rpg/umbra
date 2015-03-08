@@ -69,8 +69,10 @@ $(function() {
 
   let styler = new InlineStyler();
 
-  if (localStorage && localStorage.umbra)
+  if (localStorage && localStorage.umbra) {
     window.umbra.settings = JSON.parse(localStorage.umbra);
+    setTheme();
+  }
 
   function attemptLogin(params) {
     let host = getParameterByName('host');
@@ -552,9 +554,14 @@ $(function() {
 
   $(".theme.select").click( function(event) {
     let themename = $(this).data("themename");
-    let href = `/style/${themename}-theme.css?#`;
-    $('#theme-stylesheet').attr('href', href);
+    umbra.set("theme", themename).save();
+    setTheme();
   });
+
+  function setTheme() {
+    let href = `/style/${umbra.get("theme")}-theme.css?#`;
+    $('#theme-stylesheet').attr('href', href);
+  }
 
   $('#newUserDropdown').accordion({
     onOpen: function () {
