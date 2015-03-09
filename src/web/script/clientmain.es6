@@ -296,8 +296,10 @@ $(function() {
   }
 
   function mkAvmap(data) {
+    console.log('removing old maps');
     var oldmaps = $('.avmap');
     oldmaps.remove();
+    console.log('maps removed');
     var $elem = $('<div class="avmap">');
     $elem.append($('<div class="region">').text(data.region));
     $elem.append($('<div class="loc">').text(data.loc));
@@ -496,9 +498,10 @@ $(function() {
 
     //nanoscroller
 
+    let pinnedBeforeRefresh = pinScroll;
     $("#output-scroller").nanoScroller(); //refresh for the size of the content
 
-    if(pinScroll) {
+    if(pinnedBeforeRefresh) {
       $("#output-scroller").nanoScroller({flash: true});
     } else {
       $("#output-scroller").nanoScroller({scroll: 'bottom'});
@@ -985,12 +988,12 @@ $(function() {
     lastInput = $inputBox.val();
   });
 
-  function scrollToBottom(scroller) {
-    setTimeout(function () {
-      scroller.refresh();
-      scroller.scrollTo(0, scroller.maxScrollY, 0);
-    }, 0);
-  };
+  //function scrollToBottom(scroller) {
+  //  setTimeout(function () {
+  //    scroller.refresh();
+  //    scroller.scrollTo(0, scroller.maxScrollY, 0);
+  //  }, 0);
+  //};
 
   /////////////////////////////////////////////
   // Page initialisation
@@ -1002,6 +1005,7 @@ $(function() {
     scrollPos = vals.position;
     scrollMax = vals.maximum;
     pinScroll = (scrollMax - scrollPos) > 50;
+    //console.log(`scroll: ${scrollPos} / ${scrollMax}, pinned = ${pinScroll}`);
   });
 
 
