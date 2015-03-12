@@ -226,10 +226,15 @@ $(function() {
       cssClasses = data.tags.join(' ');
     }
 
-    var msghtml = styler.style(data.line);
-    var $el = $('<div class="' + cssClasses + '">').addClass('line').html(msghtml);
     prevMsgType = 'line';
-    return $el
+    var msghtml = styler.style(data.line);
+
+    var $el = $('<div class="' + cssClasses + '">').addClass('line').html(msghtml);
+    if($el.text().trim() === "") {
+      return null;
+    } else {
+      return $el
+    }
   }
 
   function log (message, options) {
@@ -469,6 +474,8 @@ $(function() {
   // options.prepend - If the element should prepend
   //   all other messages (default = false)
   function addMessageElements ($el, options) {
+    if(!$el) { return; }
+
     // Setup default options
     if (!options) {
       options = {};
@@ -566,6 +573,26 @@ $(function() {
     $('#theme-stylesheet').attr('href', href);
   }
 
+  $(".size.select").click( function(event) {
+
+    let fontSize = '.95em';
+    switch($(this).text()) {
+      case 'smallest':
+        fontSize = '.8em';
+        break;
+      case 'smaller':
+        fontSize = '.9em';
+        break;
+      case 'bigger':
+        fontSize = '1em';
+        break;
+      case 'biggest':
+        fontSize = '1.1em';
+        break;
+    }
+    $('body').css({ 'font-size': fontSize });
+  });
+
   $('#newUserDropdown').accordion({
     onOpen: function () {
       createNewUser = true;
@@ -636,22 +663,6 @@ $(function() {
 
   // Click events
 
-  //Focus input when clicking on the message input's border
-  // $('#output-segment').click(function () {
-  //   $inputMessage.focus();
-  // });
-
-  $('#toggleLeftSidebar').click(function () {
-    $('#leftSidebar')
-    .sidebar('setting', {
-      dimPage             : false,
-      closable            : false,
-      transition          : 'push',
-      mobileTransition    : 'push'})
-    .sidebar('toggle');
-
-    $('#toggleLeftSidebar').toggleClass('active');
-  });
 
   $('#toggleFullscreen').click(function () {
 
@@ -663,16 +674,18 @@ $(function() {
       screenfull.request();
     }
 
-  })
+  });
 
 
   function openHelp() {
     var help = $("#searchHelp input").val();
     window.open('http://www.avalon-rpg.com/help/search?page='+help,'_blank','width=600,height=800,scrollbars=1');
-  };
+  }
+
   $("#searchHelp input").keyup(function(e) {
     if (e.keyCode == 13) openHelp(); // will usually be blocked
-  })
+  });
+
   $("#searchHelp i.icon").click(openHelp);
 
 

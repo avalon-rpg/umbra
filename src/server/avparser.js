@@ -2,6 +2,7 @@
 var util = require('util');
 var stripAnsi = require('strip-ansi');
 var EventEmitter = require('events').EventEmitter;
+var blocks = require('./blocks');
 
 /////////////////////////////////////////
 // Helpful helpers
@@ -24,16 +25,24 @@ if (!Array.prototype.last){
 
 function AvParser(shadowclient) {
   this.init(shadowclient);
+  // I don't trust prototype inheritance (due to an unexplained bug where self.emit becomes undefined),
+  // so we delegate instead
+  this._emitter = new EventEmitter();
 }
 
-util.inherits(AvParser, EventEmitter);
+AvParser.prototype.on = function() {
+  this._emitter.on.apply(this._emitter, arguments);
+};
+
+AvParser.prototype.emit = function() {
+  this._emitter.emit.apply(this._emitter, arguments);
+};
 
 AvParser.prototype.init = function(shadowclient) {
   let self = this;
   self.shadowclient = shadowclient;
 
-  var blockStack;
-  var currentBlock;
+  var blockStack = new blocks.BlockStack();
 
   let inMap = false;
   let mapLoc = '';
@@ -41,78 +50,13 @@ AvParser.prototype.init = function(shadowclient) {
   let umbraMsg = false;
   let inMacroList = false;
 
-  function appendOutput(data) {
-    //console.log('appending: ' + JSON.stringify(data));
-    if (!currentBlock) {
-      pushBlock({
-        qual: 'block',
-        tags: ['block'],
-        entries: [data]
-      });
-    } else if (!currentBlock.entries) {
-      currentBlock.entries = [data];
-    } else {
-      currentBlock.entries.push(data);
-    }
-  }
-
-  function pushBlock(block) {
-    if (!blockStack || blockStack.length === 0) {
-      blockStack = [block];
-    } else {
-      blockStack.push(block);
-    }
-    currentBlock = block;
-    //console.log('entering block at depth ' + blockStack.length + ': ' + JSON.stringify(block));
-  }
-
-  //returns true if the tag was added
-  function tagBlock(tag) {
-    if(!currentBlock.tags || currentBlock.tags.length === 0) {
-      currentBlock.tags = [tag];
-      return true;
-    } else {
-      if(currentBlock.tags.indexOf(tag) < 0) {
-        currentBlock.tags.push(tag);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function exitBlock() {
-    if(inMacroList) {
-      inMacroList = false;
-      return true;
-    }
-    if(currentBlock && currentBlock.entries && currentBlock.entries.length === 1) {
-      var soleEntry = currentBlock.entries[0];
-      if(soleEntry.comms) {
-        currentBlock = soleEntry;
-        return false;
-      } else {
-        tagBlock('oneliner');
-      }
-    }
-    if(blockStack && blockStack.length > 1) {
-      var block = blockStack.pop();
-      currentBlock = blockStack.last();
-      appendOutput(block);
-      return true;
-    } else {
-      return false;
-    }
-  }
+  function appendOutput(data) { blockStack.current.addEntry(data); }
 
   function flushOutput() {
-    while( exitBlock() ){
-      //do nowt
-    }
-
-    if(currentBlock) {
-      self.emit('block', currentBlock);
-      currentBlock = null;
-      blockStack = null;
+    let popped = blockStack.popAll();
+    if(popped) {
+      console.log(popped);
+      self.emit('block', popped);
     }
   }
 
@@ -191,27 +135,7 @@ AvParser.prototype.init = function(shadowclient) {
         inMap = true;
       }
     },{
-      regex: /^Map depicts (.*)\. Your location is highlighted\.$/,
-      cond: () => inMap,
-      func: fnEndMap
-    },{
-      regex: /^Map depicts (.*) environs with your location highlighted\.$/,
-      cond: function() { return inMap; },
-      func: fnEndMap
-    },{
-      regex: /^Map shows (.*)\. Your location is highlighted\.$/,
-      cond: function() { return inMap; },
-      func: fnEndMap
-    },{
-      regex: /^Map shows (.*) environs with your location highlighted\.$/,
-      cond: function() { return inMap; },
-      func: fnEndMap
-    },{
-      regex: /^Map depicts (.*)$/,
-      cond: function() { return inMap; },
-      func: fnEndMap
-    },{
-      regex: /^Map shows (.*)$/,
+      regex: /^Map (?:depicts|shows) (.*)$/,
       cond: function() { return inMap; },
       func: fnEndMap
     },{
@@ -239,7 +163,7 @@ AvParser.prototype.init = function(shadowclient) {
       regex: /^###begin@ (.+)$/,
       func: function(match) {
         //console.log('multiline message start: ' + match[0]);
-        let newBlock = {qual: 'avmsg'};
+        let newBlock = new blocks.Block('avmsg');
         let parts = match[1].split('###');
         let partcount = parts.length;
         for (var i = 1; i < partcount; i++) {
@@ -258,34 +182,34 @@ AvParser.prototype.init = function(shadowclient) {
         if(newBlock.cmd && newBlock.cmd === 'MACROLIST') {
           inMacroList = true;
         } else {
-          pushBlock(newBlock);
+          blockStack.push(newBlock);
         }
       }
     },{
       regex: /^###end@.*$/,
-      func: exitBlock
+      func: blockStack.pop
     },{
       regex: /^You engage in a moment's deep thought, gathering a sense of the domain\.$/,
       func: function(match, rawLine) {
         appendOutput({ qual: 'marker', markerFor: 'spheresense' });
-        tagBlock('spheresense');
+        blockStack.tagCurrent('spheresense');
       }
     },{
       regex: /^Guild Name *\| Guildhead *\| Patron Deity *\| Where *$/,
       func: function(match, rawLine) {
         appendOutput({ qual: 'marker', markerFor: 'guilds' });
-        tagBlock('guilds');
+        blockStack.tagCurrent('guilds');
       }
     },{
-      regex: /^(\S) BB: +Read (\d+) out of (\d+)$/,
+      regex: /^(\S+) BB: +Read (\d+) out of (\d+)$/,
       func: function(match, rawLine) {
-        if(tagBlock('bbstatus')) {
+        if(blockStack.tagCurrent('bbstatus')) {
           appendOutput({ qual: 'marker', markerFor: 'bbstatus' });
         }
         appendOutput({qual: 'line',  line: rawLine});
       }
     },{
-      //de-dupling locations in oracular watch
+      //de-duping locations in oracular watch
       regex: /^At "(.*)": (At \1: )(.*)\.$/,
       func: function(match, rawLine) {
         let spammyBit = match[2];
@@ -310,20 +234,21 @@ AvParser.prototype.init = function(shadowclient) {
         let txt = match[1];
 
         //If this corresponds to speech already in the block, skip it
-        if(currentBlock && currentBlock.entries) {
-          currentBlock.entries.forEach(function (entry) {
+        if(blockStack.current.entries) {
+          blockStack.current.entries.forEach(function (entry) {
             //matching text
             if(entry.comms && txt.indexOf(entry.msg) >= 0) {
               if (entry.qual === 'speech to' || entry.qual === 'tell to') {
                 //from us!
                 suppress = true;
-              } else if (entry.who &&  txt.indexOf(entry.who) >= 0) {
+              } else if (entry.who && txt.indexOf(entry.who) >= 0) {
                 //matching person
                 suppress = true;
               }
             }
             //TODO: if there's an existing entry from "someone" or "a shadowy figure"
-            // match that as well and rewrite the name
+            //      but the body matches regardless...
+            //      match that as well and rewrite the name
 
           });
         }
@@ -488,13 +413,19 @@ AvParser.prototype.init = function(shadowclient) {
 
   var onLine = function (line) {
 
-    let cleanline = stripAnsi(line);
-
     let seqLen = sequences.length;
     for (let i = 0; i < seqLen; i++) {
       let entry = sequences[i];
       if(entry.cond === undefined || entry.cond()) {
-        let match = entry.regex.exec(cleanline);
+        let match;
+        if(entry.ansiRegex) {
+          match = entry.ansiRegex.exec(line);
+        } else if(entry.regex) {
+          let cleanLine = stripAnsi(line);
+          match = entry.regex.exec(cleanLine);
+        } else {
+          console.error("Parser entry with no regex defined: " + JSON.stringify(entry));
+        }
         if (match) {
           entry.func(match, line);
           //console.log('matched [' + cleanline + '] vs [' + entry.regex + ']');
@@ -510,7 +441,7 @@ AvParser.prototype.init = function(shadowclient) {
       appendOutput({qual: 'line',  line: line});
     }
 
-    if(line.indexOf('   ') >= 0) { tagBlock('monospaced'); }
+    if(line.indexOf('   ') >= 0) { blockStack.tagCurrent('monospaced'); }
   };
 
 

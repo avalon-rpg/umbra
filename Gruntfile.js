@@ -108,12 +108,21 @@ module.exports = function(grunt) {
       options: {
         sourceMap: true
       },
-      dist: {
+      web: {
         files: [{
           expand: true,
           cwd: 'src/web/script',
           src: ['**/*.es6'],
           dest: 'src-gen/web/babel/',
+          ext: '.js'
+        }]
+      },
+      server: {
+        files: [{
+          expand: true,
+          cwd: 'src/server',
+          src: ['**/*.es6'],
+          dest: 'src-gen/server/babel/',
           ext: '.js'
         }]
       }
