@@ -293,6 +293,9 @@ $(function() {
     for (var prop in data) {
       if(prop != 'qual' && prop != 'tags' && prop != 'tag' && prop != 'monospaced' && data.hasOwnProperty(prop)) {
         var styled = styler.style(data[prop]);
+        if(prop === 'cmd') {
+          styled = '<div class="cmd-inner">' + styled + '</div>';
+        }
         $elem.append($('<div class="'+prop+'">').html(styled));
       }
     }
@@ -873,7 +876,9 @@ $(function() {
         $div.addClass(data.tags.join(' '));
       }
       if(data.cmd) {
-        $div.append($('<div>').addClass('cmd').text(data.cmd));
+        let cmdInner = $('<div>').addClass('cmd-inner').text(data.cmd);
+        let cmdOuter = $('<div>').addClass('cmd').append(cmdInner);
+        $div.append(cmdOuter);
       }
       $div.append(elems);
       return $div;

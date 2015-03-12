@@ -41,20 +41,23 @@
   indent slightly with a curved white border on the left.
 */
   .stdio {
-    margin-top: 3px;
-    margin-bottom: 3px;
+    margin-top: (@vert-spacer / 4);
+    margin-bottom: (@vert-spacer / 4);
     padding-top: (@vert-spacer / 2);
     padding-bottom: (@vert-spacer / 2);
     width: 100%;
     .cmd {
       color: rgb(37, 188, 36);
-      font-size: smaller;
       float: right;
+    }
+
+    .cmd-inner {
+      font-size: smaller;
     }
   }
 
   .stdio + .stdio {
-    margin-top: 0px;
+    margin-top: 0;
   }
 
 
