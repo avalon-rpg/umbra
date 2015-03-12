@@ -24,18 +24,14 @@ if (!Array.prototype.last){
 
 
 function AvParser(shadowclient) {
+  this._emitter = new EventEmitter();
   this.init(shadowclient);
   // I don't trust prototype inheritance (due to an unexplained bug where self.emit becomes undefined),
   // so we delegate instead
-  this._emitter = new EventEmitter();
 }
 
 AvParser.prototype.on = function() {
   this._emitter.on.apply(this._emitter, arguments);
-};
-
-AvParser.prototype.emit = function() {
-  this._emitter.emit.apply(this._emitter, arguments);
 };
 
 AvParser.prototype.init = function(shadowclient) {
@@ -50,15 +46,21 @@ AvParser.prototype.init = function(shadowclient) {
   let umbraMsg = false;
   let inMacroList = false;
 
-  function appendOutput(data) { blockStack.current.addEntry(data); }
+  let emit = function() {
+    self._emitter.emit.apply(self._emitter, arguments);
+  };
 
-  function flushOutput() {
+  let appendOutput = function(data) {
+    blockStack.current.addEntry(data);
+  };
+
+  let flushOutput = function() {
     let popped = blockStack.popAll();
     if(popped) {
       //console.log(popped);
-      self.emit('block', popped);
+      emit('block', popped);
     }
-  }
+  };
 
 
 
@@ -69,7 +71,7 @@ AvParser.prototype.init = function(shadowclient) {
 
 
 
-  function endMapFor(region) {
+  let endMapFor = function(region) {
     appendOutput({
       qual:  'map',
       loc:    mapLoc,
@@ -79,11 +81,11 @@ AvParser.prototype.init = function(shadowclient) {
     mapLoc = '';
     mapLines = [];
     inMap = false;
-  }
+  };
 
-  var fnEndMap = function(match) { endMapFor(match[1]); };
+  let fnEndMap = function(match) { endMapFor(match[1]); };
 
-  var sequences = [
+  let sequences = [
     {
       regex: /^UmBrA:\s$/,
       func: function(match) {
@@ -460,15 +462,15 @@ AvParser.prototype.init = function(shadowclient) {
   self.shadowclient.on('prompt', onPrompt);
 
   self.shadowclient.on('login result', function (data) {
-    self.emit('login result', data);
+    emit('login result', data);
   });
 
   self.shadowclient.on('avalon connected', function () {
-    self.emit('avalon connected');
+    emit('avalon connected');
   });
 
   self.shadowclient.on('avalon disconnected', function (had_error) {
-    self.emit('avalon disconnected', had_error);
+    emit('avalon disconnected', had_error);
   });
 
 };
