@@ -879,6 +879,7 @@ $(function() {
         let cmdInner = $('<div>').addClass('cmd-inner').text(data.cmd);
         let cmdOuter = $('<div>').addClass('cmd').append(cmdInner);
         $div.append(cmdOuter);
+        $div.addClass('cmd-' + data.cmd.toLowerCase());
       }
       $div.append(elems);
       return $div;
