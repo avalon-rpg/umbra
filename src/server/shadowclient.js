@@ -104,6 +104,9 @@ ShadowClient.prototype.init = function(params) {
       return;
     }
     if(self.loggedIn) {
+      if(self.username == 'gwahir') {
+        console.log(self.username + ' ««««««««««««« ');
+      }
       self.emit('prompt', prompt);
     }
   };
