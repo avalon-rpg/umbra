@@ -75,8 +75,7 @@ BlockStack.prototype.pop = function() {
       this.current = soleEntry;
       return false;
     } else {
-      console.log("tagging oneliner: " + JSON.stringify(this.current));
-      this.tagCurrent('oneliner');
+       this.tagCurrent('oneliner');
     }
   }
   if(this.stack && this.stack.length > 1) {
