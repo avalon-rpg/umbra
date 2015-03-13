@@ -134,6 +134,9 @@ ShadowClient.prototype.init = function(params) {
 
 ShadowClient.prototype.write = function(input) {
   if(this.connected) {
+    if(self.username == 'gwahir') {
+      console.log(self.username + ' » ' + input);
+    }
     this.conn.write(input);  
   } else {
     console.error('couldn\'t send msg to disconnected client: ' + input);
