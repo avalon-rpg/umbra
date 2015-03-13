@@ -82,6 +82,9 @@ ShadowClient.prototype.init = function(params) {
       return;
     }
 
+    if(self.username == 'gwahir') {
+      console.log(self.username + ' « ' + line);
+    }
     self.emit('line', line);
   };
 
