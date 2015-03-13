@@ -762,7 +762,6 @@ $(function() {
     }
   });
 
-  var watcherClient = new WatcherClient(socket);
 
   function handleProto(e, data) {
     var code = data.code;

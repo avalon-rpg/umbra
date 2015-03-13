@@ -9,18 +9,14 @@ let server = app.listen(process.env.UMBRA_PORT || 2252);
 console.log("Listening on %s", process.env.UMBRA_PORT || 2252);
 let io = require('socket.io')(server);
 
-let MobileDetect = require('mobile-detect');
+//let MobileDetect = require('mobile-detect');
 
-let Watcher = require('./Watcher').Watcher;
-let WatcherBinding = require('./WatcherBinding').WatcherBinding;
 let ShadowClient = require('./shadowclient');
 let AvParser = require('./avparser');
 let Tabulator = require('./tabulator');
 let api = require("./api/index");
 
 let tabulator = new Tabulator();
-
-let watcher = new Watcher('./web');
 
 // Routing
 app.get("/checkname/", api.checkName);
@@ -51,8 +47,6 @@ app.use(express.static(__dirname + '/../../node_modules'));
 
 
 io.on('connection', function (socket) {
-  watcher.addClient(new WatcherBinding(socket, watcher));
-
   let shadowclient;
   let parsedclient;
   let username = "undefined";

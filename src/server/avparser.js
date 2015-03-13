@@ -57,7 +57,6 @@ AvParser.prototype.init = function(shadowclient) {
   let flushOutput = function() {
     let popped = blockStack.popAll();
     if(popped) {
-
       //console.log(popped);
       try {
         emit('block', popped);
