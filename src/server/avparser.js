@@ -35,10 +35,10 @@ AvParser.prototype.on = function() {
 };
 
 AvParser.prototype.init = function(shadowclient) {
-  let self = this;
+  const self = this;
   self.shadowclient = shadowclient;
 
-  var blockStack = new blocks.BlockStack();
+  let blockStack = new blocks.BlockStack();
 
   let inMap = false;
   let mapLoc = '';
@@ -46,7 +46,7 @@ AvParser.prototype.init = function(shadowclient) {
   let umbraMsg = false;
   let inMacroList = false;
 
-  let emit = function() {
+  const emit = function() {
     self._emitter.emit.apply(self._emitter, arguments);
   };
 
@@ -447,7 +447,7 @@ AvParser.prototype.init = function(shadowclient) {
   };
 
 
-  var onPrompt = function(prompt) {
+  let onPrompt = function(prompt) {
     umbraMsg = false;
     inMacroList = false;
     if(inMap) { endMapFor('unknown'); }
