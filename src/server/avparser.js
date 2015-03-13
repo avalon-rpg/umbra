@@ -59,6 +59,7 @@ AvParser.prototype.init = function(shadowclient) {
     if(popped) {
       if (typeof emit !== 'function') {
         console.log('emit is fubar, currently set to: ' + JSON.stringify(emit));
+        console.log('popped: ' + JSON.stringify(popped));
       }
       //console.log(popped);
       emit('block', popped);
