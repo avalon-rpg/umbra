@@ -57,6 +57,9 @@ AvParser.prototype.init = function(shadowclient) {
   let flushOutput = function() {
     let popped = blockStack.popAll();
     if(popped) {
+      if (typeof emit !== 'function') {
+        console.log('emit is fubar, currently set to: ' + JSON.stringify(emit));
+      }
       //console.log(popped);
       emit('block', popped);
     }
