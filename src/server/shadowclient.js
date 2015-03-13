@@ -134,8 +134,8 @@ ShadowClient.prototype.init = function(params) {
 
 ShadowClient.prototype.write = function(input) {
   if(this.connected) {
-    if(self.username == 'gwahir') {
-      console.log(self.username + ' » ' + input);
+    if(this.username == 'gwahir') {
+      console.log(this.username + ' » ' + input);
     }
     this.conn.write(input);  
   } else {
