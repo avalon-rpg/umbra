@@ -1,3 +1,4 @@
+'use strict';
 function readCookie(n){n+='=';for(var a=document.cookie.split(/;\s*/),i=a.length-1;i>=0;i--)if(!a[i].indexOf(n))return a[i].replace(n,'');}
 
 window.umbra = {
@@ -13,11 +14,15 @@ window.umbra = {
   },
   protocol: {},
   load() {
-    this.settings = JSON.parse(localStorage["umbra"]);
+    if(localStorage && localStorage.umbra) {
+      this.settings = JSON.parse(localStorage.umbra);
+    }
     return this;
   },
   save() {
-    localStorage["umbra"] = JSON.stringify(this.settings);
+    if(localStorage) {
+      localStorage.umbra = JSON.stringify(this.settings);
+    }
     return this;
   },
   get(key) { return this.settings[key] || this.defaults[key]; },
@@ -32,7 +37,7 @@ function getParameterByName(name) {
   let regex = new RegExp("[\\?&]" + cleanName + "=([^&#]*)");
   let results = regex.exec(location.search);
   return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
-};
+}
 
 
 $(function() {

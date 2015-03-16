@@ -1,4 +1,8 @@
 'use strict';
+
+let pmx = require('pmx').init();
+pmx.http();
+
 // Setup basic express server
 let express = require('express');
 let compression = require('compression');
@@ -17,6 +21,7 @@ let Tabulator = require('./tabulator');
 let api = require("./api/index");
 
 let tabulator = new Tabulator();
+
 
 // Routing
 app.get("/checkname/", api.checkName);

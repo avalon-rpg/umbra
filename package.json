@@ -26,6 +26,7 @@
     "jquery": "1.11.2",
     "mobile-detect": "^0.4.3",
     "pm2": "^0.12.6",
+    "pmx": "^0.3.5",
     "socket.io": "1.3.4",
     "strip-ansi": "2.0.1",
     "watchr": "2.4.13"
