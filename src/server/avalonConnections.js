@@ -3,7 +3,7 @@
 var murmur = require('murmur');
 
 let Q = require('q');
-let ShadowClient = require('./bufferedShadowclient');
+let ShadowClient = require('./bufferedShadowClient');
 
 function AvalonConnections() {
   this.map = new Map();
