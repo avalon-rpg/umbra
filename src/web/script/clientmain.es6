@@ -922,6 +922,7 @@ $(function() {
     } else if(data.entries && data.entries.length > 0) {
       $elems = processBlock(data);
     } else if(data.qual === 'avmsg') {
+      styler.reset();
       $elems = mkAvmsg(data);
     } else if(data.qual === 'map') {
       $elems = mkAvmap(data);
