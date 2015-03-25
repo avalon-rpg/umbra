@@ -51,22 +51,26 @@ AvParser.prototype.init = function(shadowclient) {
   };
 
   let appendOutput = function(data) {
-    blockStack.current.addEntry(data);
+    blockStack.addEntry(data);
   };
 
-  let flushOutput = function() {
-    let popped = blockStack.popAll();
-    if(popped) {
+  let flushOutput = function(prompt) {
+    let block = blockStack.popAll();
+    if(block) {
       //console.log(popped);
       try {
-        emit('block', popped);
+        if(prompt) { block.prompt = prompt; }
+        block.emitted = new Date();
+        emit('block', block);
       } catch (err) {
         if (typeof emit !== 'function') {
           console.log('emit is fubar, currently set to: ' + JSON.stringify(emit));
         }
-        console.log('error in popped block: ' + JSON.stringify(popped));
+        console.log('error in popped block: ' + JSON.stringify(block));
         throw err;
       }
+    } else {
+      console.log('attempted to flush an empty block, on prompt: ' + prompt);
     }
   };
 
@@ -438,10 +442,7 @@ AvParser.prototype.init = function(shadowclient) {
         }
         if (match) {
           entry.func(match, line);
-          //console.log('matched [' + cleanline + '] vs [' + entry.regex + ']');
           return;
-        } else {
-          //console.log('testing [' + cleanline + '] vs [' + entry.regex + ']');
         }
       }
     }
@@ -459,7 +460,7 @@ AvParser.prototype.init = function(shadowclient) {
     umbraMsg = false;
     inMacroList = false;
     if(inMap) { endMapFor('unknown'); }
-    flushOutput();
+    flushOutput(prompt);
   };
 
   ///////////////////////////////////////////

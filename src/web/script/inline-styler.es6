@@ -1,7 +1,8 @@
-
+'use strict';
 
 
 function InlineStyler() {
+  this.stashedContext = [];
   this.fg = this.bg = null;
   this.bright = false;
   this.tagStack = [];
@@ -9,29 +10,56 @@ function InlineStyler() {
 
 InlineStyler.prototype.reset = function () {
   //console.log("resetting styler");
+  this.stashedContext = [];
   this.fg = this.bg = null;
   this.bright = false;
   this.tagStack = [];
 };
 
+InlineStyler.prototype.stashContext = function() {
+  let ctx = {
+    fg: this.fg,
+    bg: this.bg,
+    bright: this.bright,
+    tagStack: this.tagStack
+  };
+  this.stashedContext.push(ctx);
+};
+
+InlineStyler.prototype.unstashContext = function() {
+  if(this.stashedContext.length > 0) {
+    let ctx = this.stashedContext.pop();
+    this.fg = ctx.fg;
+    this.bg = ctx.bg;
+    this.bright = ctx.bright;
+    this.tagStack = ctx.tagStack;
+  }
+};
+
+InlineStyler.prototype.inCleanContext = function(fn) {
+  this.stashContext();
+  let retval;
+  try { retval = fn(); } finally { this.unstashContext(); }
+  return retval;
+};
+
 InlineStyler.prototype.style = function (txt) {
-  var self = this;
-  var escaped = self.escape_for_html(txt);
-  var ansid = self.ansi_to_html(escaped);
-  var styled = self.inline_to_html(ansid);
+  let self = this;
+  let escaped = self.escape_for_html(txt);
+  let ansified = self.ansi_to_html(escaped);
+  let styled = self.inline_to_html(ansified);
   //console.log("styled line: " + styled);
   //console.log("retained styles: " + JSON.stringify(self.tagStack));
   return styled;
-
 };
+
 InlineStyler.prototype.escape_for_html = function (txt) {
-  if(!txt) {
-    return '';
-  } else {
+  if(!txt) { return ''; }
+  else {
     return txt.replace(/[&<>]/gm, function (str) {
-      if (str == "&") return "&amp;";
-      if (str == "<") return "&lt;";
-      if (str == ">") return "&gt;";
+      if (str === "&") { return "&amp;"; }
+      if (str === "<") { return "&lt;";  }
+      if (str === ">") { return "&gt;";  }
     });
   }
 };
@@ -45,11 +73,11 @@ InlineStyler.prototype.linkify = function (txt) {
 InlineStyler.prototype.inline_to_html = function (txt) {
   if(!txt) { return ''; }
 
-  var self = this;
-  var inSpan = false;
+  let self = this;
+  let inSpan = false;
 
   function pushTag(tag) {
-    var idx = self.tagStack.indexOf(tag);
+    let idx = self.tagStack.indexOf(tag);
     if(idx < 0) {
       //console.log('pushing to tag stack: ' + tag);
       self.tagStack.push(tag);
@@ -60,7 +88,7 @@ InlineStyler.prototype.inline_to_html = function (txt) {
   }
 
   function popTag(tag) {
-    var idx = self.tagStack.indexOf(tag);
+    let idx = self.tagStack.indexOf(tag);
     if(idx >= 0) {
       self.tagStack.splice(idx, 1);
       return true;
@@ -81,46 +109,44 @@ InlineStyler.prototype.inline_to_html = function (txt) {
   }
 
   function replacer(match, p1, p2, offset, string) {
-    var pushed = false;
-    var popped = false;
-    content = p1 || p2;
+    let pushed = false;
+    let popped = false;
+    let content = p1 || p2;
     if(!content) { return ''; }
 
-    var tags = content.split(' ');
-    var len = tags.length;
-    for(var i = 0; i < len; ++i) {
-      var tag = tags[i];
-      if(tag.indexOf("/") == 0) {
+    let tags = content.split(' ');
+    tags.forEach( function(tag) {
+      if(tag.indexOf("/") === 0) {
         tag = tag.substring(1);
         //console.log("tag to pop = " + tag);
         popped = popTag(tag) || popped;
-      } else if(tag == "reset") {
+      } else if(tag === "reset") {
         popped = (self.tagStack && self.tagStack.length > 0);
         self.tagStack = [];
       } else {
         //console.log("tag to push = " + tag);
         pushed = pushTag(tag) || pushed;
       }
-    }
+    });
 
-    var replacement = '';
+    let replacement = '';
     if(pushed || popped) {
       if (inSpan) {
         replacement = '</span>';
       }
-      var newSpan = spanForStack();
+      let newSpan = spanForStack();
       replacement = replacement + newSpan;
     }
     return replacement;
   }
 
-  var regex = /<##(.*?)##>|&lt;##(.*?)##&gt;/gm;
+  const regex = /<##(.*?)##>|&lt;##(.*?)##&gt;/gm;
 
-  var openingSalvo = spanForStack();
-  if(openingSalvo != '') { inSpan = true; }
+  let openingSalvo = spanForStack();
+  if(openingSalvo !== '') { inSpan = true; }
 
-  var newtxt = txt.replace(regex, replacer);
-  var partingShot = '';
+  let newtxt = txt.replace(regex, replacer);
+  let partingShot = '';
   if(self.tagStack && self.tagStack.length && (self.tagStack.length > 0)) {
     partingShot = '</span>';
   }
@@ -131,38 +157,39 @@ InlineStyler.prototype.inline_to_html = function (txt) {
 InlineStyler.prototype.ansi_to_html = function (txt) {
 
   if(!txt) { return ''; }
-  
-  var txtArray = txt.split(/\033\[/);
 
-  var first = txtArray.shift(); // the first chunk is not the result of the split
+  let txtArray = txt.split(/\033\[/);
 
-  var self = this;
-  var transformedArray = txtArray.map(self.process_chunk);
+  let first = txtArray.shift(); // the first chunk is not the result of the split
+
+  let self = this;
+  let transformedArray = txtArray.map(self.process_chunk);
 
   transformedArray.unshift(first);
 
-  var flattened_data = transformedArray.reduce( function (a, b) {
-    if (Array.isArray(b))
-      return a.concat(b);
+  //because array.push returns the new length for whatever obscene reason
+  let sanePush = function(a,b) { a.push(b); return a; };
 
-    a.push(b);
-    return a;
-  }, []);
+  let reducer = function (a, b) {
+    return Array.isArray(b) ? a.concat(b) : sanePush(a,b);
+  };
 
-  var escaped_data = flattened_data.join('');
+  let flattened_data = transformedArray.reduce(reducer, []);
+
+  let escaped_data = flattened_data.join('');
 
   return escaped_data;
 };
 
+// indices here correspond to ansi numbers
+const ANSI_COLORS = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+
+
 InlineStyler.prototype.process_chunk = function (text) {
 
-  // indices here correspond to ansi numbers
-  var ANSI_COLORS = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
-
   function cssLookup(bright, num) {
-    var name = ANSI_COLORS[num % 10];
-    if(bright) return "bright-" + name;
-    else return name;
+    let name = ANSI_COLORS[num % 10];
+    return bright ? `bright-$name` : name;
   }
 
   // Each 'chunk' is the text after the CSI (ESC + '[') and before the next CSI/EOF.
@@ -172,17 +199,17 @@ InlineStyler.prototype.process_chunk = function (text) {
   // before the 'm' character. These are the graphics or SGR commands.
   // The second group is the text (including newlines) that is colored by
   // the first group's commands.
-  var matches = text.match(/([\d;]*)m([\s\S]*)/m);
+  let matches = text.match(/([\d;]*)m([\s\S]*)/m);
 
-  if (!matches) return text;
+  if (!matches) { return text; }
 
-  var orig_txt = matches[2];
-  var nums = matches[1].split(';');
+  let orig_txt = matches[2];
+  let nums = matches[1].split(';');
 
-  var self = this;
+  let self = this;
   nums.map(function (num_str) {
 
-    var num = parseInt(num_str);
+    let num = parseInt(num_str);
 
     if (isNaN(num) || num === 0) { self.fg = self.bg = null; self.bright = false; }
     else if (num === 1) { self.bright = true; }
@@ -195,14 +222,14 @@ InlineStyler.prototype.process_chunk = function (text) {
   if ((self.fg === null) && (self.bg === null)) {
     return orig_txt;
   } else {
-    var classes = ["ansi"];
+    let classes = ["ansi"];
     if (self.fg) { classes.push(self.fg + "-fg");  }
     if (self.bg) { classes.push(self.bg + "-bg");  }
     return ["<span class=\"" + classes.join(' ') + "\">", orig_txt, "</span>"];
   }
 };
 
-var hasModule = (typeof module !== 'undefined');
+let hasModule = (typeof module !== 'undefined');
 if(hasModule) {
   module.exports = InlineStyler;
 }

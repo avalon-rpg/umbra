@@ -9,18 +9,17 @@ let compression = require('compression');
 let bodyParser = require('body-parser');
 
 let app = express();
-let server = app.listen(process.env.UMBRA_PORT || 2252);
+
+let server = app.listen(process.env.UMBRA_PORT || 2252, '0.0.0.0');
 console.log("Listening on %s", process.env.UMBRA_PORT || 2252);
 let io = require('socket.io')(server);
 
 //let MobileDetect = require('mobile-detect');
 
-let ShadowClient = require('./shadowclient');
-let AvParser = require('./avparser');
-let Tabulator = require('./tabulator');
 let api = require("./api/index");
 
-let tabulator = new Tabulator();
+let AvalonConnections = require('./avalonConnections');
+let avalonConnections = new AvalonConnections();
 
 
 // Routing
@@ -52,10 +51,9 @@ app.use(express.static(__dirname + '/../../node_modules'));
 
 
 io.on('connection', function (socket) {
-  let shadowclient;
-  let parsedclient;
-  let username = "undefined";
   let self = this;
+  let shadowclient;
+  let username = '<unknown>';
   let playerAddress = socket.request.connection.remoteAddress;
 
   console.log('Websocket connected from: ' + playerAddress);
@@ -67,81 +65,50 @@ io.on('connection', function (socket) {
   //////////////////
   // SOCKET EVENTS 
 
-  socket.on('attempt login', function (params) {
-    console.log('attempting login for ' + params.username);
-    console.log('host = ' + params.host);
+  socket.on('connect game', function (params) {
+    params.playerAddress = playerAddress;
     username = params.username;
-    shadowclient = new ShadowClient(params);
-    parsedclient = new AvParser(shadowclient);
-    wireShadowEvents(username);
-  });
-
-  socket.on('confirm login', function (params) {
-    console.log('confirming login for ' + params.username);
-    console.log('host = ' + params.host);
-    if(!shadowclient || !shadowclient.connected || shadowclient.username !== params.username) {
-      console.log('fresh login required');
-      username = params.username;
-      shadowclient = new ShadowClient(params);
-      parsedclient = new AvParser(shadowclient);
-      wireShadowEvents(username);
-    } else {
-      console.log('re-attaching login');
-    }
+    avalonConnections.get(params)
+      .then(function(cli) {
+        shadowclient = cli;
+        shadowclient.write('###hub ' + playerAddress + '\r\n');
+        wireClientEvents(cli);
+        socket.emit("connect game ok");
+        if(params.replayFrom) {
+          cli.replayFrom(params.replayFrom, blk => socket.emit('block', blk));
+        } else {
+          cli.replay(blk => socket.emit('block', blk));
+        }
+      }).done();
   });
 
   socket.on('send', function (text) {    
-    if(shadowclient) {
-      //console.log(username + ' wrote: ' + text);
-      shadowclient.write(text + '\r\n');
-    } else {
-      console.log(username + ' can\'t send to disconnected socket: ' + text);
-    }
+    if(shadowclient) { shadowclient.write(text + '\r\n'); }
+    else { console.log(username + ' can\'t send to disconnected client: ' + text); }
   });
 
   // when the user disconnects.. perform this
   socket.on('disconnect', function () {
     console.log('websocket disconnected for ' + username);
-    if(shadowclient && shadowclient.connected) {
-      shadowclient.write('###ack logout ' + username + '\r\n');
-    }
+    if(shadowclient) { shadowclient.pause(); }
   });
 
   //////////////////
   // CLIENT EVENTS 
 
-  function wireShadowEvents(username) {
-    shadowclient.on('avalon connected', function() {
-      console.log('avalon connected, attempting login for ' + username);
-    });
-
-    shadowclient.on('login result', function(data) {
-      console.log('login reult: ' + JSON.stringify(data));
+  function wireClientEvents(client) {
+    client.on('login result', function(data) {
+      console.log('login result: ' + JSON.stringify(data));
       socket.emit('login result', data);
-      if(data.success) {
-        shadowclient.write('protocol on\r\n');
-        shadowclient.write('macrolist\r\n');
-      } else {
-        shadowclient.close();
-      }
     });
 
-    shadowclient.on('avalon disconnected', function (had_error) {
+    client.on('avalon disconnected', function (had_error) {
       console.log('avalon disconnected for ' + username);
       socket.emit('avalon disconnected', had_error);
       shadowclient.close();
     });
 
-    parsedclient.on('block', function (data) {
-      //console.log('================================================================');
-      //console.log('before tabulator: ' + JSON.stringify(data, null, 2));
-      let processedBlock = tabulator.tabulate(data);
-      //console.log('================================================================');
-      //console.log('after tabulator: ' + JSON.stringify(processedBlock, null, 2));
-      if(shadowclient.loggedIn) { socket.emit('block', processedBlock); }
-      //if(shadowclient.loggedIn) { socket.emit('block', data); }
-    });
-
+    client.on('block', function (data) { socket.emit('block', data); });
   }
 
 });

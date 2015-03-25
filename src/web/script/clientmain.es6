@@ -69,6 +69,7 @@ $(function() {
   let macros = [];
 
   let prevMsgType = '';
+  let lastBlockTimestamp;
 
   let socket = io();
 
@@ -91,12 +92,12 @@ $(function() {
       params.port = port;
     }
 
-    socket.emit('attempt login', params);
-  };
+    socket.emit('connect game', params);
+  }
 
   if (readCookie("umbralogin")) {
     let loginParams = JSON.parse(decodeURIComponent(readCookie("umbralogin")));
-    loginParams.create = loginParams.create == "yes";
+    loginParams.create = loginParams.create === "yes";
 
     umbra.set("username", loginParams.username)
       .set("password", loginParams.password)
@@ -118,8 +119,9 @@ $(function() {
   }
 
   var canVibrate = "vibrate" in navigator || "mozVibrate" in navigator;
-  if (canVibrate && !("vibrate" in navigator))
-      navigator.vibrate = navigator.mozVibrate;
+  if (canVibrate && !("vibrate" in navigator)) {
+    navigator.vibrate = navigator.mozVibrate;
+  }
 
 
   //iScroll
@@ -159,12 +161,12 @@ $(function() {
 
   // Sends a chat message
   function sendMessage (text) {
-    if (!text) text = $inputBox.val();
+    if (!text) { text = $inputBox.val(); }
     addToCmdHistory(text);
     text = cleanInput(text);
     // if there is a non-empty message and a socket connection
     if (text && connected) {
-      if (!umbra.get("keepCommand")) $inputBox.val('');
+      if (!umbra.get("keepCommand")) { $inputBox.val(''); }
       $inputBox.select();
 
       var _ref = text.split(umbra.get("cmdDelimiter"));
@@ -183,45 +185,46 @@ $(function() {
   }
 
   function completeCommand(line, incr) {
-    if (umbra.get("completeCommand") === false || cmdHistory.length == 0) return false;
+    if (umbra.get("completeCommand") === false || cmdHistory.length === 0) { return false; }
 
     var cmds = cmdHistory.filter(function (cmd) {
-      return cmd.indexOf(line) == 0
+      return cmd.indexOf(line) === 0;
     });
 
-    if (cmds.length == 0) return false;
+    if (cmds.length === 0) return false;
 
-    if (cmdHistoryPos == cmds.length)
+    if (cmdHistoryPos === cmds.length) {
       $inputBox.val(line);
-    else
+    } else {
       $inputBox.val(cmds[cmdHistoryPos]);
+    }
 
     cmdHistoryPos = cmdHistoryPos + incr;
-    if (cmdHistoryPos > cmds.length) cmdHistoryPos = 0; 
-    if (cmdHistoryPos < 0) cmdHistoryPos = cmds.length;
+    if (cmdHistoryPos > cmds.length) { cmdHistoryPos = 0; }
+    if (cmdHistoryPos < 0) { cmdHistoryPos = cmds.length; }
     $inputBox.focus();
   }
 
   function tabComplete() {
-    if (umbra.get("completeCommand") === false) return false;
+    if (umbra.get("completeCommand") === false) { return false; }
     completeCommand(lastInput, 1);
   }
 
   function historyPrev() {
-    if (umbra.get("completeCommand") === false) return false;
+    if (umbra.get("completeCommand") === false) { return false; }
     completeCommand(lastInput, 1);
-    $inputBox[0].setSelectionRange(lastInput.length, $inputBox.val().length)
+    $inputBox[0].setSelectionRange(lastInput.length, $inputBox.val().length);
   }
 
   function historyNext() {
-    if (umbra.get("completeCommand") === false) return false;
+    if (umbra.get("completeCommand") === false) { return false; }
     completeCommand(lastInput, -1);
-    $inputBox[0].setSelectionRange(lastInput.length, $inputBox.val().length)
+    $inputBox[0].setSelectionRange(lastInput.length, $inputBox.val().length);
   }
 
   // Log a message
   function mkLine (data) {
-    if(prevMsgType == 'prompt') { addPromptMark(); }
+    //if(prevMsgType === 'prompt') { addPromptMark(); }
 
     if(data.tags && data.who && data.tags.indexOf("sphere-movement") >= 0) {
       var previous = $('.sphere-movement.person-'+data.who).remove();
@@ -238,7 +241,7 @@ $(function() {
     if($el.text().trim() === "") {
       return null;
     } else {
-      return $el
+      return $el;
     }
   }
 
@@ -246,13 +249,16 @@ $(function() {
     addMessageElements(mkLine(message), options);
   }
 
-  function addPrompt() {
-    if(prevMsgType == 'line') {
+  function addPrompt(text) {
+    if(prevMsgType === 'line') {
       prevMsgType = 'prompt';
     }
+    $('.prompt').remove();
+    let content = styler.ansi_to_html(text);
+    return $('<div class="prompt">').html(content);
   }
 
-  function mkPromptMark() { return $iconElem = $('<i class="icon caret right prompt">'); }
+  function mkPromptMark() { return $('<i class="icon caret right prompt">'); }
   function addPromptMark() { addMessageElements(mkPromptMark()); }
   
   function mkIcon(classes) { return $('<i class="' + classes + ' icon">'); }
@@ -265,7 +271,7 @@ $(function() {
     }
 
     if(data.who) {
-      var whohtml = styler.style(data.who);
+      let whohtml = styler.style(data.who);
       parts.push($('<div class="who">').html(whohtml));
     }
 
@@ -296,7 +302,7 @@ $(function() {
     }
     var $elem = $('<div class="avmsg ' + cssClasses + '">');
     for (var prop in data) {
-      if(prop != 'qual' && prop != 'tags' && prop != 'tag' && prop != 'monospaced' && data.hasOwnProperty(prop)) {
+      if(prop !== 'qual' && prop !== 'tags' && prop !== 'tag' && prop !== 'monospaced' && data.hasOwnProperty(prop)) {
         var styled = styler.style(data[prop]);
         if(prop === 'cmd') {
           styled = '<div class="cmd-inner">' + styled + '</div>';
@@ -335,38 +341,28 @@ $(function() {
     var $table = $('<table class="ui inverted collapsing striped celled table">');
     if(table.header && table.header.rows && table.header.rows.length > 0) {
       var $header = $('<thead>');
-      var rlen = table.header.rows.length;
-      for(var r=0; r < rlen; ++r) {
-        var row = table.header.rows[r];
+      table.header.rows.forEach( function(row) {
         var $row = $('<tr>');
-
-        var clen = row.length;
-        for(var c=0; c < clen; ++c) {
-          var cell = row[c];
-          var ansi = styler.style(cell);
+        row.forEach( function(cell) {
+          var ansi = styler.ansi_to_html(cell);
           var $cell = $('<th>').html(ansi);
           $row.append($cell);
-        }
+        });
         $header.append($row);
-      }
+      });
       $table.append($header);
     }
     if(table.body && table.body.rows && table.body.rows.length > 0) {
       var $body = $('<tbody>');
-      var rlen = table.body.rows.length;
-      for (var r = 0; r < rlen; ++r) {
-        var row = table.body.rows[r];
+      table.body.rows.forEach( function(row) {
         var $row = $('<tr>');
-
-        var clen = row.length;
-        for (var c = 0; c < clen; ++c) {
-          var cell = row[c];
-          var ansi = styler.style(cell);
+        row.forEach( function(cell) {
+          var ansi = styler.ansi_to_html(cell);
           var $cell = $('<td>').html(ansi);
           $row.append($cell);
-        }
+        });
         $body.append($row);
-      }
+      });
       $table.append($body);
     }
     return $table;
@@ -382,12 +378,12 @@ $(function() {
 
   function concatUserName(user) {
     let str = '';
-    if(user.prefix && user.prefix.trim() != '') {
+    if(user.prefix && user.prefix.trim() !== '') {
       str = str + user.prefix + ' ';
     }
     str = str + user.name;
-    if(user.suffix && user.suffix.trim() != '') {
-      if(user.suffix[0] != ',') {
+    if(user.suffix && user.suffix.trim() !== '') {
+      if(user.suffix[0] !== ',') {
         str = str + ' ';
       }
       str = str + user.suffix + ' ';
@@ -397,12 +393,12 @@ $(function() {
 
   function concatUserNameHtml(user) {
     let str = '<span class="user">';
-    if(user.prefix && user.prefix.trim() != '') {
+    if(user.prefix && user.prefix.trim() !== '') {
       str = str + `<span class="prefix">${user.prefix}</span> `;
     }
     str = str +`<span class="name">${user.name}</span>`;
-    if(user.suffix && user.suffix.trim() != '') {
-      if(user.suffix[0] != ',') { str = str + ' '; }
+    if(user.suffix && user.suffix.trim() !== '') {
+      if(user.suffix[0] !== ',') { str = str + ' '; }
       str = str + `<span class="suffix">${user.suffix}</span>`;
     }
     str = str + "</span>";
@@ -423,12 +419,13 @@ $(function() {
 
       var cardContents = [];
       for (var prop in user) {
-        if(prop != 'qual'
-        && prop != 'prefix'
-        && prop != 'name'
-        && prop != 'suffix'
-        && prop != 'city'
-        && user.hasOwnProperty(prop)){
+        if(prop !== 'qual'   &&
+           prop !== 'prefix' &&
+           prop !== 'name'   &&
+           prop !== 'suffix' &&
+           prop !== 'city'   &&
+           user.hasOwnProperty(prop)
+        ){
           cardContents.push($('<li>').text(prop + ': ' + user[prop]));
         }
       }
@@ -452,10 +449,10 @@ $(function() {
   }
 
   function addChannel(code, name) {
-    if(code == 'ccc') { $('#city-stat').text(name); }
-    if(code == 'ccg') { $('#guild-stat').text(name); }
-    if(code == 'ccp') { $('#profession-stat').text(name); }
-    if(code == 'cco') { $('#order-stat').text(name); }
+    if(code === 'ccc') { $('#city-stat').text(name); }
+    if(code === 'ccg') { $('#guild-stat').text(name); }
+    if(code === 'ccp') { $('#profession-stat').text(name); }
+    if(code === 'cco') { $('#order-stat').text(name); }
 
     /*
     old sidebar code
@@ -691,7 +688,7 @@ $(function() {
   }
 
   $("#searchHelp input").keyup(function(e) {
-    if (e.keyCode == 13) openHelp(); // will usually be blocked
+    if (e.keyCode === 13) openHelp(); // will usually be blocked
   });
 
   $("#searchHelp i.icon").click(openHelp);
@@ -701,22 +698,18 @@ $(function() {
   // Socket events
 
   // Whenever the server emits 'login', log the login message
-  socket.on('login result', function (data) {
-    if(data.success) {
-      connected = true;
-      umbra.save();
-      $('#login-form-outer').transition({
-        animation: 'vertical flip',
-        onComplete: function() { $('#introText').transition('vertical flip'); }
-      });
-      // Display the welcome message
-      log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
-      log('***New Feature: You can now use cursor up/down to browse your command history***');
-    } else {
-      //do validation results
-      //$('.autumn.leaf').transition('slide down');
-    }
+  socket.on('connect game ok', function () {
+    connected = true;
+    umbra.save();
+    $('#login-form-outer').transition({
+      animation: 'vertical flip',
+      onComplete: function() { $('#introText').transition('vertical flip'); }
+    });
+    // Display the welcome message
+    log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
   });
+
+  //TODO: handle "connect game failed" and show validation results as appropriate
 
   // Whenever the server emits 'user left', log it in the chat body
   socket.on('user left', function (data) {
@@ -753,17 +746,12 @@ $(function() {
         password: password,
         create: false
       };
-      let host = getParameterByName('host');
-      let port = getParameterByName('port');
-      if(host) {
-        console.log('host = ' + host);
-        loginParams.host = host;
+      let game = getParameterByName('game');
+      if(game) { loginParams.game = game; }
+      if(lastBlockTimestamp) {
+        loginParams.replayFrom = lastBlockTimestamp;
       }
-      if(port) {
-        console.log('port = ' + ports);
-        loginParams.port = port;
-      }
-      socket.emit('confirm login', loginParams);
+      socket.emit('connect game', loginParams);
     }
   });
 
@@ -772,33 +760,33 @@ $(function() {
     var code = data.code;
     var content = data.content;
 
-    if (umbra.get("debug")) console.log('###' + code + ' ' + content);
+    if (umbra.get("debug")) { console.log('###' + code + ' ' + content); }
 
-    if(code == 'playername') {
+    if(code === 'playername') {
       $('#playername').text(content);
-    } else if(code == 'brief') {
+    } else if(code === 'brief') {
       $('#current-loc').text(content);
-    } else if(code == 'health') {
-      var split = content.split(" ");
+    } else if(code === 'health') {
+      let split = content.split(" ");
       $('#health-stat').text(split[0]);
       $('#max-health-stat').text(split[1]);
       $(".infobar .health.bar").css("width", split[0]/split[1]*100 + "%");
-    } else if(code == 'mana') {
-      var split = content.split(" ");
+    } else if(code === 'mana') {
+      let split = content.split(" ");
       $('#mana-stat').text(split[0]);
       $('#max-mana-stat').text(split[1]);
       $(".infobar .mana.bar").css("width", split[0]/split[1]*100 + "%");
-    } else if(code == 'level') {
+    } else if(code === 'level') {
       $('#level-stat').text(content);
-    } else if(code == 'xp') {
+    } else if(code === 'xp') {
       $('#xp-stat').text(content);
-    } else if(code == 'lessons') {
+    } else if(code === 'lessons') {
       $('#lessons-stat').text(content);
-    } else if(code == 'bloodlust') {
+    } else if(code === 'bloodlust') {
       $('#bloodlust-stat').text(content);
-    } else if(code == 'alignment') {
+    } else if(code === 'alignment') {
       $('#alignment-stat').text(content);
-    } else if(code == 'macro') {
+    } else if(code === 'macro') {
       if(data.macroDef === 'NO CONTENT') {
         delete macros[data.macroId];
       } else {
@@ -807,124 +795,152 @@ $(function() {
     }
   }
 
-  var commsTypes = [
-    { name: 'calling from',        commsClasses: 'from',  iconClasses: 'comment'    },
-    { name: 'calling to',          commsClasses: 'to',    iconClasses: 'comment'    },
-    { name: 'novice-calling from', commsClasses: 'from',  iconClasses: 'student'    },
-    { name: 'novice-calling to',   commsClasses: 'to',    iconClasses: 'student'    },
-    { name: 'tell from',           commsClasses: 'from',  iconClasses: 'reply'      },
-    { name: 'tell to',             commsClasses: 'to',    iconClasses: 'share'      },
-    { name: 'speech from',         commsClasses: 'from',  iconClasses: 'quote left' },
-    { name: 'speech to',           commsClasses: 'to',    iconClasses: 'quote left' },
-    { name: 'rune-bug',            commsClasses: 'bug',   iconClasses: 'bug'        },
-    { name: 'umbra',               commsClasses: 'umbra', iconClasses: 'cloud'      }
-  ];
+  let commsTypes = {
+    'calling from':        { commsClasses: 'from',  iconClasses: 'comment'    },
+    'calling to':          { commsClasses: 'to',    iconClasses: 'comment'    },
+    'novice-calling from': { commsClasses: 'from',  iconClasses: 'student'    },
+    'novice-calling to':   { commsClasses: 'to',    iconClasses: 'student'    },
+    'tell from':           { commsClasses: 'from',  iconClasses: 'reply'      },
+    'tell to':             { commsClasses: 'to',    iconClasses: 'share'      },
+    'speech from':         { commsClasses: 'from',  iconClasses: 'quote left' },
+    'speech to':           { commsClasses: 'to',    iconClasses: 'quote left' },
+    'rune-bug':            { commsClasses: 'bug',   iconClasses: 'bug'        },
+    'umbra':               { commsClasses: 'umbra', iconClasses: 'cloud'      }
+  };
 
   function lookupCommsType(name) {
-    for(i = 0; i < commsTypes.length; ++i) {
-      var ct = commsTypes[i];
-      if(ct.name == name) { return ct; }
-    }
+    return commsTypes[name.trim()];
   }
 
-  socket.on('block', function(data) { processInput(data); });
+  socket.on('block', function(block) { processInput(block); });
 
   function processInput(data) {
-    if(data.qual && data.qual=='root') {
+
+    styler.reset();
+
+    if(data.timestamp) {
+      lastBlockTimestamp = data.timestamp;
+    }
+    if(data.qual && data.qual === 'root') {
+      if (umbra.get("debug")) { console.group('processing input'); }
+
+      //root is just a message envelope, recurse on the content
+      //We don't use proc
       if(data.entries) {
-        var len = data.entries.length;
-        for (let i = 0; i < len; ++i) {
-          processInput(data.entries[i]);
+        let $elems = processBlockEntries(data);
+        if ($elems) {
+          addMessageElements($elems);
         }
-      } else {
-        //empty root block, skip it
       }
     } else {
-      let $elems = processEntry(data);
-      styler.reset();
+      if (umbra.get("debug")) { console.group('processing (rootless) input'); }
 
-      if ($elems) {
-        addMessageElements($elems);
+      //Only comms are expected to get this far - they usurp their wrapper to avoid a nested cmd div
+      let $el = processEntry(data);
+      if (umbra.get("debug")) {
+        console.log('output was:');
+        console.log($el);
       }
+      addMessageElements($el);
     }
+
+    if(data.prompt) {
+      if (umbra.get("debug")) { console.log('prompt: ' + data.prompt); }
+      let $el = addPrompt(data.prompt);
+      addMessageElements($el);
+    } else {
+      console.log('root block with no prompt!');
+      console.log(data);
+    }
+
+    if(umbra.get("debug")) { console.groupEnd(); }
+
+  }
+
+  function processBlockEntries(block) {
+    let elems = [];
+    if(block.entries) {
+      block.entries.forEach(function (entry) {
+        let $el = processEntry(entry);
+        if ($el) {
+          elems.push($el);
+        }
+      });
+    } else {
+      console.log("block without entries");
+      console.log(block);
+    }
+    return elems;
   }
 
   function processBlock(data) {
 
-    if (umbra.get("debug")) console.log('processing block');
+    if (umbra.get("debug")) { console.log('processing block'); }
+
+    if(data.cmd && data.cmd === 'PROTOCOL') {
+      //don't show confirmation that PROTOCOL was engaged
+      return;
+    }
 
     if(data.tags && data.tags.indexOf('oneliner') >= 0) {
       return processEntry(data.entries[0]);
     }
-    var elems = [];
-    var breakout = true;
 
-    var len = data.entries.length;
-    for(var i = 0; i < len; ++i) {
-      var entry = data.entries[i];
-      var $el = processEntry(entry);
-      if($el) { elems.push($el); }
-    }
-    if(data.prompt) {
-      if (umbra.get("debug")) console.log('prompt: ' + data.prompt);
-      addPrompt();
-    }
+    return styler.inCleanContext( function() {
+      let elems = processBlockEntries(data);
 
-    if(data.cmd && data.cmd === 'PROTOCOL') {
-      return;
-    }
-
-    if(elems.length > 0) {
-      var $div = $('<div>');
-      if(data.tags && data.tags.length > 0) {
-        $div.addClass(data.tags.join(' '));
+      if (elems.length > 0) {
+        var $div = $('<div>');
+        if (data.tags && data.tags.length > 0) {
+          $div.addClass(data.tags.join(' '));
+        }
+        if (data.cmd) {
+          let cmdInner = $('<div>').addClass('cmd-inner').text(data.cmd);
+          let cmdOuter = $('<div>').addClass('cmd').append(cmdInner);
+          $div.append(cmdOuter);
+          $div.addClass('cmd-' + data.cmd.toLowerCase());
+        }
+        $div.append(elems);
+        return $div;
       }
-      if(data.cmd) {
-        let cmdInner = $('<div>').addClass('cmd-inner').text(data.cmd);
-        let cmdOuter = $('<div>').addClass('cmd').append(cmdInner);
-        $div.append(cmdOuter);
-        $div.addClass('cmd-' + data.cmd.toLowerCase());
-      }
-      $div.append(elems);
-      return $div;
-    }
+    });
   }
 
   function processEntry(data) {
-    if (umbra.get("debug")) console.group('processing input');
-    if (umbra.get("debug")) console.log(data);
+    if (umbra.get("debug")) {
+      console.group('processing entry');
+      console.log(data);
+    }
 
-    var $elems;
+    let $elems;
 
-    var ct = lookupCommsType(data.qual);
+    let ct = lookupCommsType(data.qual);
     if(ct) {
       data.iconClasses = ct.iconClasses;
       data.commsClasses = ct.commsClasses;
       $elems = mkComms(data);
     } else if(data.entries && data.entries.length > 0) {
       $elems = processBlock(data);
-    } else if(data.qual == 'avmsg') {
+    } else if(data.qual === 'avmsg') {
       $elems = mkAvmsg(data);
-    } else if(data.qual == 'map') {
+    } else if(data.qual === 'map') {
       $elems = mkAvmap(data);
-    } else if(data.qual == 'user') {
+    } else if(data.qual === 'user') {
       //console.log(JSON.stringify(data));
       //addUser(data);
       $elems = mkLoginAnnouncement(data);
-    } else if(data.qual == 'channel') {
+    } else if(data.qual === 'channel') {
       //console.log('input: ' + JSON.stringify(data));
       addChannel(data.code, data.name);
-    } else if (data.qual == 'table') {
+    } else if (data.qual === 'table') {
       $elems = mkTable(data);
-    } else if(data.qual == 'line') {
+    } else if(data.qual === 'line') {
       $elems = mkLine(data);
-    } else if(data.qual == 'protocol') {
+    } else if(data.qual === 'protocol') {
       $(umbra).trigger("protocol", data);
-    } else {
-      //console.log('input: ' + JSON.stringify(data));
-    }
+    } // else console.log('input: ' + JSON.stringify(data));
 
-    if (umbra.get("debug")) console.groupEnd();
+    if(umbra.get("debug")) { console.groupEnd(); }
 
     return $elems;
   }
@@ -995,20 +1011,20 @@ $(function() {
           return false;
         } else if (entry.cmd) {
           sendMessage(entry.cmd);
-          if (umbra.get("debug")) console.log(str);
+          if (umbra.get("debug")) { console.log(str); }
           return false;
         }
       }
     }
-  };
+  }
 
   $(document).keydown( onKeyDown );
 
   $inputBox.keyup( function (e) {
-    if (keypadCodes[e.keyCode] || e.keyCode == 13) return;
-
-    cmdHistoryPos = 0;
-    lastInput = $inputBox.val();
+    if (!keypadCodes[e.keyCode] && e.keyCode !== 13) {
+      cmdHistoryPos = 0;
+      lastInput = $inputBox.val();
+    }
   });
 
   //function scrollToBottom(scroller) {

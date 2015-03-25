@@ -4,6 +4,7 @@ let net = require('net');
 let binary = require('binary');
 
 let EventEmitter = require('events').EventEmitter;
+let GaBlockSplitter = require('./gaBlockSplitter');
 
 if (typeof String.prototype.startsWith !== 'function') {
   // see below for better implementation!
@@ -12,8 +13,8 @@ if (typeof String.prototype.startsWith !== 'function') {
   };
 }
 
-
 function ShadowClient(params) {
+  EventEmitter.call(this);
   this.init(params);
 }
 
@@ -22,26 +23,33 @@ util.inherits(ShadowClient, EventEmitter);
 ShadowClient.prototype.init = function(params) {
   let self = this;
 
-  self.host = params.host || '184.173.130.145';
-  self.port = params.port || 23;
+
+  self.host = 'avalon-rpg.com';
+  self.port = 23;
+  if(params.game && params.game === 'legends') {
+    self.host = 'legends.avalon-rpg.com';
+  }
   self.username = params.username;
   self.password = params.password;
   self.gender = params.gender;
   self.email = params.email || '';
   self.create = params.create || false;
 
-  self.emit('attempting avalon login to host: ' + self.host + ', port: ' + self. port);
+  console.log('attempting avalon login to host: ' + self.host + ', port: ' + self. port);
 
   // console.log('ShadowLogin initialising as: ' + JSON.stringify(self));
 
-  this.conn = net.connect({port: self.port, host: self.host}, function() {
+  self.conn = net.connect({port: self.port, host: self.host}, function() {
     self.connected = true;
-    self.emit('avalon connected, host: ' + self.host + ', port: ' + self.port);
+    if(params.playerAddress) {
+      self.conn.write('###hub ' + params.playerAddress + '\r\n');
+    }
+    console.log('avalon connected, host: ' + self.host + ', port: ' + self.port);
   });
 
-  const IAC = 255;
-  const GA  = 249;
-  const gaSeq = new Buffer([IAC,GA]);
+  let blockSplitter = new GaBlockSplitter(self.conn);
+
+
 
   let onLine = function (line) {
     if(!self.loggedIn) {
@@ -82,7 +90,7 @@ ShadowClient.prototype.init = function(params) {
       return;
     }
 
-    if(self.username == 'gwahir') {
+    if(self.username === 'gwahir') {
       console.log(self.username + ' « ' + line);
     }
     self.emit('line', line);
@@ -104,28 +112,15 @@ ShadowClient.prototype.init = function(params) {
       return;
     }
     if(self.loggedIn) {
-      if(self.username == 'gwahir') {
-        console.log(self.username + ' ««««««««««««« ');
+      if(self.username === 'gwahir') {
+        console.log(self.username + ' ««««««««««««« ' + prompt);
       }
       self.emit('prompt', prompt);
     }
   };
 
-  var parser = binary().loop(function (end, vars) {
-    this.scan('gablock', gaSeq).tap( function(vars) {
-      if(vars.hasOwnProperty('gablock')) {
-        let block = vars.gablock.toString('ascii');
-        let lines = block.split("\r\n");
-        let lineCount = lines.length;
-        for (let i = 0; i < lineCount; i++) {
-          if(i === lineCount - 1) { onPrompt(lines[i]); }
-          else                   { onLine(lines[i]); }
-        }
-      }
-    });
-  });
-
-  self.conn.pipe(parser);
+  blockSplitter.on('line', onLine);
+  blockSplitter.on('prompt', onPrompt);
 
   self.conn.on('close', function (had_error) {
     console.log("shadow client closing for " + self.username);
@@ -137,7 +132,7 @@ ShadowClient.prototype.init = function(params) {
 
 ShadowClient.prototype.write = function(input) {
   if(this.connected) {
-    if(this.username == 'gwahir') {
+    if(this.username === 'gwahir') {
       console.log(this.username + ' » ' + input);
     }
     this.conn.write(input);  
@@ -148,8 +143,14 @@ ShadowClient.prototype.write = function(input) {
 
 ShadowClient.prototype.close = function() {
   if(this.connected) {
-    // this.conn.end();  
-  }  
+    this.conn.write('###ack logout ' + this.username + '\r\n');
+  }
+};
+
+ShadowClient.prototype.pause = function() {
+  if (this.connected) {
+    this.conn.write('AURA WHO ON\r\n');
+  }
 };
 
 module.exports = ShadowClient;

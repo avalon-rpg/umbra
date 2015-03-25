@@ -35,16 +35,19 @@ ul {
 #login-form-outer {
   clear: both;
 }
-.prompt {
-  float: left;
-  clear: both;
-  color: rgba(255,255,255,0.2);
-  margin-bottom: -0.5em!important;
-}
+
 #form-submit-button {
   @media @phone {
     width: 100%;
   }
+}
+
+.prompt {
+  background: rgb(4, 103, 35);
+  width: auto;
+  display: inline-block;
+  padding: 1px;
+  border-radius: .5em;
 }
 
 /* Font */
@@ -112,41 +115,7 @@ ul {
   color: white;
 }
 
-.ui.input.helpsearch,
-.ui.transparent.icon.input.helpsearch
- {
-  > label {
-    cursor: default;
-    position: absolute;
-    color: #fff;
-    top: 0;
-    left: 0;
-    margin: 0;
-    width: 3em;
-    height: 100%;
-    text-align: center;
-    padding-top: .69em;
-  }
-  > input {
-    padding: .5em;
-    padding-right: 2em!important;
-    padding-left: 3em!important;
-    text-transform: uppercase;
-    opacity: 1;
-    color: #fff;
-    font-family: "Museo","Alegreya","HelveticaNeue-Light","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
-  }
-  i.icon {
-    cursor: pointer;
-  }
-}
 
-#searchHelp {
-  @media @phone {
-    display: none;
-  }
-}
-  
 
 /*--------------
   Transparent

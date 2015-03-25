@@ -4,11 +4,12 @@ function Block (qual) {
   this.qual = qual || '';
   this.tags = [];
   this.entries = [];
+  this.timestamp = new Date();
 }
 
 //returns true if the tag was added
 Block.prototype.tag = function(tagname) {
-  if (!this.tags || this.tags.length == 0) {
+  if (!this.tags || this.tags.length === 0) {
     this.tags = [tagname];
     return true;
   } else {
@@ -44,22 +45,36 @@ function BlockStack() {
 }
 
 BlockStack.prototype.reset = function() {
-  this.root = new Block('root');
-  this.current = this.root;
-  this.stack = [this.current];
+  this.root = null;
+  this.current = null;
+  this.stack = [];
+};
+
+BlockStack.prototype.ensureCurrent = function () {
+  if(!this.current) {
+    this.root = new Block('root');
+    this.current = this.root;
+    this.stack = [this.current];
+  }
+};
+
+BlockStack.prototype.addEntry = function (entry) {
+  this.ensureCurrent();
+  this.current.addEntry(entry);
 };
 
 BlockStack.prototype.tagCurrent = function(tagname) {
+  this.ensureCurrent();
   this.current.tag(tagname);
 };
 
 BlockStack.prototype.untagCurrent = function(tagname) {
+  this.ensureCurrent();
   this.current.untag(tagname);
-
 };
 
 BlockStack.prototype.push = function(block) {
-  if (this.stack.length == 0) {
+  if (this.stack.length === 0) {
     this.stack = [block];
   } else {
     this.stack.push(block);
@@ -69,7 +84,7 @@ BlockStack.prototype.push = function(block) {
 };
 
 BlockStack.prototype.pop = function() {
-  if(this.current && this.current.entries && this.current.entries.length == 1) {
+  if(this.current && this.current.entries && this.current.entries.length === 1) {
     let soleEntry = this.current.entries[0];
     if(soleEntry.comms) {
       this.current = soleEntry;
@@ -89,10 +104,11 @@ BlockStack.prototype.pop = function() {
 };
 
 BlockStack.prototype.popAll = function() {
+  this.ensureCurrent();
   while(this.pop()) {
     //do nowt
   }
-  var ret = this.current;
+  let ret = this.current;
   this.reset();
   return ret;
 };
