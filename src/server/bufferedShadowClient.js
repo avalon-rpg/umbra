@@ -2,7 +2,7 @@
 let util = require('util');
 let EventEmitter = require('events').EventEmitter;
 let ParsedShadowClient = require('./parsedShadowClient');
-var CBuffer = require('cbuffer');
+var CBuffer = require('CBuffer');
 
 function BufferedShadowClient(params) {
   EventEmitter.call(this);
