@@ -23,6 +23,11 @@ InlineStyler.prototype.stashContext = function() {
     bright: this.bright,
     tagStack: this.tagStack
   };
+  
+  this.fg = this.bg = null;
+  this.bright = false;
+  this.tagStack = [];
+
   this.stashedContext.push(ctx);
 };
 
