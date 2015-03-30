@@ -60,6 +60,7 @@ $(function() {
   let pinScroll = false;
 
   // Prompt for setting a username
+  let $loginForm = $('#login-form-outer');
   let username;
   let password;
   let connected = false;
@@ -79,6 +80,28 @@ $(function() {
     window.umbra.settings = JSON.parse(localStorage.umbra);
     setTheme();
   }
+
+  if(typeof androidUmbra === 'undefined') {
+    socket.emit('log', 'running as webapp');
+  } else {
+    socket.emit('log', 'running as native client');
+  }
+
+  let showLoginBox = function() {
+    if(typeof androidUmbra === 'undefined') {
+      if ($loginForm.css("visibility") === "hidden") {
+        $loginForm.transition({ animation: 'vertical flip' });
+      }
+    } else {
+      androidUmbra.showLogin();
+    }
+  };
+
+  let hideLoginBox = function() {
+    if ($loginForm.css("visibility") !== "hidden") {
+      $loginForm.transition({ animation: 'vertical flip' });
+    }
+  };
 
   function attemptLogin(params) {
     let host = getParameterByName('host');
@@ -113,9 +136,12 @@ $(function() {
       };
       attemptLogin(loginParams);
     } else {
-      $("#nameInput").val(umbra.get("username"));
-      $("#passwordInput").val(umbra.get("password"));
+      $nameInput.val(umbra.get("username"));
+      $passwordInput.val(umbra.get("password"));
+      showLoginBox();
     }
+  } else {
+    showLoginBox();
   }
 
   var canVibrate = "vibrate" in navigator || "mozVibrate" in navigator;
@@ -701,10 +727,7 @@ $(function() {
   socket.on('connect game ok', function () {
     connected = true;
     umbra.save();
-    $('#login-form-outer').transition({
-      animation: 'vertical flip',
-      onComplete: function() { $('#introText').transition('vertical flip'); }
-    });
+    hideLoginBox();
     // Display the welcome message
     log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
   });
@@ -720,13 +743,8 @@ $(function() {
     log('*** AVALON DISCONNECTED ***');
     connected = false;
 
-    var $form = $('#login-form-outer');
-    //$form.remove();
-    $('.messages').append($form);
-    //$('#introText').transition('vertical flip');
-    $('#login-form-outer').transition({
-      animation: 'vertical flip'
-    });
+    $('.messages').append($loginForm);
+    showLoginBox();
     $outputBox[0].scrollTop = $outputBox[0].scrollHeight;
     $(".nano").nanoScroller();
     $("#output-scroller").nanoScroller({ scroll: 'bottom' });

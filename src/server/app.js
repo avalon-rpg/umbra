@@ -82,6 +82,9 @@ io.on('connection', function (socket) {
       }).done();
   });
 
+  socket.on('log', function(msg) {
+    console.log(username + ': ' + msg);
+  });
   socket.on('send', function (text) {    
     if(shadowclient) { shadowclient.write(text + '\r\n'); }
     else { console.log(username + ' can\'t send to disconnected client: ' + text); }

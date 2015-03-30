@@ -84,11 +84,37 @@ AvParser.prototype.init = function(shadowclient) {
 
 
   let endMapFor = function(region) {
+    let padRegex = /^((?:\u001b\[\d+m)*)(\s*)(.*?)$/;
+    let padding = 999;
+    mapLines.forEach(function(line) {
+      if(line.trim().length > 0) {
+        //console.log('map line: →' + line.replace('\u001b', '⌂') + '←');
+        let matches = padRegex.exec(line);
+        let ansiPart = matches[1] || '';
+        let padPart = matches[2];
+        let remainder = matches[3];
+        let linePad = padPart.length;
+        //console.log('split: →' + ansiPart.replace('\u001b', '⌂') + '↔' + padPart.replace('\u001b', '⌂') + '↔' + remainder.replace('\u001b', '⌂') + '←');
+        if(remainder.length > 0) {
+          padding = Math.min(linePad, padding);
+        }
+        //console.log('padding = ' + padding);
+      }
+    });
+    let cleanLines = [];
+    mapLines.forEach(function(line) {
+      let matches = padRegex.exec(line);
+      let ansiPart = matches[1] || '';
+      let padPart = matches[2];
+      let remainder = matches[3];
+      let cleanLine = ansiPart + padPart.substring(padding) + remainder;
+      cleanLines.push(cleanLine);
+    });
     appendOutput({
       qual:  'map',
       loc:    mapLoc,
       region: region,
-      lines:  mapLines
+      lines:  cleanLines
     });
     mapLoc = '';
     mapLines = [];
@@ -248,7 +274,7 @@ AvParser.prototype.init = function(shadowclient) {
         let txt = match[1];
 
         //If this corresponds to speech already in the block, skip it
-        if(blockStack.current.entries) {
+        if(blockStack.current && blockStack.current.entries) {
           blockStack.current.entries.forEach(function (entry) {
             //matching text
             if(entry.comms && txt.indexOf(entry.msg) >= 0) {
