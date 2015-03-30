@@ -13,6 +13,7 @@ util.inherits(BufferedShadowClient, EventEmitter);
 
 BufferedShadowClient.prototype.init = function(params) {
   let self = this;
+  self.setMaxListeners(20);
   let sc = new ParsedShadowClient(params);
 
   self.params = params;
