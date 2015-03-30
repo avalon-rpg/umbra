@@ -21,9 +21,9 @@ BufferedShadowClient.prototype.init = function(params) {
   self.id = sc.id;
   self.inputBuffer = new CBuffer(100);
 
-  sc.on('login result', data => self.emit('login result', data));
+  sc.on('login result', function(data) {self.emit('login result', data); } );
 
-  sc.on('avalon disconnected', had_error => self.emit('avalon disconnected', had_error));
+  sc.on('avalon disconnected', function(had_error) { self.emit('avalon disconnected', had_error); } );
 
   sc.on('block', function (data) {
     self.inputBuffer.push(data);
