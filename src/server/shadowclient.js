@@ -22,7 +22,7 @@ util.inherits(ShadowClient, EventEmitter);
 
 ShadowClient.prototype.init = function(params) {
   let self = this;
-
+  self.setMaxListeners(30);
 
   self.host = 'avalon-rpg.com';
   self.port = 23;

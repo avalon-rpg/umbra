@@ -18,6 +18,7 @@ util.inherits(ParsedShadowClient, EventEmitter);
 
 ParsedShadowClient.prototype.init = function(params) {
   let self = this;
+  self.setMaxListeners(30);
   let sc = new ShadowClient(params);
   let parser = new AvParser(sc);
 
