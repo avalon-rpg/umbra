@@ -364,7 +364,7 @@ $(function() {
 
   function mkTable(table) {
 
-    var $table = $('<table class="ui inverted collapsing striped celled table">');
+    var $table = $('<table class="ui inverted collapsing striped celled unstackable table">');
     if(table.header && table.header.rows && table.header.rows.length > 0) {
       var $header = $('<thead>');
       table.header.rows.forEach( function(row) {
