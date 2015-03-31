@@ -8,10 +8,10 @@
   "license": "avalon-rpg",
   "scripts": {
     "once": "node --harmony ./build/server/app.js",
-    "startdev": "set NODE_ENV=dev && pm2 start ./build/server/app.js --node-args=\"--harmony\" --name umbradev",
-    "stopdev": "pm2 stop umbradev --node-args=\"--harmony\"",
-    "start": "set NODE_ENV=production && pm2 start ./build/server/app.js --node-args=\"--harmony\" --name umbra",
-    "stop": "pm2 stop umbra --node-args=\"--harmony\"",
+    "startdev": "pm2 start umbra-dev.json",
+    "stopdev": "pm2 stop umbra-dev.json",
+    "start": "pm2 start umbra-prod.json",
+    "stop": "pm2 stop umbra-prod.json",
     "restart": "pm2 restart ./build/server/app.js --node-args=\"--harmony\"",
     "test": "mocha --harmony -R spec --recursive ./build/test/*.js"
   },

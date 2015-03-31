@@ -1,0 +1,10 @@
+{
+  "apps" : [{
+    "name"        : "umbra",
+    "script"      : "./build/server/app.js",
+    "node_args"   : "--harmony",
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }]
+}
