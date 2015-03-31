@@ -1,6 +1,4 @@
 'use strict';
-let util = require('util');
-let EventEmitter = require('events').EventEmitter;
 require('buffertools').extend();
 
 //const gaSeq = "\xFF\xF9";  // = IAC GA
@@ -8,14 +6,8 @@ const IAC = 255;
 const GA  = 249;
 const gaSeq = new Buffer([IAC,GA]);
 
-function GaBlockSplitter(input, params) {
-  EventEmitter.call(this);
-  this.init(input, params);
-}
+function GaBlockSplitter(params) {
 
-util.inherits(GaBlockSplitter, EventEmitter);
-
-GaBlockSplitter.prototype.init = function(input, params) {
   let self = this;
 
   self.params = params;
@@ -26,13 +18,13 @@ GaBlockSplitter.prototype.init = function(input, params) {
     if(params.lineDebug) {
       console.log('splitter emitting line: «««' + line + '»»»');
     }
-    self.emit('line', line);
+    params.onLine(line);
   };
   let emitPrompt = function(prompt) {
     if(params.lineDebug) {
       console.log('splitter emitting prompt: «««' + prompt + '»»»');
     }
-    self.emit('prompt', prompt);
+    params.onPrompt(prompt);
   };
 
   let clearPromptTimeout = function() {
@@ -89,7 +81,7 @@ GaBlockSplitter.prototype.init = function(input, params) {
     processBlock(block, false);
   };
 
-  input.on('data', function (data) {
+  params.input.on('data', function (data) {
     let remaining = data;
     let pos = -1;
     do {
@@ -105,6 +97,6 @@ GaBlockSplitter.prototype.init = function(input, params) {
     } while(pos >= 0);
   });
 
-};
+}
 
 module.exports = GaBlockSplitter;

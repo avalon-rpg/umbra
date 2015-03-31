@@ -47,13 +47,6 @@ ShadowClient.prototype.init = function(params) {
     console.log('avalon connected, host: ' + self.host + ', port: ' + self.port);
   });
 
-  let bsParams = (self.username === 'gwahir') ?
-    {blockDebug: false, lineDebug: true} :
-    {blockDebug: false, lineDebug: false};
-  let blockSplitter = new GaBlockSplitter(self.conn, bsParams);
-
-
-
   let onLine = function (line) {
     if(!self.loggedIn) {
       if(self.loggingIn) {
@@ -125,12 +118,18 @@ ShadowClient.prototype.init = function(params) {
     }
   };
 
-  blockSplitter.on('line', onLine);
-  blockSplitter.on('prompt', onPrompt);
+  let blockSplitter = new GaBlockSplitter({
+    input: self.conn,
+    blockDebug: false,
+    lineDebug: false, //(self.username === 'gwahir'),
+    onLine: self.onLine,
+    onPrompt: self.onPrompt
+  });
 
   self.conn.on('close', function (had_error) {
     console.log("shadow client closing for " + self.username);
     self.connected = false;
+    blockSplitter = null;
     self.emit('avalon disconnected', had_error);
   });
 
