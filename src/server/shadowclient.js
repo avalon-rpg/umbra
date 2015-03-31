@@ -55,12 +55,14 @@ ShadowClient.prototype.init = function(params) {
     if(!self.loggedIn) {
       if(self.loggingIn) {
         if(line.startsWith('###ACK LOGIN OK')) {
+          console.log(self.username + ' « ' + line);
           self.loggedIn = true;
           self.loggingIn = false;
           self.emit('login result', {
             success: true            
           });
         } else if(line.startsWith('ERROR: ###ACK ERROR @ bad persona')) {
+          console.log(self.username + ' « ' + line);
           self.loggedIn = false;
           self.loggingIn = false;
           self.badCredentials = true;
@@ -71,6 +73,7 @@ ShadowClient.prototype.init = function(params) {
             reason: 'bad username'
           });
         } else if(line.startsWith('ERROR: ###ACK ERROR @ bad password')) {
+          console.log(self.username + ' « ' + line);
           self.loggedIn = false;
           self.loggingIn = false;
           self.badCredentials = true;
