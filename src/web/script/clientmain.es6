@@ -192,9 +192,6 @@ $(function() {
     text = cleanInput(text);
     // if there is a non-empty message and a socket connection
     if (text && connected) {
-      if (!umbra.get("keepCommand")) { $inputBox.val(''); }
-      $inputBox.select();
-
       var _ref = text.split(umbra.get("cmdDelimiter"));
       for (var i = 0; i < _ref.length; i++) {
         if (umbra.get("debug")) console.log("sent: " + _ref[i]);
@@ -579,14 +576,28 @@ $(function() {
       $inputBox.focus();
     }
   });
- 
+
+  let onInput = function() {
+    let prev = $inputBox.data('prev') || '';
+    let text = $inputBox.val().trim();
+
+    if(text === '' && prev !== '') {
+      sendMessage(prev);
+    } else {
+      sendMessage(text);
+      $inputBox.val('');
+      $inputBox.attr('placeholder', text);
+      $inputBox.data('prev', text);
+    }
+  };
+
   $('#input-message-form').submit( function(event) {
-    sendMessage($inputBox.val());
+    onInput();
     event.preventDefault();
   });
 
   $("#input-box-send").click( function(event) {
-    sendMessage($inputBox.val());
+    onInput();
   });
 
   $("#logOut").click( function(event) {
@@ -683,12 +694,12 @@ $(function() {
 
   $('#confirmPasswordInput').rules('add', {
     required: { depends: function(element) { return createNewUser; } },
-    equalTo: '#passwordInput'    
+    equalTo: '#passwordInput'
   });
 
   $('#emailInput').rules('add', {
     required: { depends: function(element) { return createNewUser; } },
-    email: true    
+    email: true
   });
 
 
