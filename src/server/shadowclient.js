@@ -122,8 +122,8 @@ ShadowClient.prototype.init = function(params) {
     input: self.conn,
     blockDebug: false,
     lineDebug: false, //(self.username === 'gwahir'),
-    onLine: self.onLine,
-    onPrompt: self.onPrompt
+    onLine: onLine,
+    onPrompt: onPrompt
   });
 
   self.conn.on('close', function (had_error) {
