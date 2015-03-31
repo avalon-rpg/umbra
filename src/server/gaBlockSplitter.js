@@ -57,7 +57,7 @@ function GaBlockSplitter(params) {
       clearPromptTimeout();
       emitPrompt(lastLine);
     } else {
-      if(lastLine.indexOf('###' === 0)) {
+      if(lastLine.indexOf('###') === 0) {
         clearPromptTimeout();
         emitLine(lastLine);
         buffer = '';
@@ -65,7 +65,6 @@ function GaBlockSplitter(params) {
         buffer = lastLine;
         setPromptTimeout();
       }
-
     }
   };
 
@@ -75,6 +74,7 @@ function GaBlockSplitter(params) {
     }
     processBlock(block, true);
   };
+
   let processDirtyBlock = function(block) {
     if(params.blockDebug) {
       console.log('dirty block: «««' + block + '»»»');

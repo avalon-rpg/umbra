@@ -121,7 +121,7 @@ ShadowClient.prototype.init = function(params) {
   let blockSplitter = new GaBlockSplitter({
     input: self.conn,
     blockDebug: false,
-    lineDebug: (self.username === 'gwahir'),
+    lineDebug: false, // (self.username === 'gwahir'),
     onLine: onLine,
     onPrompt: onPrompt
   });
