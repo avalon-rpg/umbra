@@ -47,7 +47,9 @@ ShadowClient.prototype.init = function(params) {
     console.log('avalon connected, host: ' + self.host + ', port: ' + self.port);
   });
 
-  let bsParams = (self.username === 'gwahir') ? {debug: true} : {debug: false};
+  let bsParams = (self.username === 'gwahir') ?
+    {blockDebug: false, lineDebug: true} :
+    {blockDebug: false, lineDebug: false};
   let blockSplitter = new GaBlockSplitter(self.conn, bsParams);
 
 

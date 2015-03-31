@@ -22,8 +22,18 @@ GaBlockSplitter.prototype.init = function(input, params) {
 
   let promptTimeout;
   let buffer = '';
-  let emitLine = function(line) { self.emit('line', line); };
-  let emitPrompt = function(prompt) { self.emit('prompt', prompt); };
+  let emitLine = function(line) {
+    if(params.lineDebug) {
+      console.log('splitter emitting line: «««' + line + '»»»');
+    }
+    self.emit('line', line);
+  };
+  let emitPrompt = function(prompt) {
+    if(params.lineDebug) {
+      console.log('splitter emitting prompt: «««' + prompt + '»»»');
+    }
+    self.emit('prompt', prompt);
+  };
 
   let clearPromptTimeout = function() {
     if(promptTimeout) {
@@ -67,13 +77,13 @@ GaBlockSplitter.prototype.init = function(input, params) {
   };
 
   let processCleanBlock = function(block) {
-    if(params.debug) {
+    if(params.blockDebug) {
       console.log('clean block: «««' + block + '»»»');
     }
     processBlock(block, true);
   };
   let processDirtyBlock = function(block) {
-    if(params.debug) {
+    if(params.blockDebug) {
       console.log('dirty block: «««' + block + '»»»');
     }
     processBlock(block, false);
