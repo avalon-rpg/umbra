@@ -16,13 +16,14 @@ function GaBlockSplitter(params) {
   let buffer = '';
   let emitLine = function(line) {
     if(params.lineDebug) {
-      console.log('splitter emitting line: «««' + line + '»»»');
+      console.log('splitter emitting line: «««[' + line + ']»»»');
     }
     params.onLine(line);
   };
+
   let emitPrompt = function(prompt) {
     if(params.lineDebug) {
-      console.log('splitter emitting prompt: «««' + prompt + '»»»');
+      console.log('splitter emitting prompt: «««[' + prompt + ']»»»');
     }
     params.onPrompt(prompt);
   };
