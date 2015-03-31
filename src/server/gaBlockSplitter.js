@@ -8,15 +8,17 @@ const IAC = 255;
 const GA  = 249;
 const gaSeq = new Buffer([IAC,GA]);
 
-function GaBlockSplitter(input) {
+function GaBlockSplitter(input, params) {
   EventEmitter.call(this);
-  this.init(input);
+  this.init(input, params);
 }
 
 util.inherits(GaBlockSplitter, EventEmitter);
 
-GaBlockSplitter.prototype.init = function(input) {
+GaBlockSplitter.prototype.init = function(input, params) {
   let self = this;
+
+  self.params = params;
 
   let promptTimeout;
   let buffer = '';
@@ -65,9 +67,15 @@ GaBlockSplitter.prototype.init = function(input) {
   };
 
   let processCleanBlock = function(block) {
+    if(params.debug) {
+      console.log('clean block: «««' + block + '»»»');
+    }
     processBlock(block, true);
   };
   let processDirtyBlock = function(block) {
+    if(params.debug) {
+      console.log('dirty block: «««' + block + '»»»');
+    }
     processBlock(block, false);
   };
 
