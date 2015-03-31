@@ -732,6 +732,10 @@ $(function() {
     log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
   });
 
+  socket.on('login failure', function (msg) {
+    alert(msg);
+  });
+
   //TODO: handle "connect game failed" and show validation results as appropriate
 
   // Whenever the server emits 'user left', log it in the chat body

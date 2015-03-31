@@ -38,7 +38,9 @@ AvalonConnections.prototype.get = function(params) {
         ret.resolve(client);
       } else {
         console.log('login failure for ' + id);
-        ret.reject(new Error(data));
+        let err = new Error('login failure for ' + id);
+        err.result = data;
+        ret.reject(err);
       }
     });
     client.once('avalon disconnected', function() {

@@ -53,12 +53,13 @@ GaBlockSplitter.prototype.init = function(input) {
       emitPrompt(lastLine);
     } else {
       if(lastLine.indexOf('###' === 0)) {
+        clearPromptTimeout();
         emitLine(lastLine);
         buffer = '';
       } else {
         buffer = lastLine;
+        setPromptTimeout();
       }
-      setPromptTimeout();
 
     }
   };

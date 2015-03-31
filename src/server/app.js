@@ -10,8 +10,16 @@ let bodyParser = require('body-parser');
 
 let app = express();
 
-let server = app.listen(process.env.UMBRA_PORT || 2252, '0.0.0.0');
-console.log("Listening on %s", process.env.UMBRA_PORT || 2252);
+if(process.env.UMBRA_PORT) {
+  app.set('port', process.env.UMBRA_PORT);
+} else if (process.env.NODE_ENV === "production") {
+  app.set('port', 2252);
+} else {
+  app.set("port", 3353);
+}
+
+let server = app.listen(app.get('port'), '0.0.0.0');
+console.log("Listening on %s", app.get('port'));
 let io = require('socket.io')(server);
 
 //let MobileDetect = require('mobile-detect');
@@ -74,11 +82,14 @@ io.on('connection', function (socket) {
         shadowclient.write('###hub ' + playerAddress + '\r\n');
         wireClientEvents(cli);
         socket.emit("connect game ok");
+        let fnReplay = function(blk) { socket.emit('block', blk); };
         if(params.replayFrom) {
-          cli.replayFrom(params.replayFrom, blk => socket.emit('block', blk));
+          cli.replayFrom(params.replayFrom, fnReplay);
         } else {
-          cli.replay(blk => socket.emit('block', blk));
+          cli.replay(fnReplay);
         }
+      }).catch(function(err) {
+        socket.emit('login failure', err.result.reason);
       }).done();
   });
 
