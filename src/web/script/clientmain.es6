@@ -75,6 +75,7 @@ $(function() {
   let socket = io();
 
   let styler = new InlineStyler();
+  let native = false;
 
   if (localStorage && localStorage.umbra) {
     window.umbra.settings = JSON.parse(localStorage.umbra);
@@ -84,6 +85,7 @@ $(function() {
   if(typeof androidUmbra === 'undefined') {
     socket.emit('log', 'running as webapp');
   } else {
+    native = true;
     socket.emit('log', 'running as native client');
   }
 
@@ -744,7 +746,11 @@ $(function() {
   });
 
   socket.on('login failure', function (msg) {
-    alert(msg);
+    if (native && typeof androidUmbra.onLogin !== 'undefined') {
+      androidUmbra.onLogin(false, msg);
+    } else {
+      alert(msg);
+    }
   });
 
   //TODO: handle "connect game failed" and show validation results as appropriate
