@@ -230,9 +230,45 @@ $(function() {
     $inputBox.focus();
   }
 
+  var substringMatcher = function(strs) {
+    return function findMatches(q, cb) {
+      var matches, substrRegex;
+
+      // an array that will be populated with substring matches
+      matches = [];
+
+      // regex used to determine if a string contains the substring `q`
+      substrRegex = new RegExp(q, 'i');
+
+      // iterate through the pool of strings and for any string that
+      // contains the substring `q`, add it to the `matches` array
+      $.each(strs, function(i, str) {
+        if (substrRegex.test(str)) {
+          // the typeahead jQuery plugin expects suggestions to a
+          // JavaScript object, refer to typeahead docs for more info
+          matches.push({ value: str });
+        }
+      });
+
+      cb(matches);
+    };
+  };
+
   function tabComplete() {
     if (umbra.get("completeCommand") === false) { return false; }
     completeCommand(lastInput, 1);
+
+    /*
+    $inputBox.typeahead({
+        hint: true,
+        highlight: true,
+        minLength: 1
+      },
+      {
+        name: 'history',
+        source: substringMatcher(cmdHistory)
+      });
+    */
   }
 
   function historyPrev() {
@@ -580,6 +616,8 @@ $(function() {
   });
 
   let onInput = function() {
+    $inputBox.typeahead('destroy');
+
     let prev = $inputBox.data('prev') || '';
     let text = $inputBox.val().trim();
 
@@ -740,7 +778,11 @@ $(function() {
   socket.on('connect game ok', function () {
     connected = true;
     umbra.save();
-    hideLoginBox();
+    if (native && typeof androidUmbra.onLogin !== 'undefined') {
+      androidUmbra.onLogin(true, '');
+    } else {
+      hideLoginBox();
+    }
     // Display the welcome message
     log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
   });

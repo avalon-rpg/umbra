@@ -1,3 +1,4 @@
+'use strict';
 var telnet = require("./telnet");
 
 function CheckName() {

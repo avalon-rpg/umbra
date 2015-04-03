@@ -39,7 +39,8 @@ module.exports = function(grunt) {
     'src/web/thirdparty/semantic-ui/semantic.js',
     'src/web/thirdparty/jquery-validation/jquery.validate.js',
     'src/web/thirdparty/jquery.nanoscroller.js',
-    'src/web/thirdparty/screenfull.js'
+    'src/web/thirdparty/screenfull.js',
+    'src/web/thirdparty/typeahead.bundle.js'
     //'src/web/thirdparty/modernizr.js'
   ];
 

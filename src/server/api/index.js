@@ -1,3 +1,4 @@
+'use strict';
 var checkName = require("./checkname");
 
 var checkErrors = {
@@ -10,7 +11,7 @@ var api = {
     try {
       var name = req.params["username"] || req.query["username"] || req.params["name"] || req.query["name"];
       var newUser = req.params["newUser"] || req.query["newUser"] || 'true';
-      if(newUser == 'false') {
+      if(newUser === 'false') {
         res.send('true');
         res.end();
       } else if (!name) {
