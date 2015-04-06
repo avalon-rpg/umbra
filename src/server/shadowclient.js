@@ -42,7 +42,7 @@ ShadowClient.prototype.init = function(params) {
   self.conn = net.connect({port: self.port, host: self.host}, function() {
     self.connected = true;
     if(params.playerAddress) {
-      self.conn.write('###origin ' + params.playerAddress + '\r\n');
+      self.conn.write('###ack origin@ ' + params.playerAddress + '\r\n');
     }
     console.log('avalon connected, host: ' + self.host + ', port: ' + self.port);
   });
@@ -55,7 +55,7 @@ ShadowClient.prototype.init = function(params) {
           self.loggedIn = true;
           self.loggingIn = false;
           if(params.playerAddress) {
-            self.conn.write('###origin ' + params.playerAddress + '\r\n');
+            self.conn.write('###ack origin@ ' + params.playerAddress + '\r\n');
           }
           self.emit('login result', {
             success: true            
