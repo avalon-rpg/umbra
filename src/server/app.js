@@ -62,7 +62,9 @@ io.on('connection', function (socket) {
   let self = this;
   let shadowclient;
   let username = '<unknown>';
-  let playerAddress = socket.request.connection.remoteAddress;
+  let playerAddress = socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
+  // socket.handshake.address.address
+  //let playerAddress = socket.request.connection.remoteAddress;
 
   console.log('Websocket connected from: ' + playerAddress);
 

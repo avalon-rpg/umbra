@@ -66,6 +66,8 @@ $(function() {
   let connected = false;
   let $currentInput = $nameInput.focus();
 
+  let $promptBar = $('#prompt-bar');
+
 
   let macros = [];
 
@@ -314,9 +316,9 @@ $(function() {
     if(prevMsgType === 'line') {
       prevMsgType = 'prompt';
     }
-    $('.prompt').remove();
     let content = styler.ansi_to_html(text);
-    return $('<div class="prompt">').html(content);
+    $promptBar.html(content);
+    return null;
   }
 
   function mkPromptMark() { return $('<i class="icon caret right prompt">'); }
