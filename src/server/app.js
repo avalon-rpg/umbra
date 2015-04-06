@@ -81,7 +81,7 @@ io.on('connection', function (socket) {
     avalonConnections.get(params)
       .then(function(cli) {
         shadowclient = cli;
-        shadowclient.write('###hub ' + playerAddress + '\r\n');
+        shadowclient.write('###ack connect@ ' + playerAddress + '\r\n');
         wireClientEvents(cli);
         socket.emit("connect game ok");
         let fnReplay = function(blk) { socket.emit('block', blk); };

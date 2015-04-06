@@ -42,7 +42,7 @@ ShadowClient.prototype.init = function(params) {
   self.conn = net.connect({port: self.port, host: self.host}, function() {
     self.connected = true;
     if(params.playerAddress) {
-      self.conn.write('###hub ' + params.playerAddress + '\r\n');
+      self.conn.write('###origin ' + params.playerAddress + '\r\n');
     }
     console.log('avalon connected, host: ' + self.host + ', port: ' + self.port);
   });
@@ -54,6 +54,9 @@ ShadowClient.prototype.init = function(params) {
           console.log(self.username + ' « ' + line);
           self.loggedIn = true;
           self.loggingIn = false;
+          if(params.playerAddress) {
+            self.conn.write('###origin ' + params.playerAddress + '\r\n');
+          }
           self.emit('login result', {
             success: true            
           });
@@ -102,10 +105,10 @@ ShadowClient.prototype.init = function(params) {
       let loginline;
       if(self.create) {
         console.log('attempting to log in new user ' + self.username + ' with email ' + self.email);
-        loginline = '###ack create ' + self.username + ' ' + self.password + ' ' + self.gender + ' ' + self.email;
+        loginline = '###ack create@ ' + self.username + ' ' + self.password + ' ' + self.gender + ' ' + self.email;
       } else {
         console.log('attempting to log in existing user ' + self.username);
-        loginline = '###ack login ' + self.username + ' ' + self.password;
+        loginline = '###ack login@ ' + self.username + ' ' + self.password;
       }
       self.conn.write(loginline + '\r\n');
       return;
@@ -148,13 +151,13 @@ ShadowClient.prototype.write = function(input) {
 
 ShadowClient.prototype.close = function() {
   if(this.connected) {
-    this.conn.write('###ack logout ' + this.username + '\r\n');
+    this.conn.write('###ack logout@ ' + this.username + '\r\n');
   }
 };
 
 ShadowClient.prototype.pause = function() {
   if (this.connected) {
-    this.conn.write('AURA WHO ON\r\n');
+    this.conn.write('###ack disconnect@\r\n');
   }
 };
 
