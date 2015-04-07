@@ -132,18 +132,18 @@ $(function() {
 
     attemptLogin(loginParams);
   } else if (umbra.get("username") && umbra.get("password")) {
-    if (umbra.get("autologin")) {
-      let loginParams = {
-        username: umbra.get("username"),
-        password: umbra.get("password"),
-        create: false
-      };
-      attemptLogin(loginParams);
-    } else {
+    //if (umbra.get("autologin")) {
+    //  let loginParams = {
+    //    username: umbra.get("username"),
+    //    password: umbra.get("password"),
+    //    create: false
+    //  };
+    //  attemptLogin(loginParams);
+    //} else {
       $nameInput.val(umbra.get("username"));
       $passwordInput.val(umbra.get("password"));
       showLoginBox();
-    }
+    //}
   } else {
     showLoginBox();
   }
@@ -181,8 +181,8 @@ $(function() {
 
 
       umbra.set("username", loginParams.username)
-        .set("password", loginParams.password)
-        .set("autologin", $('.rememberme.checkbox').checkbox('is checked'));
+        .set("password", loginParams.password);
+        //.set("autologin", $('.rememberme.checkbox').checkbox('is checked'));
 
       // Tell the server your username
       attemptLogin(loginParams);
@@ -961,8 +961,10 @@ $(function() {
     if (umbra.get("debug")) { console.log('processing block'); }
 
     if(data.cmd && data.cmd === 'PROTOCOL') {
-      //don't show confirmation that PROTOCOL was engaged
-      return;
+      //we DO want to handle the protocol in this block,
+      processBlockEntries(data);
+      //but don't show any direct output, such as confirmation that PROTOCOL was engaged
+      return null;
     }
 
     if(data.tags && data.tags.indexOf('oneliner') >= 0) {

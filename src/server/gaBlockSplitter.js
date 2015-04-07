@@ -57,14 +57,17 @@ function GaBlockSplitter(params) {
       clearPromptTimeout();
       emitPrompt(lastLine);
     } else {
-      if(lastLine.indexOf('###') === 0) {
-        clearPromptTimeout();
-        emitLine(lastLine);
-        buffer = '';
-      } else {
-        buffer = lastLine;
-        setPromptTimeout();
-      }
+      emitLine(lastLine);
+      buffer = '';
+      setPromptTimeout();
+      //if(lastLine.indexOf('###') === 0) {
+      //  clearPromptTimeout();
+      //  emitLine(lastLine);
+      //  buffer = '';
+      //} else {
+      //  buffer = lastLine;
+      //  setPromptTimeout();
+      //}
     }
   };
 
