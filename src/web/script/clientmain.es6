@@ -964,6 +964,7 @@ $(function() {
       //we DO want to handle the protocol in this block,
       processBlockEntries(data);
       //but don't show any direct output, such as confirmation that PROTOCOL was engaged
+
       return null;
     }
 

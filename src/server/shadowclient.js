@@ -48,6 +48,10 @@ ShadowClient.prototype.init = function(params) {
   });
 
   let onLine = function (line) {
+    if(self.username === 'gwahir') {
+      console.log(self.username + ' « ' + line);
+    }
+
     if(!self.loggedIn) {
       if(self.loggingIn) {
         if(line.startsWith('###ACK LOGIN OK')) {
@@ -85,21 +89,21 @@ ShadowClient.prototype.init = function(params) {
         } else {
           console.log('Unexpected login response: ' + line);
         }
-      } else {
-        //console.log('skipping line before login: ' + line);
       }
 
       return;
     }
 
-    if(self.username === 'gwahir') {
-      console.log(self.username + ' « ' + line);
-    }
     self.emit('line', line);
   };
 
   let onPrompt = function (prompt) {
-    if(!self.badCredentials && prompt.indexOf('What is the name of your character?') === 0) {
+    if(self.loggedIn) {
+      if(self.username === 'gwahir') {
+        console.log(self.username + ' ««««««««««««« ' + prompt);
+      }
+      self.emit('prompt', prompt);
+    } else if(!self.badCredentials && prompt.indexOf('What is the name of your character?') === 0) {
       self.loggingIn = true;
       console.log('login prompt seen');
       let loginline;
@@ -111,13 +115,8 @@ ShadowClient.prototype.init = function(params) {
         loginline = '###ack login@ ' + self.username + ' ' + self.password;
       }
       self.conn.write(loginline + '\r\n');
-      return;
-    }
-    if(self.loggedIn) {
-      if(self.username === 'gwahir') {
-        console.log(self.username + ' ««««««««««««« ' + prompt);
-      }
-      self.emit('prompt', prompt);
+    } else {
+      console.log('pre-login prompt: ' + prompt);
     }
   };
 
