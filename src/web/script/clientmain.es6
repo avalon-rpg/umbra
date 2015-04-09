@@ -177,9 +177,6 @@ $(function() {
         loginParams.email = $('#emailInput').val().trim();
       }
 
-
-
-
       umbra.set("username", loginParams.username)
         .set("password", loginParams.password);
         //.set("autologin", $('.rememberme.checkbox').checkbox('is checked'));
@@ -643,7 +640,7 @@ $(function() {
   });
 
   $("#logOut").click( function(event) {
-    sendMessage("qq");
+    socket.emit('logout');
   });
 
   $(".theme.select").click( function(event) {
@@ -1154,5 +1151,10 @@ $(function() {
     umbra.protocol[data.code] = data.content;
   });
 
+  $(window).bind('beforeunload', function() {
+    return 'You\'re about to navigate away and disconnect avalon.\n\n' +
+      'If you connect again soon enough your session will still be waiting for you.\n\n' +
+      'If you truly want to logout, then use [logout] from the top-left menu, or the QQ command.';
+  });
 });
 

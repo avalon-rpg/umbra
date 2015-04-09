@@ -12,7 +12,7 @@ function GaBlockSplitter(params) {
 
   self.params = params;
 
-  let promptTimeout;
+  let flushTimeout;
   let buffer = '';
   let emitLine = function(line) {
     if(params.lineDebug) {
@@ -28,24 +28,23 @@ function GaBlockSplitter(params) {
     params.onPrompt(prompt);
   };
 
-  let clearPromptTimeout = function() {
-    if(promptTimeout) {
-      clearTimeout(promptTimeout);
-      promptTimeout = null;
+  let clearFlushTimeout = function() {
+    if(flushTimeout) {
+      clearTimeout(flushTimeout);
+      flushTimeout = null;
     }
   };
 
-  let onPromptTimeout = function() {
+  let onFlushTimeout = function() {
     if(buffer && buffer.trim() !== '') {
-      console.log('emitting dirty prompt: ' + buffer);
-      emitPrompt(buffer);
-      buffer = '';
+      console.log('flushing buffer: ' + buffer);
+      processBlock('', false);
     }
   };
 
-  let setPromptTimeout = function() {
-    clearPromptTimeout();
-    setTimeout(onPromptTimeout, 600);
+  let setFlushTimeout = function() {
+    clearFlushTimeout();
+    setTimeout(onFlushTimeout, 600);
   };
 
   let processBlock = function(text, isClean) {
@@ -54,20 +53,9 @@ function GaBlockSplitter(params) {
     let lastLine = lines.pop();  //lines is mutated
     lines.forEach(emitLine);
     if(isClean) {
-      clearPromptTimeout();
       emitPrompt(lastLine);
     } else {
       emitLine(lastLine);
-      buffer = '';
-      setPromptTimeout();
-      //if(lastLine.indexOf('###') === 0) {
-      //  clearPromptTimeout();
-      //  emitLine(lastLine);
-      //  buffer = '';
-      //} else {
-      //  buffer = lastLine;
-      //  setPromptTimeout();
-      //}
     }
   };
 
@@ -82,7 +70,9 @@ function GaBlockSplitter(params) {
     if(params.blockDebug) {
       console.log('dirty block: «««' + block + '»»»');
     }
-    processBlock(block, false);
+
+    buffer = buffer + block;
+    setFlushTimeout();
   };
 
   params.input.on('data', function (data) {

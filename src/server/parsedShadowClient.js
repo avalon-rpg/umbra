@@ -36,6 +36,7 @@ ParsedShadowClient.prototype.init = function(params) {
     self.emit('login result', data);
     if(data.success) {
       sc.write('protocol on\r\n');
+      ///should really be ###whatmacros, but that's currently broken
       sc.write('macrolist\r\n');
     } else {
       sc.close();
@@ -44,9 +45,11 @@ ParsedShadowClient.prototype.init = function(params) {
 
   sc.on('avalon disconnected', function (had_error) {
     self.emit('avalon disconnected', had_error);
-    sc.close();
   });
 
+  sc.on('closed', function (had_error) {
+    self.emit('closed', had_error);
+  });
 
   parser.on('block', function (data) {
     let processedBlock = tabulator.tabulate(data);

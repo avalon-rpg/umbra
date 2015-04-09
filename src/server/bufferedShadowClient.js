@@ -25,6 +25,8 @@ BufferedShadowClient.prototype.init = function(params) {
 
   sc.on('avalon disconnected', function(had_error) { self.emit('avalon disconnected', had_error); } );
 
+  sc.on('closed', function(had_error) { self.emit('closed', had_error); } );
+
   sc.on('block', function (data) {
     self.inputBuffer.push(data);
     self.emit('block', data);

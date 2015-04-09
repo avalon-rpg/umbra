@@ -98,9 +98,19 @@ io.on('connection', function (socket) {
   socket.on('log', function(msg) {
     console.log(username + ': ' + msg);
   });
+
   socket.on('send', function (text) {    
     if(shadowclient) { shadowclient.write(text + '\r\n'); }
     else { console.log(username + ' can\'t send to disconnected client: ' + text); }
+  });
+
+  socket.on('logout', function() {
+    if(shadowclient) {
+      shadowclient.write('qq\r\n');
+      //setTimeout(function() {
+      //  if(shadowclient) { shadowclient.close(); }
+      //}, 20000);
+    }
   });
 
   // when the user disconnects.. perform this
@@ -121,7 +131,11 @@ io.on('connection', function (socket) {
     client.on('avalon disconnected', function (had_error) {
       console.log('avalon disconnected for ' + username);
       socket.emit('avalon disconnected', had_error);
-      shadowclient.close();
+    });
+
+    client.on('closed', function (had_error) {
+      console.log('closed for ' + username);
+      socket.emit('avalon disconnected', had_error);
     });
 
     client.on('block', function (data) { socket.emit('block', data); });

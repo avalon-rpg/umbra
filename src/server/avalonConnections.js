@@ -46,6 +46,9 @@ AvalonConnections.prototype.get = function(params) {
     client.once('avalon disconnected', function() {
       self.map.delete(id);
     });
+    client.on('closed', function() {
+      self.map.delete(id);
+    });
   }
 
   return ret.promise;

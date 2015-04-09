@@ -151,6 +151,9 @@ ShadowClient.prototype.write = function(input) {
 ShadowClient.prototype.close = function() {
   if(this.connected) {
     this.conn.write('###ack logout@ ' + this.username + '\r\n');
+    //this.emit('closed', false);
+    //this.connected = false;
+    //this.conn = null;
   }
 };
 
