@@ -933,6 +933,10 @@ $(function() {
       console.log(data);
     }
 
+    if(data.promptVars) {
+      if(umbra.get("debug")) { console.log(data.promptVars); }
+    }
+
     if(umbra.get("debug")) { console.groupEnd(); }
 
   }

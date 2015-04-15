@@ -45,6 +45,7 @@ AvParser.prototype.init = function(shadowclient) {
   let mapLines = [];
   let umbraMsg = false;
   let inMacroList = false;
+  let promptVars = {};
 
   const emit = function() {
     self._emitter.emit.apply(self._emitter, arguments);
@@ -60,6 +61,8 @@ AvParser.prototype.init = function(shadowclient) {
       //console.log(popped);
       try {
         if(prompt) { block.prompt = prompt; }
+        block.promptVars = promptVars;
+        promptVars = {};
         block.emitted = new Date();
         emit('block', block);
       } catch (err) {
@@ -125,6 +128,11 @@ AvParser.prototype.init = function(shadowclient) {
 
   let sequences = [
     {
+      regex: /^###ack prompt (\S*) (.*)$/,
+      func: function(match) {
+        promptVars[match[1]] = match[2];
+      }
+    },{
       regex: /^UmBrA:\s$/,
       func: function(match) {
         umbraMsg = true;
