@@ -50,7 +50,7 @@ InlineStyler.prototype.inCleanContext = function(fn) {
 
 InlineStyler.prototype.style = function (txt) {
   let self = this;
-  if (typeof txt.replace === 'function') {
+  if (txt && typeof txt.replace === 'function') {
     let escaped = self.escape_for_html(txt);
     let ansified = self.ansi_to_html(escaped);
     let styled = self.inline_to_html(ansified);
