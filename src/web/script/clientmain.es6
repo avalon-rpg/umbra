@@ -642,6 +642,7 @@ $(function() {
   let onInput = function() {
     $inputBox.typeahead('destroy');
 
+    $inputBox.focus();
     let prev = $inputBox.data('prev') || '';
     let text = $inputBox.val().trim();
 
