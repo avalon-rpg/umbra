@@ -380,7 +380,7 @@ $(function() {
     if(data.entries && data.entries.length === 0) {
       return null;
     }
-    
+
     let cssClasses = '';
     if(data.tags && data.tags.length > 0) {
       cssClasses = data.tags.join(' ');

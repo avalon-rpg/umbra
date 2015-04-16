@@ -50,7 +50,7 @@ InlineStyler.prototype.inCleanContext = function(fn) {
 
 InlineStyler.prototype.style = function (txt) {
   let self = this;
-  if (txt.replace) {
+  if (typeof txt.replace === 'function') {
     let escaped = self.escape_for_html(txt);
     let ansified = self.ansi_to_html(escaped);
     let styled = self.inline_to_html(ansified);
@@ -65,7 +65,7 @@ InlineStyler.prototype.style = function (txt) {
 
 InlineStyler.prototype.escape_for_html = function (txt) {
   if(!txt) { return ''; }
-  else if (txt.replace) {
+  else if (typeof txt.replace === 'function') {
     return txt.replace(/[&<>]/gm, function (str) {
       if (str === "&") { return "&amp;"; }
       if (str === "<") { return "&lt;";  }
