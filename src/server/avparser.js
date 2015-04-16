@@ -45,7 +45,7 @@ AvParser.prototype.init = function(shadowclient) {
   let mapLines = [];
   let umbraMsg = false;
   let inMacroList = false;
-  let promptVars = {};
+  let promptExtraVars = {};
 
   const emit = function() {
     self._emitter.emit.apply(self._emitter, arguments);
@@ -55,14 +55,36 @@ AvParser.prototype.init = function(shadowclient) {
     blockStack.addEntry(data);
   };
 
+  const promptRegex = /^(\d+)\/(\d+)h, (\d+)\/(\d+)m (\S*) (.*)-.*$/;
+
   let flushOutput = function(prompt) {
     let block = blockStack.popAll();
     if(block) {
-      //console.log(popped);
       try {
-        if(prompt) { block.prompt = prompt; }
-        block.promptVars = promptVars;
-        promptVars = {};
+        if(prompt) {
+          block.prompt = prompt;
+          let cleanPrompt = stripAnsi(prompt).trim();
+          if(shadowclient.username === 'gwahir') {
+            console.log('clean prompt: [' + cleanPrompt + ']');
+          }
+          let promptMatch = promptRegex.exec(cleanPrompt);
+          if(promptMatch) {
+            let promptVars = {
+              health: promptMatch[1],
+              healthMax: promptMatch[2],
+              mana: promptMatch[3],
+              manaMax: promptMatch[4],
+              flags: promptMatch[5],
+              visFlags: promptMatch[6]
+            };
+            if(shadowclient.username === 'gwahir') {
+              console.log('parsed prompt: ' + JSON.stringify(promptVars));
+            }
+            block.promptVars = promptVars;
+          }
+        }
+        block.promptExtraVars = promptExtraVars;
+        promptExtraVars = {};
         block.emitted = new Date();
         emit('block', block);
       } catch (err) {
@@ -130,7 +152,7 @@ AvParser.prototype.init = function(shadowclient) {
     {
       regex: /^###ack prompt (\S*) (.*)$/,
       func: function(match) {
-        promptVars[match[1]] = match[2];
+        promptExtraVars[match[1]] = match[2];
       }
     },{
       regex: /^UmBrA:\s$/,

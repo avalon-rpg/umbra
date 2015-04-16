@@ -50,22 +50,29 @@ InlineStyler.prototype.inCleanContext = function(fn) {
 
 InlineStyler.prototype.style = function (txt) {
   let self = this;
-  let escaped = self.escape_for_html(txt);
-  let ansified = self.ansi_to_html(escaped);
-  let styled = self.inline_to_html(ansified);
-  //console.log("styled line: " + styled);
-  //console.log("retained styles: " + JSON.stringify(self.tagStack));
-  return styled;
+  if (txt.replace) {
+    let escaped = self.escape_for_html(txt);
+    let ansified = self.ansi_to_html(escaped);
+    let styled = self.inline_to_html(ansified);
+    //console.log("styled line: " + styled);
+    //console.log("retained styles: " + JSON.stringify(self.tagStack));
+    return styled;
+  } else {
+    //we weren't supplied a string...
+    return txt;
+  }
 };
 
 InlineStyler.prototype.escape_for_html = function (txt) {
   if(!txt) { return ''; }
-  else {
+  else if (txt.replace) {
     return txt.replace(/[&<>]/gm, function (str) {
       if (str === "&") { return "&amp;"; }
       if (str === "<") { return "&lt;";  }
       if (str === ">") { return "&gt;";  }
     });
+  } else {
+    return txt;
   }
 };
 

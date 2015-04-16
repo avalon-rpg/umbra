@@ -39,6 +39,7 @@ function getParameterByName(name) {
   return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+let infobar;
 
 $(function() {
   let lastInput = "";
@@ -78,6 +79,8 @@ $(function() {
 
   let styler = new InlineStyler();
   let native = false;
+
+
 
   if (localStorage && localStorage.umbra) {
     window.umbra.settings = JSON.parse(localStorage.umbra);
@@ -355,15 +358,37 @@ $(function() {
     return $commsElem;
   }
 
+  const internalProps = new Set([
+    'qual',
+    'tags',
+    'tag',
+    'monospaced',
+    'prompt',
+    'promptVars',
+    'promptExtraVars',
+    'timestamp',
+    'emitted',
+    'who'
+  ]);
+  //if true, then this is the name of a block property that should be rendered on-screen
+  function isVisibleProp(block, prop) {
+    return (!internalProps.has(prop) && block.hasOwnProperty(prop));
+  }
+
   function mkAvmsg(data) {
-    var cssClasses = '';
+
+    if(data.entries && data.entries.length === 0) {
+      return null;
+    }
+    
+    let cssClasses = '';
     if(data.tags && data.tags.length > 0) {
       cssClasses = data.tags.join(' ');
     }
-    var $elem = $('<div class="avmsg ' + cssClasses + '">');
+    let $elem = $('<div class="avmsg ' + cssClasses + '">');
     for (var prop in data) {
-      if(prop !== 'qual' && prop !== 'tags' && prop !== 'tag' && prop !== 'monospaced' && data.hasOwnProperty(prop)) {
-        var styled = styler.style(data[prop]);
+      if(isVisibleProp(data,prop)) {
+        let styled = styler.style(data[prop]);
         if(prop === 'cmd') {
           styled = '<div class="cmd-inner">' + styled + '</div>';
         }
@@ -934,7 +959,15 @@ $(function() {
     }
 
     if(data.promptVars) {
-      if(umbra.get("debug")) { console.log(data.promptVars); }
+      let pv = data.promptVars;
+      if(umbra.get("debug")) { console.log(pv); }
+      infobar.setMaxima(pv.healthMax, pv.manaMax);
+      infobar.setHealth(pv.health);
+      infobar.setMana(pv.mana);
+    }
+
+    if(data.promptExtraVars) {
+      if(umbra.get("debug")) { console.log(data.promptExtraVars); }
     }
 
     if(umbra.get("debug")) { console.groupEnd(); }
@@ -1154,6 +1187,8 @@ $(function() {
   $(umbra).on("protocol", function (e, data) {
     umbra.protocol[data.code] = data.content;
   });
+
+  infobar = new InfoBar('infobar');
 
   $(window).bind('beforeunload', function() {
     return 'You\'re about to navigate away and disconnect avalon.\n\n' +
