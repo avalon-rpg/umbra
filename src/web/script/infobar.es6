@@ -7,6 +7,9 @@ function InfoBar(elemName) {
   let healthMax = 100;
   let mana = 80;
   let manaMax = 100;
+  let gotEq = true;
+  let gotLeftBalance = true;
+  let gotRightBalance = true;
 
   let paperWidth = $elem.width();
   let paperHeight = $elem.height();
@@ -21,27 +24,27 @@ function InfoBar(elemName) {
   let posDeltaColour = 'white';
   let negDeltaColour = 'red';
 
-  let u;             // measurement unit, 1/16 of paper height
-  let eqRadius;      // radius of eq circle
-  let barHalfHeight; // half height of mana/health bars
-  let barHeight;     // half height of mana/health bars
-  let barArcRadius;  // radius of health/mana endcaps
-  let barVertMargin; // height of space between bar and paper edge
+  let u;                  // measurement unit, 1/16 of paper height
+  let eqRadius;           // radius of eq circle
+  let barHalfHeight;      // half height of mana/health bars
+  let barHeight;          // half height of mana/health bars
+  let barArcRadius;       // radius of health/mana endcaps
+  let barVertMargin;      // height of space between bar and paper edge
 
-  let balanceHalfHeight; // half height of balance crescents
-  let balanceHeight;     // height of balance crescents
-  let balanceIntRadius;  // internal radius of balance crescent
-  let balanceExtRadius;  // external radius of balance crescent
+  let balanceHalfHeight;  // half height of balance crescents
+  let balanceHeight;      // height of balance crescents
+  let balanceIntRadius;   // internal radius of balance crescent
+  let balanceExtRadius;   // external radius of balance crescent
 
-  let eqCircle;     // equilibrium circle
-  let healthBorder; // border of the health bar
-  let healthDelta;  // white/red section of the health bar showing changes
-  let healthBar;    // core of the health bar
-  let manaBorder;   // border of the mana bar
-  let manaDelta;    // white/red section of the mana bar showing changes
-  let manaBar;      // core of the mana bar
-  let balanceLeft;  // left balance crescent
-  let balanceRight; // right balance crescent
+  let eqCircle;           // equilibrium circle
+  let healthBorder;       // border of the health bar
+  let healthDelta;        // white/red section of the health bar showing changes
+  let healthBar;          // core of the health bar
+  let manaBorder;         // border of the mana bar
+  let manaDelta;          // white/red section of the mana bar showing changes
+  let manaBar;            // core of the mana bar
+  let balanceLeft;        // left balance crescent
+  let balanceRight;       // right balance crescent
 
   let healthFraction = 0;
   let manaFraction = 0;
@@ -137,15 +140,15 @@ function InfoBar(elemName) {
     balanceLeft = paper.path(balancePathStr({pos:'left'}));
     balanceRight = paper.path(balancePathStr({pos:'right'}));
 
-    eqCircle.attr({fill:'white'});
+    eqCircle.attr({fill:'white', stroke:'none'});
     healthBorder.attr({stroke:healthColour, 'stroke-width': 1});
     healthDelta.attr({fill:negDeltaColour, stroke:'none'});
     healthBar.attr({fill:healthColour, stroke:'none'});
     manaBorder.attr({stroke:manaColour, 'stroke-width': 1});
     healthDelta.attr({fill:negDeltaColour, stroke:'none'});
     manaBar.attr({fill:manaColour});
-    balanceLeft.attr({fill:'red'});
-    balanceRight.attr({fill:'white'});
+    balanceLeft.attr({fill:'white', stroke:'none'});
+    balanceRight.attr({fill:'white', stroke:'none'});
   }
 
   $(window).resize(function(e) {
@@ -158,7 +161,7 @@ function InfoBar(elemName) {
 
   self.setMaxima = function (newHealthMax, newManaMax) {
     if(newHealthMax !== healthMax || newManaMax !== manaMax) {
-      healthMax = healthMax;
+      healthMax = newHealthMax;
       manaMax = newManaMax;
       cleanRender();
     }
@@ -174,6 +177,7 @@ function InfoBar(elemName) {
       let oldHealthFraction = healthFraction;
       health = x;
       healthFraction = health / healthMax;
+      console.log('resizing health bar from ' + oldHealth + ' to ' + health + ', ratio = ' + healthFraction);
       if(health > oldHealth) {
         healthDelta.attr({
           fill: 'white',
@@ -241,10 +245,46 @@ function InfoBar(elemName) {
     }
   };
 
+  self.loseEq = function(restoreTime) {
+    if(gotEq) {
+      gotEq = false;
+      eqCircle.attr({fill: 'red'});
+    }
+  };
+
+  self.regainEq = function(restoreTime) {
+    if(!gotEq) {
+      gotEq = true;
+      eqCircle.attr({fill: 'white'});
+    }
+  };
+
   self.loseLeftBalance = function(restoreTime) {
+    if(gotLeftBalance) {
+      gotLeftBalance = false;
+      balanceLeft.attr({fill: 'red'});
+    }
+  };
+
+  self.regainLeftBalance = function(restoreTime) {
+    if(!gotLeftBalance) {
+      gotLeftBalance = true;
+      balanceLeft.attr({fill: 'white'});
+    }
   };
 
   self.loseRightBalance = function(restoreTime) {
+    if(gotRightBalance) {
+      gotRightBalance = false;
+      balanceRight.attr({fill: 'red'});
+    }
+  };
+
+  self.regainRightBalance = function(restoreTime) {
+    if(!gotRightBalance) {
+      gotRightBalance = true;
+      balanceRight.attr({fill: 'white'});
+    }
   };
 
   self.vars = function() {

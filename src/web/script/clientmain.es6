@@ -964,6 +964,21 @@ $(function() {
       infobar.setMaxima(pv.healthMax, pv.manaMax);
       infobar.setHealth(pv.health);
       infobar.setMana(pv.mana);
+      if(pv.flags.indexOf('e') >= 0) {
+        infobar.regainEq();
+      } else {
+        infobar.loseEq();
+      }
+      if(pv.flags.indexOf('z') >= 0) {
+        infobar.loseLeftBalance();
+      } else {
+        infobar.regainLeftBalance();
+      }
+      if(pv.flags.indexOf('y') >= 0) {
+        infobar.loseRightBalance();
+      } else {
+        infobar.regainRightBalance();
+      }
     }
 
     if(data.promptExtraVars) {
