@@ -11,15 +11,43 @@ function BufferedShadowClient(params) {
 
 util.inherits(BufferedShadowClient, EventEmitter);
 
+const statefulProtoVars = [
+  'brief',
+  'exits',
+  'map',
+  'items',
+  'weight',
+  'level',
+  'xp',
+  'playername',
+  'rank',
+  'lessons',
+  'bloodlust',
+  'alignment',
+  'flying',
+  'leftwield',
+  'innersight',
+  'gold',
+  'hunger',
+  'breath',
+  'fatigue',
+  'defences',
+  'city',
+  'guild',
+  'profession',
+  'order'
+];
+
 BufferedShadowClient.prototype.init = function(params) {
+
+  let protoState = {};
+
   let self = this;
   self.setMaxListeners(30);
   let sc = new ParsedShadowClient(params);
 
   self.params = params;
-  self.sc = sc;
-  self.id = sc.id;
-  self.inputBuffer = new CBuffer(100);
+  let inputBuffer = new CBuffer(100);
 
   sc.on('login result', function(data) {self.emit('login result', data); } );
 
@@ -28,31 +56,39 @@ BufferedShadowClient.prototype.init = function(params) {
   sc.on('closed', function(had_error) { self.emit('closed', had_error); } );
 
   sc.on('block', function (data) {
-    self.inputBuffer.push(data);
+    inputBuffer.push(data);
     self.emit('block', data);
+  });
+
+  sc.on('protocol', function (data) {
+    if(statefulProtoVars.indexOf(data.code) >= 0) {
+      protoState[data.code] = data.content;
+    }
+    self.emit('protocol', data);
   });
 
   sc.on('prompt', function (data) {
     self.inputBuffer.push(data);
     self.emit('prompt', data);
   });
+
+  self.write = function(input) { sc.write(input); };
+
+  self.close = function() { sc.close(); };
+
+  self.pause = function() { sc.pause(); };
+
+  self.replay = function(outputFn) {
+    inputBuffer.forEach(outputFn);
+  };
+
+  self.replayFrom = function(dt, outputFn) {
+    inputBuffer.forEach(function(block) {
+      if(block.timestamp > dt) { outputFn(block); }
+    });
+  };
+
+  self.protocolState = function() { return protoState; };
+
 };
-
-
-BufferedShadowClient.prototype.write = function(input) { this.sc.write(input); };
-
-BufferedShadowClient.prototype.close = function() { this.sc.close(); };
-
-BufferedShadowClient.prototype.pause = function() { this.sc.pause(); };
-
-BufferedShadowClient.prototype.replay = function(outputFn) {
-  this.inputBuffer.forEach(outputFn);
-};
-
-BufferedShadowClient.prototype.replayFrom = function(dt, outputFn) {
-  this.inputBuffer.forEach(function(block) {
-    if(block.timestamp > dt) { outputFn(block); }
-  });
-};
-
 module.exports = BufferedShadowClient;

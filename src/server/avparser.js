@@ -55,7 +55,7 @@ AvParser.prototype.init = function(shadowclient) {
     blockStack.addEntry(data);
   };
 
-  const promptRegex = /^(\d+)\/(\d+)h, (\d+)\/(\d+)m (\S*) (.*)-.*$/;
+  const promptRegex = /^(\d+)\/(\d+)h, (\d+)\/(\d+)m (\S*) (.*)(?:-|=).*$/;
 
   let flushOutput = function(prompt) {
     let block = blockStack.popAll();
@@ -291,10 +291,18 @@ AvParser.prototype.init = function(shadowclient) {
     },{
       regex: /^###channel (\S+) (.+)$/,
       func: function(match) {
+        let code = match[1];
+        let name = match[2];
+
+        if(code === 'ccc') { emit('protocol', { code: 'city', content: name }); }
+        if(code === 'ccg') { emit('protocol', { code: 'guild', content: name }); }
+        if(code === 'ccp') { emit('protocol', { code: 'profession', content: name }); }
+        if(code === 'cco') { emit('protocol', { code: 'order', content: name }); }
+
         appendOutput({
           qual: 'channel',
-          code:  match[1],
-          name:  match[2]
+          code:  code,
+          name:  name
         });
       }
     },{
@@ -446,8 +454,8 @@ AvParser.prototype.init = function(shadowclient) {
     },{
       regex: /^###(\S+) ?(.*)$/,
       func: function(match) {
-        appendOutput({
-          qual: 'protocol',
+        // any protocol without special handling above gets taken out-of-band
+        emit('protocol', {
           code:  match[1],
           content:  match[2]
         });

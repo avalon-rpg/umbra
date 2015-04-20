@@ -47,7 +47,9 @@ function InfoBar(elemName) {
   let manaDelta;          // white/red section of the mana bar showing changes
   let manaBar;            // core of the mana bar
   let balanceLeft;        // left balance crescent
+  let balanceLeftUnder;   // left balance crescent underlay
   let balanceRight;       // right balance crescent
+  let balanceRightUnder;  // right balance crescent underlay
 
   let healthFraction = 0;
   let manaFraction = 0;
@@ -90,21 +92,25 @@ function InfoBar(elemName) {
   }
 
   function balancePathStr(params) {
-    var top = (paperHeight-balanceHeight) / 2;
-    var bottom = paperHeight - top;
-    var pos = params.pos || 'left';
-    var isLeft = (pos === 'left');
+    let top = (paperHeight-balanceHeight) / 2;
+    let bottom = paperHeight - top;
+    let pos = params.pos || 'left';
+    let isLeft = (pos === 'left');
     //alert(pos);
-    var xInner = paperMidX;
+    let xInner = paperMidX;
     //var xInner = paperMidX + (isLeft ? -balanceIntRadius : balanceIntRadius);
-    var xOuter = xInner + (isLeft ? -crescentWidth : crescentWidth);
 
-    var startPath = "M" + xInner + "," + bottom;
-    var innerCap = arcTo(xInner, top, balanceIntRadius, isLeft ? 1 : 0);
-    var topLine = "L" + xOuter + "," + top;
-    var outerCap = arcTo(xOuter, bottom, balanceExtRadius, isLeft ? 0 : 1);
-    var endPath = "Z";
-    var str = startPath + innerCap + topLine + outerCap + endPath;
+    let cw = (params.empty) ? 0.5 : crescentWidth;
+    let xOuter = xInner + (isLeft ? -cw : cw);
+
+    let startPath = "M" + xInner + "," + bottom;
+    let innerCap = arcTo(xInner, top, balanceIntRadius, isLeft ? 1 : 0);
+    let topLine = "L" + xOuter + "," + top;
+    let outerCap = arcTo(xOuter, bottom, balanceExtRadius, isLeft ? 0 : 1);
+    let bottomLine = "L" + xInner + "," + bottom;
+    let endPath = "Z";
+
+    let str = startPath + innerCap + topLine + outerCap + bottomLine + endPath;
     //alert(str);
     return str;
   }
@@ -143,6 +149,9 @@ function InfoBar(elemName) {
     manaBar = paper.path(barPathStr({pos:'right', fraction: manaFraction}));
     manaBorder = paper.path(barPathStr({pos:'right'}));
 
+    balanceLeftUnder = paper.path(balancePathStr({pos:'left'}));
+    balanceRightUnder = paper.path(balancePathStr({pos:'right'}));
+
     balanceLeft = paper.path(balancePathStr({pos:'left'}));
     balanceRight = paper.path(balancePathStr({pos:'right'}));
 
@@ -155,6 +164,9 @@ function InfoBar(elemName) {
     healthDelta.attr({fill:negDeltaColour, stroke:'none'});
     manaBar.attr({fill:manaColour});
     manaBorder.attr({stroke:manaColour, 'stroke-width': 1});
+
+    balanceLeftUnder.attr({fill:'white', stroke:'none'});
+    balanceRightUnder.attr({fill:'white', stroke:'none'});
 
     balanceLeft.attr({fill:'white', stroke:'none'});
     balanceRight.attr({fill:'white', stroke:'none'});
@@ -176,6 +188,8 @@ function InfoBar(elemName) {
     manaBar.attr({path:barPathStr({pos:'right', fraction: manaFraction})});
     manaBorder.attr({path:barPathStr({pos:'right'})});
 
+    balanceLeftUnder.attr({path:balancePathStr({pos:'left'})});
+    balanceRightUnder.attr({path:balancePathStr({pos:'right'})});
     balanceLeft.attr({path:balancePathStr({pos:'left'})});
     balanceRight.attr({path:balancePathStr({pos:'right'})});
   }
@@ -312,14 +326,27 @@ function InfoBar(elemName) {
   self.loseRightBalance = function(restoreTime) {
     if(gotRightBalance) {
       gotRightBalance = false;
-      balanceRight.attr({fill: 'red'});
+      balanceRightUnder.attr({fill: 'red'});
+      balanceRight.attr(
+        { path:balancePathStr({pos:'right', empty:true}) }
+      );
+      if(restoreTime && restoreTime > 0) {
+        balanceRight.animate(
+          { path:balancePathStr({pos:'right', empty:false}) },
+          restoreTime,
+          'linear'
+        );
+      }
     }
   };
 
   self.regainRightBalance = function(restoreTime) {
     if(!gotRightBalance) {
       gotRightBalance = true;
-      balanceRight.attr({fill: 'white'});
+      balanceRight.attr(
+        { path:balancePathStr({pos:'right', empty:false}) }
+      );
+      balanceRightUnder.attr({fill: 'white'});
     }
   };
 

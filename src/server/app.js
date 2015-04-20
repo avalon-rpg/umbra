@@ -78,21 +78,36 @@ io.on('connection', function (socket) {
   socket.on('connect game', function (params) {
     params.playerAddress = playerAddress;
     username = params.username;
-    avalonConnections.get(params)
-      .then(function(cli) {
-        shadowclient = cli;
-        shadowclient.write('###ack connect@ ' + playerAddress + '\r\n');
-        wireClientEvents(cli);
-        socket.emit("connect game ok");
-        let fnReplay = function(blk) { socket.emit('block', blk); };
-        if(params.replayFrom) {
-          cli.replayFrom(params.replayFrom, fnReplay);
-        } else {
-          cli.replay(fnReplay);
+
+    let onConnect = function(cli) {
+      shadowclient = cli;
+      shadowclient.write('###ack connect@ ' + playerAddress + '\r\n');
+      wireClientEvents(cli);
+      socket.emit("connect game ok");
+      let fnReplay = function(blk) { socket.emit('block', blk); };
+      if(params.replayFrom) {
+        cli.replayFrom(params.replayFrom, fnReplay);
+      } else {
+        cli.replay(fnReplay);
+      }
+      let protoState = cli.protocolState();
+      if(protoState) {
+        for (let code in protoState) {
+          if (protoState.hasOwnProperty(code)) {
+            socket.emit('protocol', {code: code, content: protoState[code]});
+          }
         }
-      }).catch(function(err) {
-        socket.emit('login failure', err.result.reason);
-      }).done();
+      } else {
+        console.log('empty protocol stste');
+      }
+    };
+
+    let onFailure = function(err) {
+      console.log('login failure: ' + JSON.stringify(err));
+      socket.emit('login failure', err.result.reason);
+    };
+
+    avalonConnections.get(params).done(onConnect, onFailure);
   });
 
   socket.on('log', function(msg) {
@@ -139,6 +154,8 @@ io.on('connection', function (socket) {
     });
 
     client.on('block', function (data) { socket.emit('block', data); });
+
+    client.on('protocol', function (data) { socket.emit('protocol', data); });
   }
 
 });

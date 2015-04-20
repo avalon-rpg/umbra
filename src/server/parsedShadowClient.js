@@ -55,6 +55,10 @@ ParsedShadowClient.prototype.init = function(params) {
     let processedBlock = tabulator.tabulate(data);
     if(sc.loggedIn) { self.emit('block', processedBlock); }
   });
+
+  parser.on('protocol', function (data) {
+    self.emit('protocol', data);
+  });
 };
 
 

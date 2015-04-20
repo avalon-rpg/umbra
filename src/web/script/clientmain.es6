@@ -68,7 +68,6 @@ $(function() {
 
   let $promptBar = $('#prompt-bar');
 
-
   let macros = [];
 
   let prevMsgType = '';
@@ -524,31 +523,6 @@ $(function() {
     }
   }
 
-  function addChannel(code, name) {
-    if(code === 'ccc') { $('#city-stat').text(name); }
-    if(code === 'ccg') { $('#guild-stat').text(name); }
-    if(code === 'ccp') { $('#profession-stat').text(name); }
-    if(code === 'cco') { $('#order-stat').text(name); }
-
-    /*
-    old sidebar code
-
-    if(0 == $('#channel_' + code).length) {
-      // var $badge = $('<span class="badge"/>').text('42');
-      var $label = $('<div class="ui label">').text(code);
-      var $elem = $('<a class="item" id="channel_' + code + '" href="#"/>')
-        .data('code', code)
-        .data('command', code)
-        .append($label)
-        .append($('<span>').text(name));//.append($badge);
-
-      $('#calling-list').append($elem);
-      //nano
-      $('#leftSidebarScroll').nanoScroller();
-    }
-    */
-  }
-
   // Adds a message element to the messages and scrolls to the bottom
   // el - The element to add as a message
   // options.fade - If the element should fade-in (default = true)
@@ -852,6 +826,19 @@ $(function() {
     }
   });
 
+  function handleAck(text) {
+    if(text.indexOf('balance') === 0) {
+      let splitOne = text.split('@');
+      let parts = splitOne[0].split(' ');
+      let side = parts[1];
+      let recoveryTime = parts[2];
+      if(side === 'right') {
+        window.infobar.loseRightBalance(recoveryTime * 10);
+      } else {
+        window.infobar.loseLeftBalance(recoveryTime * 10);
+      }
+    }
+  }
 
   function handleProto(e, data) {
     var code = data.code;
@@ -859,20 +846,20 @@ $(function() {
 
     if (umbra.get("debug")) { console.log('###' + code + ' ' + content); }
 
-    if(code === 'playername') {
+    if(code === 'ack') {
+      handleAck(content);
+    } else if(code === 'playername') {
       $('#playername').text(content);
+    } else if(code === 'city') {
+      $('#city-stat').text(content);
+    } else if(code === 'guild') {
+      $('#guild-stat').text(content);
+    } else if(code === 'profession') {
+      $('#profession-stat').text(content);
+    } else if(code === 'order') {
+      $('#order-stat').text(content);
     } else if(code === 'brief') {
       $('#current-loc').text(content);
-    } else if(code === 'health') {
-      let split = content.split(" ");
-      $('#health-stat').text(split[0]);
-      $('#max-health-stat').text(split[1]);
-      $(".infobar .health.bar").css("width", split[0]/split[1]*100 + "%");
-    } else if(code === 'mana') {
-      let split = content.split(" ");
-      $('#mana-stat').text(split[0]);
-      $('#max-mana-stat').text(split[1]);
-      $(".infobar .mana.bar").css("width", split[0]/split[1]*100 + "%");
     } else if(code === 'level') {
       $('#level-stat').text(content);
     } else if(code === 'xp') {
@@ -910,6 +897,9 @@ $(function() {
   }
 
   socket.on('block', function(block) { processInput(block); });
+  socket.on('protocol', function(data) { $(umbra).trigger("protocol", data); });
+
+
 
   function processInput(data) {
 
@@ -946,7 +936,6 @@ $(function() {
       let $el = addPrompt(data.prompt);
       addMessageElements($el);
     } else {
-      console.log('root block with no prompt!');
       console.log(data);
     }
 
@@ -958,13 +947,32 @@ $(function() {
       ib.setMaxima(pv.healthMax, pv.manaMax);
       ib.setHealth(pv.health);
       ib.setMana(pv.mana);
-      if(pv.flags.indexOf('e') >= 0) { ib.regainEq();         } else { ib.loseEq(); }
-      if(pv.flags.indexOf('z') >= 0) { ib.loseLeftBalance();  } else { ib.regainLeftBalance(); }
-      if(pv.flags.indexOf('y') >= 0) { ib.loseRightBalance(); } else { ib.regainRightBalance(); }
+      if(pv.flags.indexOf('e') >= 0) { ib.regainEq(); } else { ib.loseEq(); }
+
+      if(pv.flags.indexOf('z') < 0) { ib.regainLeftBalance(); }
+      if(pv.flags.indexOf('y') < 0) { ib.regainRightBalance(); }
+      //if(pv.flags.indexOf('z') >= 0) { ib.loseLeftBalance();  } else { ib.regainLeftBalance(); }
+      //if(pv.flags.indexOf('y') >= 0) { ib.loseRightBalance(); } else { ib.regainRightBalance(); }
     }
 
     if(data.promptExtraVars) {
-      if(umbra.get("debug")) { console.log(data.promptExtraVars); }
+      if(umbra.get("debug")) {
+        console.log(data.promptExtraVars);
+        for(let name in data.promptExtraVars) {
+          if (name !== 'health' && name !== 'mana' && data.promptExtraVars.hasOwnProperty(name)) {
+            let value = data.promptExtraVars[name];
+            let $existing = $('#promptvar-' + name);
+            if($existing.length) {
+              $existing.text(name + '=' + value);
+            } else {
+              let $elem = $('<div id="promptvar-' + name + '" class="promptextra"/>');
+              //console.log('appending extra');
+              //console.log($elem);
+              $('#extrasbar').append($elem);
+            }
+          }
+        }
+      }
     }
 
     if(umbra.get("debug")) { console.groupEnd(); }
@@ -1047,9 +1055,6 @@ $(function() {
       //console.log(JSON.stringify(data));
       //addUser(data);
       $elems = mkLoginAnnouncement(data);
-    } else if(data.qual === 'channel') {
-      //console.log('input: ' + JSON.stringify(data));
-      addChannel(data.code, data.name);
     } else if (data.qual === 'table') {
       $elems = mkTable(data);
     } else if(data.qual === 'line') {
