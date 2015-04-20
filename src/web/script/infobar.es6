@@ -20,7 +20,7 @@ function InfoBar(elemName) {
   var paperMidY = paperHeight/2;
 
   let healthColour = 'green';
-  let manaColour = 'cadetBlue';
+  let manaColour = 'royalBlue';
   let posDeltaColour = 'white';
   let negDeltaColour = 'red';
 
@@ -238,7 +238,12 @@ function InfoBar(elemName) {
         baseColour;
   }
 
-  function animateBar(bar, delta, pos, oldFraction, fraction, colour) {
+  function animateBar(bar, delta, border, pos, oldFraction, fraction, colour) {
+    if(fraction >= 1.0) {
+      border.attr({stroke:'white'});
+    } else {
+      border.attr({stroke:colour});
+    }
     if(fraction > oldFraction) {
       delta.attr({
         fill: 'white',
@@ -284,7 +289,7 @@ function InfoBar(elemName) {
       let oldHealthFraction = healthFraction;
       health = x;
       healthFraction = health / healthMax;
-      animateBar(healthBar, healthDelta, 'left', oldHealthFraction, healthFraction, healthColour);
+      animateBar(healthBar, healthDelta, healthBorder, 'left', oldHealthFraction, healthFraction, healthColour);
     }
   };
 
@@ -294,7 +299,7 @@ function InfoBar(elemName) {
       let oldManaFraction = manaFraction;
       mana = x;
       manaFraction = mana / manaMax;
-      animateBar(manaBar, manaDelta, 'right', oldManaFraction, manaFraction, manaColour);
+      animateBar(manaBar, manaDelta, manaBorder, 'right', oldManaFraction, manaFraction, manaColour);
     }
   };
 
