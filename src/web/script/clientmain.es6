@@ -39,7 +39,6 @@ function getParameterByName(name) {
   return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-let infobar;
 
 $(function() {
   let lastInput = "";
@@ -135,14 +134,6 @@ $(function() {
 
     attemptLogin(loginParams);
   } else if (umbra.get("username") && umbra.get("password")) {
-    //if (umbra.get("autologin")) {
-    //  let loginParams = {
-    //    username: umbra.get("username"),
-    //    password: umbra.get("password"),
-    //    create: false
-    //  };
-    //  attemptLogin(loginParams);
-    //} else {
       $nameInput.val(umbra.get("username"));
       $passwordInput.val(umbra.get("password"));
       showLoginBox();
@@ -962,24 +953,14 @@ $(function() {
     if(data.promptVars) {
       let pv = data.promptVars;
       if(umbra.get("debug")) { console.log(pv); }
-      infobar.setMaxima(pv.healthMax, pv.manaMax);
-      infobar.setHealth(pv.health);
-      infobar.setMana(pv.mana);
-      if(pv.flags.indexOf('e') >= 0) {
-        infobar.regainEq();
-      } else {
-        infobar.loseEq();
-      }
-      if(pv.flags.indexOf('z') >= 0) {
-        infobar.loseLeftBalance();
-      } else {
-        infobar.regainLeftBalance();
-      }
-      if(pv.flags.indexOf('y') >= 0) {
-        infobar.loseRightBalance();
-      } else {
-        infobar.regainRightBalance();
-      }
+      let ib = window.infobar;
+
+      ib.setMaxima(pv.healthMax, pv.manaMax);
+      ib.setHealth(pv.health);
+      ib.setMana(pv.mana);
+      if(pv.flags.indexOf('e') >= 0) { ib.regainEq();         } else { ib.loseEq(); }
+      if(pv.flags.indexOf('z') >= 0) { ib.loseLeftBalance();  } else { ib.regainLeftBalance(); }
+      if(pv.flags.indexOf('y') >= 0) { ib.loseRightBalance(); } else { ib.regainRightBalance(); }
     }
 
     if(data.promptExtraVars) {
@@ -1204,7 +1185,7 @@ $(function() {
     umbra.protocol[data.code] = data.content;
   });
 
-  infobar = new InfoBar('infobar');
+  window.infobar = new InfoBar('infobar');
 
   $(window).bind('beforeunload', function() {
     return 'You\'re about to navigate away and disconnect avalon.\n\n' +

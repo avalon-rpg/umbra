@@ -3,9 +3,9 @@ function InfoBar(elemName) {
   let $elem = $('#' + elemName);
   let self = this;
 
-  let health = 80;
+  let health = 1;
   let healthMax = 100;
-  let mana = 80;
+  let mana = 1;
   let manaMax = 100;
   let gotEq = true;
   let gotLeftBalance = true;
@@ -31,15 +31,18 @@ function InfoBar(elemName) {
   let barArcRadius;       // radius of health/mana endcaps
   let barVertMargin;      // height of space between bar and paper edge
 
+  let crescentWidth;      // horz width of the balance crescents
   let balanceHalfHeight;  // half height of balance crescents
   let balanceHeight;      // height of balance crescents
   let balanceIntRadius;   // internal radius of balance crescent
   let balanceExtRadius;   // external radius of balance crescent
 
   let eqCircle;           // equilibrium circle
+
   let healthBorder;       // border of the health bar
   let healthDelta;        // white/red section of the health bar showing changes
   let healthBar;          // core of the health bar
+
   let manaBorder;         // border of the mana bar
   let manaDelta;          // white/red section of the mana bar showing changes
   let manaBar;            // core of the mana bar
@@ -65,7 +68,7 @@ function InfoBar(elemName) {
     var pos = params.pos || 'left';
     var isLeft = (pos === 'left');
     //alert(pos);
-    var midIndent = balanceExtRadius + 4*u;
+    var midIndent = crescentWidth + 4*u;
     var xStart = isLeft ? paperMidX - midIndent : paperMidX + midIndent;
     var xMax = isLeft ? 3*u : (paperWidth - (3*u));
     var maxWidth = xMax-xStart;
@@ -94,7 +97,7 @@ function InfoBar(elemName) {
     //alert(pos);
     var xInner = paperMidX;
     //var xInner = paperMidX + (isLeft ? -balanceIntRadius : balanceIntRadius);
-    var xOuter = xInner + (isLeft ? -8*u : 8*u);
+    var xOuter = xInner + (isLeft ? -crescentWidth : crescentWidth);
 
     var startPath = "M" + xInner + "," + bottom;
     var innerCap = arcTo(xInner, top, balanceIntRadius, isLeft ? 1 : 0);
@@ -106,11 +109,10 @@ function InfoBar(elemName) {
     return str;
   }
 
-  function cleanRender() {
+  function calcDimensions() {
     paperWidth = $elem.width();
     paperHeight = $elem.height();
     paper.setSize(paperWidth, paperHeight);
-    paper.clear();
 
     paperMidX = paperWidth / 2;
     paperMidY = paperHeight/2;
@@ -122,33 +124,75 @@ function InfoBar(elemName) {
     barArcRadius = barHalfHeight;
     barVertMargin = (paperHeight - barHeight) / 2; //3u
 
+    crescentWidth = 11*u;
     balanceHalfHeight = 7*u;
     balanceHeight = balanceHalfHeight * 2;
     balanceIntRadius = barHalfHeight;
-    balanceExtRadius = balanceIntRadius + barVertMargin;
+    balanceExtRadius = balanceIntRadius + (4*u);
+  }
 
-    healthFraction = health/healthMax;
-    manaFraction = mana/manaMax;
-
+  function generateElems() {
+    paper.clear();
     eqCircle = paper.circle(paperMidX, paperMidY, eqRadius);
-    healthBorder = paper.path(barPathStr({pos:'left'}));
+
     healthDelta = paper.path(barPathStr({pos:'left', fraction: 0.01}));
     healthBar = paper.path(barPathStr({pos:'left', fraction: healthFraction}));
-    manaBorder = paper.path(barPathStr({pos:'right'}));
+    healthBorder = paper.path(barPathStr({pos:'left'}));
+
     manaDelta = paper.path(barPathStr({pos:'right', fraction: 0.01}));
     manaBar = paper.path(barPathStr({pos:'right', fraction: manaFraction}));
+    manaBorder = paper.path(barPathStr({pos:'right'}));
+
     balanceLeft = paper.path(balancePathStr({pos:'left'}));
     balanceRight = paper.path(balancePathStr({pos:'right'}));
 
     eqCircle.attr({fill:'white', stroke:'none'});
-    healthBorder.attr({stroke:healthColour, 'stroke-width': 1});
+
     healthDelta.attr({fill:negDeltaColour, stroke:'none'});
     healthBar.attr({fill:healthColour, stroke:'none'});
-    manaBorder.attr({stroke:manaColour, 'stroke-width': 1});
+    healthBorder.attr({stroke:healthColour, 'stroke-width': 1});
+
     healthDelta.attr({fill:negDeltaColour, stroke:'none'});
     manaBar.attr({fill:manaColour});
+    manaBorder.attr({stroke:manaColour, 'stroke-width': 1});
+
     balanceLeft.attr({fill:'white', stroke:'none'});
     balanceRight.attr({fill:'white', stroke:'none'});
+  }
+
+  function bindAllEvents() {
+    bindEventsFor('health', [healthDelta,healthBar,healthBorder]);
+    bindEventsFor('mana', [manaDelta,manaBar,manaBorder]);
+  }
+
+  function resizeElems() {
+    eqCircle.attr({cx:paperMidX, cy:paperMidY, r:eqRadius});
+
+    healthDelta.attr({path:barPathStr({pos:'left', fraction: 0.01})});
+    healthBar.attr({path:barPathStr({pos:'left', fraction: healthFraction})});
+    healthBorder.attr({path:barPathStr({pos:'left'})});
+
+    manaDelta.attr({path:barPathStr({pos:'right', fraction: 0.01})});
+    manaBar.attr({path:barPathStr({pos:'right', fraction: manaFraction})});
+    manaBorder.attr({path:barPathStr({pos:'right'})});
+
+    balanceLeft.attr({path:balancePathStr({pos:'left'})});
+    balanceRight.attr({path:balancePathStr({pos:'right'})});
+  }
+
+  function setup() {
+    calcDimensions();
+    healthFraction = health/healthMax;
+    manaFraction = mana/manaMax;
+    generateElems();
+    bindAllEvents();
+  }
+
+  function cleanRender() {
+    calcDimensions();
+    healthFraction = health/healthMax;
+    manaFraction = mana/manaMax;
+    resizeElems();
   }
 
   $(window).resize(function(e) {
@@ -171,40 +215,59 @@ function InfoBar(elemName) {
 
   self.setMaxMana = function(x) { self.setMaxima(healthMax, x); };
 
+  function fillColourForFraction(baseColour, fraction) {
+    return (fraction < 0.333) ? 'red' :
+      (fraction < 0.666) ? 'orange' :
+        baseColour;
+  }
+
+  function animateBar(bar, delta, pos, oldFraction, fraction, colour) {
+    if(fraction > oldFraction) {
+      delta.attr({
+        fill: 'white',
+        path: barPathStr({pos:pos, fraction:fraction})
+      });
+      bar.attr({
+        path: barPathStr({pos:pos, fraction: oldFraction})
+      });
+      bar.animate(
+        {
+          fill: fillColourForFraction(colour, fraction),
+          path: barPathStr({pos:pos, fraction: fraction})
+        },
+        250,
+        'linear'
+      );
+    } else {
+      bar.attr({
+        path: barPathStr({pos:pos, fraction:fraction})
+      });
+      delta.attr({
+        fill: 'red',
+        path: barPathStr({pos:pos, fraction: oldFraction})
+      });
+      bar.animate(
+        {
+          fill: fillColourForFraction(colour, fraction)
+        },
+        250,
+        'linear'
+      );
+      delta.animate(
+        { path: barPathStr({pos:pos, fraction:fraction}) },
+        250,
+        'linear'
+      );
+    }
+  }
+
   self.setHealth = function(x) {
     if(x !== health) {
       let oldHealth = health;
       let oldHealthFraction = healthFraction;
       health = x;
       healthFraction = health / healthMax;
-      console.log('resizing health bar from ' + oldHealth + ' to ' + health + ', ratio = ' + healthFraction);
-      if(health > oldHealth) {
-        healthDelta.attr({
-          fill: 'white',
-          path: barPathStr({pos:'left', fraction: healthFraction})
-        });
-        healthBar.attr({
-          path: barPathStr({pos:'left', fraction: oldHealthFraction})
-        });
-        healthBar.animate(
-          {path: barPathStr({pos: 'left', fraction: healthFraction})},
-          250,
-          'linear'
-        );
-      } else {
-        healthBar.attr({
-          path: barPathStr({pos:'left', fraction: healthFraction})
-        });
-        healthDelta.attr({
-          fill: 'red',
-          path: barPathStr({pos:'left', fraction: oldHealthFraction})
-        });
-        healthDelta.animate(
-          { path: barPathStr({pos:'left', fraction: healthFraction}) },
-          250,
-          'linear'
-        );
-      }
+      animateBar(healthBar, healthDelta, 'left', oldHealthFraction, healthFraction, healthColour);
     }
   };
 
@@ -214,34 +277,7 @@ function InfoBar(elemName) {
       let oldManaFraction = manaFraction;
       mana = x;
       manaFraction = mana / manaMax;
-      console.log('resizing mana bar from ' + oldMana + ' to ' + mana);
-      if(mana > oldMana) {
-        manaDelta.attr({
-          fill: 'white',
-          path: barPathStr({pos:'right', fraction: manaFraction})
-        });
-        manaBar.attr({
-          path: barPathStr({pos:'right', fraction: oldManaFraction})
-        });
-        manaBar.animate(
-          {path: barPathStr({pos: 'right', fraction: manaFraction})},
-          250,
-          'linear'
-        );
-      } else {
-        manaBar.attr({
-          path: barPathStr({pos:'right', fraction: manaFraction})
-        });
-        manaDelta.attr({
-          fill: 'red',
-          path: barPathStr({pos:'right', fraction: oldManaFraction})
-        });
-        manaDelta.animate(
-          { path: barPathStr({pos:'right', fraction: manaFraction}) },
-          250,
-          'linear'
-        );
-      }
+      animateBar(manaBar, manaDelta, 'right', oldManaFraction, manaFraction, manaColour);
     }
   };
 
@@ -296,6 +332,58 @@ function InfoBar(elemName) {
     };
   };
 
-  cleanRender();
+  function bindEventsFor(name, elems) {
+    bindClick(name, elems);
+    bindDblClick(name, elems);
+    bindTouchStart(name, elems);
+    bindTouchMove(name, elems);
+    bindTouchEnd(name, elems);
+    bindTouchCancel(name, elems);
+  }
+
+
+  function bindClick(name, elems) {
+    let handler = function(e) {
+      console.log(name + ' clicked, e=' + JSON.stringify(e));
+    };
+    elems.forEach(function (elem) {elem.click(handler);});
+  }
+
+  function bindDblClick(name, elems) {
+    let handler = function (e) {
+      console.log(name + ' double-clicked, e=' + JSON.stringify(e));
+    };
+    elems.forEach(function (elem) {elem.dblclick(handler);});
+  }
+
+  function bindTouchStart(name, elems) {
+    let handler = function (e) {
+      console.log(name + ' touch start, e=' + JSON.stringify(e));
+    };
+    elems.forEach(function (elem) {elem.touchstart(handler);});
+  }
+
+  function bindTouchMove(name, elems) {
+    let handler = function(e) {
+      console.log(name + ' touch move, e=' + JSON.stringify(e));
+    };
+    elems.forEach(function (elem) {elem.touchmove(handler);});
+  }
+
+  function bindTouchEnd(name, elems) {
+    let handler = function(e) {
+      console.log(name + ' touch end, e=' + JSON.stringify(e));
+    };
+    elems.forEach(function (elem) {elem.touchend(handler);});
+  }
+
+  function bindTouchCancel(name, elems) {
+    let handler = function(e) {
+      console.log(name + ' touch cancel, e=' + JSON.stringify(e));
+    };
+    elems.forEach(function (elem) {elem.touchcancel(handler);});
+  }
+
+  setup();
 }
 

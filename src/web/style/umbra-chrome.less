@@ -51,6 +51,20 @@ ul {
   margin: 0;
 }
 
+#extrasbar {
+  width: 100%;
+  height: 25px;
+  line-height: 25px;
+  border: 0;
+  margin: 0;
+}
+
+.prompextra {
+  border-radius: 5px;
+  border: solid 1px gainsboro;
+  display: inline-block;
+}
+
 #prompt-bar {
   background: rgb(4, 103, 35);
   width: 100%;
@@ -89,10 +103,8 @@ ul {
 
 #output-segment {
   height: 100%;
-  padding-top: 40px;
-  padding-bottom: 81px;
-  padding-left: 0px;
-  padding-right:0px;
+  padding: 40px 0px 81px 0px;
+  margin-bottom: 0;
 }
 
 #input-segment {
@@ -111,7 +123,7 @@ ul {
 //  overflow:auto;
   height: auto !important; //for nano
   top: 40px;
-  bottom: 65px;
+  bottom: 75px;
 }
 
 
@@ -227,6 +239,9 @@ ul {
 #input-box-outer, #input-box {
   background: #101010;
   color: white;
+  padding: 0;
+  height: 25px;
+  line-height: 25px;
 }
 
 #input-indicator {
