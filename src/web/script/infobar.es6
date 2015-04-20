@@ -38,6 +38,7 @@ function InfoBar(elemName) {
   let balanceExtRadius;   // external radius of balance crescent
 
   let eqCircle;           // equilibrium circle
+  let eqCircleUnder;      // equilibrium circle underlay
 
   let healthBorder;       // border of the health bar
   let healthDelta;        // white/red section of the health bar showing changes
@@ -139,6 +140,7 @@ function InfoBar(elemName) {
 
   function generateElems() {
     paper.clear();
+    eqCircleUnder = paper.circle(paperMidX, paperMidY, eqRadius);
     eqCircle = paper.circle(paperMidX, paperMidY, eqRadius);
 
     healthDelta = paper.path(barPathStr({pos:'left', fraction: 0.01}));
@@ -156,6 +158,7 @@ function InfoBar(elemName) {
     balanceRight = paper.path(balancePathStr({pos:'right'}));
 
     eqCircle.attr({fill:'white', stroke:'none'});
+    eqCircleUnder.attr({fill:'white', stroke:'none'});
 
     healthDelta.attr({fill:negDeltaColour, stroke:'none'});
     healthBar.attr({fill:healthColour, stroke:'none'});
@@ -295,31 +298,53 @@ function InfoBar(elemName) {
     }
   };
 
-  self.loseEq = function(restoreTime) {
+  self.loseEq = function(hardOrSoft, restoreTime) {
     if(gotEq) {
+      let isHard = hardOrSoft || true;
       gotEq = false;
-      eqCircle.attr({fill: 'red'});
+      if(restoreTime) {
+        console.log('eq returns in ' + restoreTime + 'ms');
+        eqCircle.attr({r:0});
+        eqCircleUnder.attr({fill: isHard ? 'red' : 'green'});
+        eqCircle.animate( {r:eqRadius}, restoreTime, 'linear' );
+      } else {
+        eqCircle.attr({fill: 'red'});
+      }
     }
   };
 
-  self.regainEq = function(restoreTime) {
+  self.regainEq = function() {
     if(!gotEq) {
       gotEq = true;
       eqCircle.attr({fill: 'white'});
+      eqCircleUnder.attr({fill: 'white'});
     }
   };
 
   self.loseLeftBalance = function(restoreTime) {
     if(gotLeftBalance) {
       gotLeftBalance = false;
-      balanceLeft.attr({fill: 'red'});
+      balanceLeftUnder.attr({fill: 'red'});
+      balanceLeft.attr(
+        { path:balancePathStr({pos:'left', empty:true}) }
+      );
+      if(restoreTime && restoreTime > 0) {
+        balanceLeft.animate(
+          { path:balancePathStr({pos:'left', empty:false}) },
+          restoreTime,
+          'linear'
+        );
+      }
     }
   };
 
-  self.regainLeftBalance = function(restoreTime) {
+  self.regainLeftBalance = function() {
     if(!gotLeftBalance) {
       gotLeftBalance = true;
-      balanceLeft.attr({fill: 'white'});
+      balanceLeft.attr(
+        { path:balancePathStr({pos:'left', empty:false}) }
+      );
+      balanceLeftUnder.attr({fill: 'white'});
     }
   };
 
@@ -340,7 +365,7 @@ function InfoBar(elemName) {
     }
   };
 
-  self.regainRightBalance = function(restoreTime) {
+  self.regainRightBalance = function() {
     if(!gotRightBalance) {
       gotRightBalance = true;
       balanceRight.attr(

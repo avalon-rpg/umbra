@@ -831,12 +831,18 @@ $(function() {
       let splitOne = text.split('@');
       let parts = splitOne[0].split(' ');
       let side = parts[1];
-      let recoveryTime = parts[2];
+      let recoveryTime = parts[2] * 10;
       if(side === 'right') {
-        window.infobar.loseRightBalance(recoveryTime * 10);
+        window.infobar.loseRightBalance(recoveryTime);
       } else {
-        window.infobar.loseLeftBalance(recoveryTime * 10);
+        window.infobar.loseLeftBalance(recoveryTime);
       }
+    } else if(text.indexOf('equilibrium') === 0) {
+      let splitOne = text.split('@');
+      let parts = splitOne[0].split(' ');
+      let hardOrSoft = parts[1];
+      let recoveryTime = parts[2] * 10;
+      window.infobar.loseEq(hardOrSoft, recoveryTime);
     }
   }
 
@@ -947,7 +953,8 @@ $(function() {
       ib.setMaxima(pv.healthMax, pv.manaMax);
       ib.setHealth(pv.health);
       ib.setMana(pv.mana);
-      if(pv.flags.indexOf('e') >= 0) { ib.regainEq(); } else { ib.loseEq(); }
+      if(pv.flags.indexOf('e') >= 0) { ib.regainEq(); }
+      //if(pv.flags.indexOf('e') >= 0) { ib.regainEq(); } else { ib.loseEq(); }
 
       if(pv.flags.indexOf('z') < 0) { ib.regainLeftBalance(); }
       if(pv.flags.indexOf('y') < 0) { ib.regainRightBalance(); }
