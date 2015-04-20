@@ -958,18 +958,18 @@ $(function() {
     if(data.promptExtraVars) {
       if(umbra.get("debug")) {
         console.log(data.promptExtraVars);
-        for(let name in data.promptExtraVars) {
-          if (name !== 'health' && name !== 'mana' && data.promptExtraVars.hasOwnProperty(name)) {
-            let value = data.promptExtraVars[name];
-            let $existing = $('#promptvar-' + name);
-            if($existing.length) {
-              $existing.text(name + '=' + value);
-            } else {
-              let $elem = $('<div id="promptvar-' + name + '" class="promptextra"/>');
-              //console.log('appending extra');
-              //console.log($elem);
-              $('#extrasbar').append($elem);
-            }
+      }
+      for(let name in data.promptExtraVars) {
+        if (name !== 'health' && name !== 'mana' && data.promptExtraVars.hasOwnProperty(name)) {
+          let value = data.promptExtraVars[name];
+          let $existing = $('#promptvar-' + name);
+          if($existing.length) {
+            $existing.text(name + '=' + value);
+          } else {
+            let $elem = $('<div id="promptvar-' + name + '" class="promptextra"/>');
+            //console.log('appending extra');
+            //console.log($elem);
+            $('#extrasbar').append($elem);
           }
         }
       }
