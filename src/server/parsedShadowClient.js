@@ -35,6 +35,7 @@ ParsedShadowClient.prototype.init = function(params) {
   sc.on('login result', function(data) {
     self.emit('login result', data);
     if(data.success) {
+      sc.write('fullprompt info max\r\n');
       sc.write('protocol on\r\n');
       ///should really be ###whatmacros, but that's currently broken
       sc.write('macrolist\r\n');
