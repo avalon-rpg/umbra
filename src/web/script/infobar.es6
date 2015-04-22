@@ -182,6 +182,7 @@ function InfoBar(elemName) {
 
   function resizeElems() {
     eqCircle.attr({cx:paperMidX, cy:paperMidY, r:eqRadius});
+    eqCircleUnder.attr({cx:paperMidX, cy:paperMidY, r:eqRadius});
 
     healthDelta.attr({path:barPathStr({pos:'left', fraction: 0.01})});
     healthBar.attr({path:barPathStr({pos:'left', fraction: healthFraction})});

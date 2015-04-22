@@ -36,11 +36,11 @@ module.exports = function(grunt) {
   "use strict";
   var thirdparty_scripts = [
     //'node_modules/grunt-riot/node_modules/riot/riot.js',
-    'src/web/thirdparty/semantic-ui/semantic.js',
-    'src/web/thirdparty/jquery-validation/jquery.validate.js',
+    'src/web/thirdparty/raphael-min.js',
+    'src/web/thirdparty/jquery-validation/jquery.validate.min.js',
     'src/web/thirdparty/jquery.nanoscroller.js',
     'src/web/thirdparty/screenfull.js',
-    'src/web/thirdparty/typeahead.bundle.js'
+    'src/web/thirdparty/typeahead.bundle.min.js'
     //'src/web/thirdparty/modernizr.js'
   ];
 
@@ -92,19 +92,6 @@ module.exports = function(grunt) {
         }]
       }
     },
-    riot: {
-      options:{
-        template : 'jade',
-        type : 'es6'
-      },
-      dist: {
-        expand: true,
-        cwd: 'src/web/tags',
-        src: '**/*.tag',
-        dest: 'src-gen/web/tags',
-        ext: '.js'
-      }
-    },
     babel: {
       options: {
         sourceMap: true
@@ -128,16 +115,6 @@ module.exports = function(grunt) {
         }]
       }
     },
-    concat: {
-      options: {
-        sourceMap: true,
-        sourceMapStyle: 'embed'
-      },
-      dist: {
-        src: ['src-gen/web/thirdparty/*.js','src-gen/web/babel/*.js','src-gen/web/script/*.js','src-gen/web/tags/*.js'],
-        dest: 'src-gen/web/concatted/umbra.js'
-      }
-    },
     uglify: {
       options: {
         stripBanners: true,
@@ -146,24 +123,17 @@ module.exports = function(grunt) {
         sourceMap: true,
         sourceMapName: 'build/web/script/umbra.map',
         sourceMapIncludeSources : true,
-        sourceMapIn: 'src-gen/web/concatted/umbra.js.map',
         mangle: true
       },
       web: {
-        files: {
-          'build/web/script/umbra.js': 'src-gen/web/concatted/umbra.js'
-        }
+        src: ['src-gen/web/babel/*.js'],
+        dest: 'build/web/script/umbra.js'
       }
     },
     copy: {
       web_thirdparty: {
         files: [
-          {expand: true, flatten: true, src: thirdparty_scripts, dest: 'src-gen/web/thirdparty' }
-        ]
-      },
-      web_scripts: {
-        files: [
-          {expand: true, cwd: 'src/web/script', src: '**/*.js', dest: 'src-gen/web/script' }
+          {expand: true, flatten: true, src: thirdparty_scripts, dest: 'build/web/thirdparty' }
         ]
       },
       node_scripts: {
@@ -223,10 +193,8 @@ module.exports = function(grunt) {
   //don't watch by default, 'grunt watch' works perfectly well without killing CI
   grunt.registerTask('default', [
     'less',
-    'riot',
     'babel',
     'copy',
-    'concat',
     'uglify'
   ]);
 };
