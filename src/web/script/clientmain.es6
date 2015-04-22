@@ -78,6 +78,8 @@ $(function() {
   let styler = new InlineStyler();
   let native = false;
 
+  let visibleExtraVars = {};
+
 
 
   if (localStorage && localStorage.umbra) {
@@ -954,32 +956,53 @@ $(function() {
       ib.setHealth(pv.health);
       ib.setMana(pv.mana);
       if(pv.flags.indexOf('e') >= 0) { ib.regainEq(); }
-      //if(pv.flags.indexOf('e') >= 0) { ib.regainEq(); } else { ib.loseEq(); }
-
       if(pv.flags.indexOf('z') < 0) { ib.regainLeftBalance(); }
       if(pv.flags.indexOf('y') < 0) { ib.regainRightBalance(); }
-      //if(pv.flags.indexOf('z') >= 0) { ib.loseLeftBalance();  } else { ib.regainLeftBalance(); }
-      //if(pv.flags.indexOf('y') >= 0) { ib.loseRightBalance(); } else { ib.regainRightBalance(); }
     }
 
     if(data.promptExtraVars) {
+
+      let newVisibleExtraVars = {};
+
       if(umbra.get("debug")) {
+        console.log('prompt extras');
         console.log(data.promptExtraVars);
       }
+
+      // values as discovered are transferred from visibleExtraVars to newVisibleExtraVars
+      // any left in the original object are then removed from the DOM
       for(let name in data.promptExtraVars) {
         if (name !== 'health' && name !== 'mana' && data.promptExtraVars.hasOwnProperty(name)) {
           let value = data.promptExtraVars[name];
           let $existing = $('#promptvar-' + name);
           if($existing.length) {
             $existing.text(name + '=' + value);
+            newVisibleExtraVars[name] = visibleExtraVars[name];
           } else {
             let $elem = $('<div id="promptvar-' + name + '" class="promptextra"/>');
-            //console.log('appending extra');
-            //console.log($elem);
+            $elem.text(name + '=' + value);
+            newVisibleExtraVars[name] = $elem;
             $('#extrasbar').append($elem);
           }
+
+          if(visibleExtraVars.hasOwnProperty(name)) { delete visibleExtraVars[name]; }
         }
       }
+
+      if(umbra.get("debug")) {
+        console.log('visible');
+        console.log(newVisibleExtraVars);
+        console.log('culling');
+        console.log(visibleExtraVars);
+      }
+
+      for(let cullname in visibleExtraVars) {
+        if(visibleExtraVars.hasOwnProperty(cullname)) {
+          visibleExtraVars[cullname].remove();
+        }
+      }
+
+      visibleExtraVars = newVisibleExtraVars;
     }
 
     if(umbra.get("debug")) { console.groupEnd(); }
