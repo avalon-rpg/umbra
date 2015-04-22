@@ -77,7 +77,7 @@ function InfoBar(elemName) {
     var maxWidth = xMax-xStart;
 
     //alert(maxwidth);
-    var fraction = params.fraction || 1.0;
+    var fraction = params.hasOwnProperty('fraction') ? params.fraction : 1.0;
     var xEnd = xMax - (maxWidth*(1-fraction));
     //alert(startx +  " " + endx + " " + maxx);
 
@@ -243,6 +243,8 @@ function InfoBar(elemName) {
   function animateBar(bar, delta, border, pos, oldFraction, fraction, colour) {
     if(fraction >= 1.0) {
       border.attr({stroke:'white'});
+    } else if (fraction <= 0.0) {
+      border.attr({stroke:'red'});
     } else {
       border.attr({stroke:colour});
     }
