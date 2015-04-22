@@ -34,6 +34,7 @@ function InfoBar(elemName) {
   let crescentWidth;      // horz width of the balance crescents
   let balanceHalfHeight;  // half height of balance crescents
   let balanceHeight;      // height of balance crescents
+  let midCutoutWidth;     // width of the central cutout area
   let balanceIntRadius;   // internal radius of balance crescent
   let balanceExtRadius;   // external radius of balance crescent
 
@@ -43,10 +44,14 @@ function InfoBar(elemName) {
   let healthBorder;       // border of the health bar
   let healthDelta;        // white/red section of the health bar showing changes
   let healthBar;          // core of the health bar
+  let healthText;
 
   let manaBorder;         // border of the mana bar
   let manaDelta;          // white/red section of the mana bar showing changes
   let manaBar;            // core of the mana bar
+  let manaText;
+
+  let balanceOffset;      //offset from the mid line to start drawing balance segments
   let balanceLeft;        // left balance crescent
   let balanceLeftUnder;   // left balance crescent underlay
   let balanceRight;       // right balance crescent
@@ -71,7 +76,7 @@ function InfoBar(elemName) {
     var pos = params.pos || 'left';
     var isLeft = (pos === 'left');
     //alert(pos);
-    var midIndent = crescentWidth + 4*u;
+    var midIndent = crescentWidth + (balanceOffset) + 4*u;
     var xStart = isLeft ? paperMidX - midIndent : paperMidX + midIndent;
     var xMax = isLeft ? 3*u : (paperWidth - (3*u));
     var maxWidth = xMax-xStart;
@@ -97,9 +102,7 @@ function InfoBar(elemName) {
     let bottom = paperHeight - top;
     let pos = params.pos || 'left';
     let isLeft = (pos === 'left');
-    //alert(pos);
-    let xInner = paperMidX;
-    //var xInner = paperMidX + (isLeft ? -balanceIntRadius : balanceIntRadius);
+    var xInner = paperMidX + (isLeft ? -(balanceOffset) : (balanceOffset));
 
     let cw = (params.empty) ? 0.5 : crescentWidth;
     let xOuter = xInner + (isLeft ? -cw : cw);
@@ -131,11 +134,12 @@ function InfoBar(elemName) {
     barArcRadius = barHalfHeight;
     barVertMargin = (paperHeight - barHeight) / 2; //3u
 
-    //crescentWidth = 11*u;
-    //crescentWidth = 16*u;
     crescentWidth = paperWidth/6;
     balanceHalfHeight = 7*u;
     balanceHeight = balanceHalfHeight * 2;
+    //midCutoutWidth = 8*u;
+    midCutoutWidth = 0;
+    balanceOffset = midCutoutWidth / 2;
     balanceIntRadius = barHalfHeight;
     balanceExtRadius = balanceIntRadius + (4*u);
   }
@@ -148,10 +152,16 @@ function InfoBar(elemName) {
     healthDelta = paper.path(barPathStr({pos:'left', fraction: 0.01}));
     healthBar = paper.path(barPathStr({pos:'left', fraction: healthFraction}));
     healthBorder = paper.path(barPathStr({pos:'left'}));
+    let hbb = healthBorder.getBBox();
+    let hCtr = hbb.x + ( (hbb.x2 - hbb.x)/2 );
+    healthText = paper.text(hCtr, paperMidY, 'health');
 
     manaDelta = paper.path(barPathStr({pos:'right', fraction: 0.01}));
     manaBar = paper.path(barPathStr({pos:'right', fraction: manaFraction}));
     manaBorder = paper.path(barPathStr({pos:'right'}));
+    let mbb = manaBorder.getBBox();
+    let mCtr = mbb.x + ( (mbb.x2 - mbb.x)/2 );
+    manaText = paper.text(mCtr, paperMidY, 'mana');
 
     balanceLeftUnder = paper.path(balancePathStr({pos:'left'}));
     balanceRightUnder = paper.path(balancePathStr({pos:'right'}));
@@ -165,10 +175,12 @@ function InfoBar(elemName) {
     healthDelta.attr({fill:negDeltaColour, stroke:'none'});
     healthBar.attr({fill:healthColour, stroke:'none'});
     healthBorder.attr({stroke:healthColour, 'stroke-width': 1});
+    healthText.attr({fill:'white'});
 
     healthDelta.attr({fill:negDeltaColour, stroke:'none'});
     manaBar.attr({fill:manaColour});
     manaBorder.attr({stroke:manaColour, 'stroke-width': 1});
+    manaText.attr({fill:'white'});
 
     balanceLeftUnder.attr({fill:'white', stroke:'none'});
     balanceRightUnder.attr({fill:'white', stroke:'none'});
@@ -224,9 +236,18 @@ function InfoBar(elemName) {
   });
 
   self.setMaxima = function (newHealthMax, newManaMax) {
-    if(newHealthMax !== healthMax || newManaMax !== manaMax) {
+    let dirty = false;
+    if(newHealthMax !== healthMax) {
       healthMax = newHealthMax;
+      healthText.attr('text', health + ' / ' + healthMax);
+      dirty = true;
+    }
+    if(newManaMax !== manaMax) {
       manaMax = newManaMax;
+      manaText.attr('text', mana + ' / ' + manaMax);
+      dirty = true;
+    }
+    if(dirty) {
       cleanRender();
     }
   };
@@ -293,6 +314,7 @@ function InfoBar(elemName) {
       let oldHealth = health;
       let oldHealthFraction = healthFraction;
       health = x;
+      healthText.attr('text', health + ' / ' + healthMax);
       healthFraction = health / healthMax;
       animateBar(healthBar, healthDelta, healthBorder, 'left', oldHealthFraction, healthFraction, healthColour);
     }
@@ -303,6 +325,7 @@ function InfoBar(elemName) {
       let oldMana = mana;
       let oldManaFraction = manaFraction;
       mana = x;
+      manaText.attr('text', mana + ' / ' + manaMax);
       manaFraction = mana / manaMax;
       animateBar(manaBar, manaDelta, manaBorder, 'right', oldManaFraction, manaFraction, manaColour);
     }
