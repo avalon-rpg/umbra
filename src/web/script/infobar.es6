@@ -132,7 +132,8 @@ function InfoBar(elemName) {
     barVertMargin = (paperHeight - barHeight) / 2; //3u
 
     //crescentWidth = 11*u;
-    crescentWidth = 16*u;
+    //crescentWidth = 16*u;
+    crescentWidth = paperWidth/6;
     balanceHalfHeight = 7*u;
     balanceHeight = balanceHalfHeight * 2;
     balanceIntRadius = barHalfHeight;
