@@ -44,7 +44,7 @@ AvParser.prototype.init = function(shadowclient) {
   let mapLoc = '';
   let mapLines = [];
   let umbraMsg = false;
-  let inMacroList = false;
+//  let inMacroList = false;
   let promptExtraVars = {};
 
   const emit = function() {
@@ -160,24 +160,36 @@ AvParser.prototype.init = function(shadowclient) {
         umbraMsg = true;
       }
     },{
-      regex: /^(\d+) (.*)$/,
-      cond: () => inMacroList,
+      regex: /^###ack macro@ ###id=(\d+) ###name=(.+) ###definition=(.*)$/,
       func: function(match) {
         appendOutput({
-          qual:    'protocol',
-          code:    'macro',
-          content:  match[0],
-          macroId:  match[1],
-          macroDef: match[2]
+          qual:     'protocol',
+          code:     'macro',
+          content:   match[0],
+          macroId:   match[1],
+          macroName: match[2],
+          macroDef:  match[3]
         });
       }
+    //},{
+    //  regex: /^(\d+) (.*)$/,
+    //  cond: () => inMacroList,
+    //  func: function(match) {
+    //    appendOutput({
+    //      qual:    'protocol',
+    //      code:    'macro',
+    //      content:  match[0],
+    //      macroId:  match[1],
+    //      macroDef: match[2]
+    //    });
+    //  }
     },{
       regex: /^###macro (\d+) (.*)$/,
       func: function(match) {
         appendOutput({
           qual:    'protocol',
           code:    'macro',
-          content:  match[1] + ' ' + match[2],
+          content:  match[0],
           macroId:  match[1],
           macroDef: match[2]
         });
@@ -249,11 +261,11 @@ AvParser.prototype.init = function(shadowclient) {
             newBlock[key] = value.trim();
           }
         }
-        if(newBlock.cmd && newBlock.cmd === 'MACROLIST') {
-          inMacroList = true;
-        } else {
+        //if(newBlock.cmd && newBlock.cmd === 'MACROLIST') {
+        //  inMacroList = true;
+        //} else {
           blockStack.push(newBlock);
-        }
+        //}
       }
     },{
       regex: /^###end@.*$/,
@@ -473,17 +485,69 @@ AvParser.prototype.init = function(shadowclient) {
       }
     },{
       regex: /^(\S+) has just stepped within your sphere of control\.$/,
-      func: function(match) {
+      func: function(match, rawLine) {
         var who = match[1].toLowerCase().replace('(','').replace(')','');
         appendOutput({
           qual: 'line',
-          line:  match[0],
-          who: who,
+          line:  rawLine,
+          who:   who,
           tags:  ['sphere-movement', 'sphere-entry', 'person-' + who]
+        });
+      }
+    },{
+      regex: /^The ethereal flow continues to be absorbed into your seedpod: (\d+) seeds absorbed into (\d+) potency within the pod\.$/,
+      func: function(match, rawLine) {
+        appendOutput({
+          qual: 'line',
+          line:  rawLine,
+          replacableId: 'oracle-pod-absorb-self'
+        });
+      }
+    },{
+      regex: /^You note marks of your own ethereal seed below. You allow an ethereal seed of ether to fall through the oracle-eye. The seed markings at "(.+)" now number (.+)\.$/,
+      func: function(match, rawLine) {
+        appendOutput({
+          qual: 'line',
+          line:  rawLine,
+          replacableId: 'oracle-marking-' + match[1].replace(' ', '-')
+        });
+      }
+    },{
+      regex: /^Below at "(.+)" the ether continue to twine and thicken about the (.+), the wall (.*) percent towards completion\.$/,
+      func: function(match, rawLine) {
+        let dirn = match[2];
+        appendOutput({
+          qual: 'line',
+          line:  rawLine,
+          replacableId: 'oracle-wall-building-' + dirn
+        });
+      }
+    },{
+      regex: /^The oracle-eye focus is unusually sharp as it draws up a sparkling flow of ether from the (.+) of "(.+)", directing it (.*) to gather density; (.*) percent complete\.$/,
+      func: function(match, rawLine) {
+        let dirn1 = match[1];
+        let dirn2 = match[3];
+        appendOutput({
+          qual: 'line',
+          line:  rawLine,
+          replacableId: 'oracle-raising-' + dirn1 + '-' + dirn2
+        });
+      }
+    },{
+      regex: /^Ether continues to flow through the eye, from the (.+) region to "(.+)" below. The supercharged particles gather at the (.+), enlarging (\d+)% of the ethereal creation\.$/,
+      func: function(match, rawLine) {
+        let dirn1 = match[1];
+        let dirn2 = match[3];
+        appendOutput({
+          qual: 'line',
+          line:  rawLine,
+          replacableId: 'oracle-lowering-' + dirn1 + '-' + dirn2
         });
       }
     }
   ];
+
+
 
 
 // Your rune-bug picks up words: Billum asks, "Did you find an emerald?"
@@ -522,7 +586,7 @@ AvParser.prototype.init = function(shadowclient) {
 
   let onPrompt = function(prompt) {
     umbraMsg = false;
-    inMacroList = false;
+    //inMacroList = false;
     if(inMap) { endMapFor('unknown'); }
     flushOutput(prompt);
   };

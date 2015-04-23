@@ -201,10 +201,17 @@ function InfoBar(elemName) {
     healthDelta.attr({path:barPathStr({pos:'left', fraction: 0.01})});
     healthBar.attr({path:barPathStr({pos:'left', fraction: healthFraction})});
     healthBorder.attr({path:barPathStr({pos:'left'})});
+    let hbb = healthBorder.getBBox();
+    let hCtr = hbb.x + ( (hbb.x2 - hbb.x)/2 );
+    healthText = paper.attr('x', hCtr);
+
 
     manaDelta.attr({path:barPathStr({pos:'right', fraction: 0.01})});
     manaBar.attr({path:barPathStr({pos:'right', fraction: manaFraction})});
     manaBorder.attr({path:barPathStr({pos:'right'})});
+    let mbb = manaBorder.getBBox();
+    let mCtr = mbb.x + ( (mbb.x2 - mbb.x)/2 );
+    manaText = paper.attr('x', mCtr);
 
     balanceLeftUnder.attr({path:balancePathStr({pos:'left'})});
     balanceRightUnder.attr({path:balancePathStr({pos:'right'})});

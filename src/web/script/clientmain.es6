@@ -281,9 +281,15 @@ $(function() {
   function mkLine (data) {
     //if(prevMsgType === 'prompt') { addPromptMark(); }
 
+    if(data.hasOwnProperty('replacableId')) {
+      $('.' + data.replacableId).remove();
+    }
+
     if(data.tags && data.who && data.tags.indexOf("sphere-movement") >= 0) {
       var previous = $('.sphere-movement.person-'+data.who).remove();
     }
+
+
     var cssClasses = '';
     if(data.tags && data.tags.length > 0) {
       cssClasses = data.tags.join(' ');
@@ -293,6 +299,9 @@ $(function() {
     var msghtml = styler.style(data.line);
 
     var $el = $('<div class="' + cssClasses + '">').addClass('line').html(msghtml);
+    if(data.hasOwnProperty('replacableId')) {
+      $el.addClass(data.replacableId);
+    }
     if($el.text().trim() === "") {
       return null;
     } else {
