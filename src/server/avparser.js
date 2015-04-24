@@ -509,7 +509,7 @@ AvParser.prototype.init = function(shadowclient) {
         appendOutput({
           qual: 'line',
           line:  rawLine,
-          replacableId: 'oracle-marking-' + match[1].replace(/\w/g, '-').replace(/'/g, "").replace(/"/g, '')
+          replacableId: 'oracle-marking-' + match[1].replace(/\s/g, '-').replace(/'/g, "").replace(/"/g, '')
         });
       }
     },{
@@ -551,6 +551,16 @@ AvParser.prototype.init = function(shadowclient) {
           qual: 'line',
           line:  rawLine,
           replacableId: 'oracle-othermarks-' + match[1]
+        });
+      }
+    },{
+      regex: /^The battle for supremacy with (.*) over "(.*)" continues: (.*) further focus bouts and the attack (.*) will be completed, permanently expanding the (.*) sphere of control\.$/,
+      func: function(match, rawLine) {
+        let dirn = match[4];
+        appendOutput({
+          qual: 'line',
+          line:  rawLine,
+          replacableId: 'far-attack-' + dirn
         });
       }
     }
