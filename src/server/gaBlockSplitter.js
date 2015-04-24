@@ -44,7 +44,7 @@ function GaBlockSplitter(params) {
 
   let setFlushTimeout = function() {
     clearFlushTimeout();
-    setTimeout(onFlushTimeout, 600);
+    setTimeout(onFlushTimeout, 1000);
   };
 
   let processBlock = function(text, isClean) {

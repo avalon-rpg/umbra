@@ -509,7 +509,7 @@ AvParser.prototype.init = function(shadowclient) {
         appendOutput({
           qual: 'line',
           line:  rawLine,
-          replacableId: 'oracle-marking-' + match[1].replace(' ', '-')
+          replacableId: 'oracle-marking-' + match[1].replace(/\w/g, '-').replace(/'/g, "").replace(/"/g, '')
         });
       }
     },{
@@ -542,6 +542,15 @@ AvParser.prototype.init = function(shadowclient) {
           qual: 'line',
           line:  rawLine,
           replacableId: 'oracle-lowering-' + dirn1 + '-' + dirn2
+        });
+      }
+    },{
+      regex: /^(.+) has dropped seed markings below\.$/,
+      func: function(match, rawLine) {
+        appendOutput({
+          qual: 'line',
+          line:  rawLine,
+          replacableId: 'oracle-othermarks-' + match[1]
         });
       }
     }

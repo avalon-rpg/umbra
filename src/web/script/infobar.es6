@@ -425,56 +425,18 @@ function InfoBar(elemName) {
   };
 
   function bindEventsFor(name, elems) {
-    bindClick(name, elems);
-    bindDblClick(name, elems);
-    bindTouchStart(name, elems);
-    bindTouchMove(name, elems);
-    bindTouchEnd(name, elems);
-    bindTouchCancel(name, elems);
+    bindClick(elems, function(e) { console.log(name + ' clicked, e=' + JSON.stringify(e)); });
+    bindTouchStart(elems, function (e) { console.log(name + ' touch start, e=' + JSON.stringify(e)); });
+    bindTouchMove(elems, function(e) { console.log(name + ' touch move, e=' + JSON.stringify(e)); });
+    bindTouchEnd(elems, function(e) { console.log(name + ' touch end, e=' + JSON.stringify(e)); });
+    bindTouchCancel(elems, function(e) { console.log(name + ' touch cancel, e=' + JSON.stringify(e)); });
   }
 
-
-  function bindClick(name, elems) {
-    let handler = function(e) {
-      console.log(name + ' clicked, e=' + JSON.stringify(e));
-    };
-    elems.forEach(function (elem) {elem.click(handler);});
-  }
-
-  function bindDblClick(name, elems) {
-    let handler = function (e) {
-      console.log(name + ' double-clicked, e=' + JSON.stringify(e));
-    };
-    elems.forEach(function (elem) {elem.dblclick(handler);});
-  }
-
-  function bindTouchStart(name, elems) {
-    let handler = function (e) {
-      console.log(name + ' touch start, e=' + JSON.stringify(e));
-    };
-    elems.forEach(function (elem) {elem.touchstart(handler);});
-  }
-
-  function bindTouchMove(name, elems) {
-    let handler = function(e) {
-      console.log(name + ' touch move, e=' + JSON.stringify(e));
-    };
-    elems.forEach(function (elem) {elem.touchmove(handler);});
-  }
-
-  function bindTouchEnd(name, elems) {
-    let handler = function(e) {
-      console.log(name + ' touch end, e=' + JSON.stringify(e));
-    };
-    elems.forEach(function (elem) {elem.touchend(handler);});
-  }
-
-  function bindTouchCancel(name, elems) {
-    let handler = function(e) {
-      console.log(name + ' touch cancel, e=' + JSON.stringify(e));
-    };
-    elems.forEach(function (elem) {elem.touchcancel(handler);});
-  }
+  function bindClick(elems, handler) { elems.forEach(function (elem) {elem.click(handler);}); }
+  function bindTouchStart(elems, handler) { elems.forEach(function (elem) {elem.touchstart(handler);}); }
+  function bindTouchMove(elems, handler) { elems.forEach(function (elem) {elem.touchmove(handler);}); }
+  function bindTouchEnd(elems, handler) { elems.forEach(function (elem) {elem.touchend(handler);}); }
+  function bindTouchCancel(elems, handler) { elems.forEach(function (elem) {elem.touchcancel(handler);}); }
 
   setup();
 }
