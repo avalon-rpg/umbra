@@ -1230,6 +1230,12 @@ $(function() {
   });
 
   window.infobar = new InfoBar('infobar');
+  $(window.infobar).on('healthClicked', function (e,data) {
+    console.log('health clicked: ' + JSON.stringify(data));
+  });
+  $(window.infobar).on('manaClicked', function (e,data) {
+    console.log('mana clicked: ' + JSON.stringify(data));
+  });
 
   $(window).bind('beforeunload', function() {
     return 'You\'re about to navigate away and disconnect avalon.\n\n' +

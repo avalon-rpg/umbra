@@ -2,6 +2,7 @@
 function InfoBar(elemName) {
   let $elem = $('#' + elemName);
   let self = this;
+  let $self = $(self);
 
   let health = 1;
   let healthMax = 100;
@@ -190,6 +191,22 @@ function InfoBar(elemName) {
   }
 
   function bindAllEvents() {
+    bindClick([healthDelta,healthBar,healthBorder], function fn() {
+      $self.trigger("healthClicked", {
+        health: health,
+        healthMax: healthMax,
+        ratio: health/healthMax
+      });
+    });
+    bindClick([manaDelta,manaBar,manaBorder], function fn() {
+      $self.trigger("manaClicked", {
+        mana: mana,
+        manaMax: manaMax,
+        ratio: mana/manaMax
+      });
+    });
+
+    //these don't bind click
     bindEventsFor('health', [healthDelta,healthBar,healthBorder]);
     bindEventsFor('mana', [manaDelta,manaBar,manaBorder]);
   }
@@ -234,13 +251,7 @@ function InfoBar(elemName) {
     resizeElems();
   }
 
-  $(window).resize(function(e) {
-    console.log('infobar sizing from ' + paperWidth + ' to ' + $elem.width());
-    if ($elem.width() !== paperWidth) {
-      paperWidth = $elem.width();
-      cleanRender();
-    }
-  });
+
 
   self.setMaxima = function (newHealthMax, newManaMax) {
     let dirty = false;
@@ -425,7 +436,6 @@ function InfoBar(elemName) {
   };
 
   function bindEventsFor(name, elems) {
-    bindClick(elems, function(e) { console.log(name + ' clicked, e=' + JSON.stringify(e)); });
     bindTouchStart(elems, function (e) { console.log(name + ' touch start, e=' + JSON.stringify(e)); });
     bindTouchMove(elems, function(e) { console.log(name + ' touch move, e=' + JSON.stringify(e)); });
     bindTouchEnd(elems, function(e) { console.log(name + ' touch end, e=' + JSON.stringify(e)); });
@@ -439,5 +449,13 @@ function InfoBar(elemName) {
   function bindTouchCancel(elems, handler) { elems.forEach(function (elem) {elem.touchcancel(handler);}); }
 
   setup();
+
+  $(window).resize(function(e) {
+    console.log('infobar sizing from ' + paperWidth + ' to ' + $elem.width());
+    if ($elem.width() !== paperWidth) {
+      paperWidth = $elem.width();
+      cleanRender();
+    }
+  });
 }
 
