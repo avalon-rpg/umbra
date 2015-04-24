@@ -1235,7 +1235,7 @@ $(function() {
     umbra.protocol[data.code] = data.content;
   });
 
-  screenreader = getParameterByName('screenreader');
+  screenreader = getParameterByName('screenreader') === 'true';
   if(screenreader) {
     $('#prompt-bar').removeClass('hidden');
     $('#infobar').addClass('hidden');
