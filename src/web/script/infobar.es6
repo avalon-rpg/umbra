@@ -220,7 +220,7 @@ function InfoBar(elemName) {
     healthBorder.attr({path:barPathStr({pos:'left'})});
     let hbb = healthBorder.getBBox();
     let hCtr = hbb.x + ( (hbb.x2 - hbb.x)/2 );
-    healthText = paper.attr('x', hCtr);
+    healthText.attr('x', hCtr);
 
 
     manaDelta.attr({path:barPathStr({pos:'right', fraction: 0.01})});
@@ -228,7 +228,7 @@ function InfoBar(elemName) {
     manaBorder.attr({path:barPathStr({pos:'right'})});
     let mbb = manaBorder.getBBox();
     let mCtr = mbb.x + ( (mbb.x2 - mbb.x)/2 );
-    manaText = paper.attr('x', mCtr);
+    manaText.attr('x', mCtr);
 
     balanceLeftUnder.attr({path:balancePathStr({pos:'left'})});
     balanceRightUnder.attr({path:balancePathStr({pos:'right'})});
