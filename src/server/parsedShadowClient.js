@@ -61,6 +61,11 @@ ParsedShadowClient.prototype.init = function(params) {
   parser.on('protocol', function (data) {
     self.emit('protocol', data);
   });
+
+  parser.on('forceClientClose', function (data) {
+    sc.forceClose();
+    self.emit('avalon disconnected', false);
+  });
 };
 
 

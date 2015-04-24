@@ -504,12 +504,23 @@ AvParser.prototype.init = function(shadowclient) {
         });
       }
     },{
-      regex: /^You note marks of your own ethereal seed below. You allow an ethereal seed of ether to fall through the oracle-eye. The seed markings at "(.+)" now number (.+)\.$/,
+      regex: /^You note marks of your own ethereal seed below. Ethereal marking at "(.*)" now at: (\d+)\.$/,
       func: function(match, rawLine) {
+        let loc = match[1].replace(/\s/g, '-').replace(/'/g, "").replace(/"/g, '');
         appendOutput({
           qual: 'line',
           line:  rawLine,
-          replacableId: 'oracle-marking-' + match[1].replace(/\s/g, '-').replace(/'/g, "").replace(/"/g, '')
+          replacableId: 'oracle-marking-' + loc
+        });
+      }
+    },{
+      regex: /^You note marks of your own ethereal seed below. You allow an ethereal seed of ether to fall through the oracle-eye. The seed markings at "(.+)" now number (.+)\.$/,
+      func: function(match, rawLine) {
+        let loc = match[1].replace(/\s/g, '-').replace(/'/g, "").replace(/"/g, '');
+        appendOutput({
+          qual: 'line',
+          line:  rawLine,
+          replacableId: 'oracle-marking-' + loc
         });
       }
     },{
@@ -525,12 +536,22 @@ AvParser.prototype.init = function(shadowclient) {
     },{
       regex: /^The oracle-eye focus is unusually sharp as it draws up a sparkling flow of ether from the (.+) of "(.+)", directing it (.*) to gather density; (.*) percent complete\.$/,
       func: function(match, rawLine) {
-        let dirn1 = match[1];
-        let dirn2 = match[3];
+        let srcdirn = match[1];
+        let tgtdirn = match[3];
         appendOutput({
           qual: 'line',
           line:  rawLine,
-          replacableId: 'oracle-raising-' + dirn1 + '-' + dirn2
+          replacableId: 'oracle-raising-' + tgtdirn
+        });
+      }
+    },{
+      regex: /^(.+) is fully manifested at the (.+) reaches of the wind; the last of the sparkling flow having passed up through the oracle-eye.$/,
+      func: function(match, rawLine) {
+        let tgtdirn = match[2];
+        appendOutput({
+          qual: 'line',
+          line:  rawLine,
+          replacableId: 'oracle-raising-' + tgtdirn
         });
       }
     },{
@@ -562,6 +583,11 @@ AvParser.prototype.init = function(shadowclient) {
           line:  rawLine,
           replacableId: 'far-attack-' + dirn
         });
+      }
+    },{
+      regex: /^Log-out to clear connection if your client does not automatically do so\.$/,
+      func: function(match, rawLine) {
+        emit('forceClientClose');
       }
     }
   ];

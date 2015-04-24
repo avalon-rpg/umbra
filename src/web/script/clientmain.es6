@@ -43,6 +43,8 @@ function getParameterByName(name) {
 $(function() {
   let lastInput = "";
 
+  let screenreader = false;
+
   let FADE_TIME = 150; // ms
 
   let loginValidator;
@@ -843,17 +845,21 @@ $(function() {
       let parts = splitOne[0].split(' ');
       let side = parts[1];
       let recoveryTime = parts[2] * 10;
-      if(side === 'right') {
-        window.infobar.loseRightBalance(recoveryTime);
-      } else {
-        window.infobar.loseLeftBalance(recoveryTime);
+      if(!screenreader) {
+        if (side === 'right') {
+          window.infobar.loseRightBalance(recoveryTime);
+        } else {
+          window.infobar.loseLeftBalance(recoveryTime);
+        }
       }
     } else if(text.indexOf('equilibrium') === 0) {
       let splitOne = text.split('@');
       let parts = splitOne[0].split(' ');
       let hardOrSoft = parts[1];
       let recoveryTime = parts[2] * 10;
-      window.infobar.loseEq(hardOrSoft, recoveryTime);
+      if(!screenreader) {
+        window.infobar.loseEq(hardOrSoft, recoveryTime);
+      }
     }
   }
 
@@ -956,7 +962,7 @@ $(function() {
       console.log(data);
     }
 
-    if(data.promptVars) {
+    if(data.promptVars && !screenreader) {
       let pv = data.promptVars;
       if(umbra.get("debug")) { console.log(pv); }
       let ib = window.infobar;
@@ -1229,13 +1235,19 @@ $(function() {
     umbra.protocol[data.code] = data.content;
   });
 
-  window.infobar = new InfoBar('infobar');
-  $(window.infobar).on('healthClicked', function (e,data) {
-    console.log('health clicked: ' + JSON.stringify(data));
-  });
-  $(window.infobar).on('manaClicked', function (e,data) {
-    console.log('mana clicked: ' + JSON.stringify(data));
-  });
+  screenreader = getParameterByName('screenreader');
+  if(screenreader) {
+    $('#prompt-bar').removeClass('hidden');
+    $('#infobar').addClass('hidden');
+  } else {
+    window.infobar = new InfoBar('infobar');
+    $(window.infobar).on('healthClicked', function (e, data) {
+      console.log('health clicked: ' + JSON.stringify(data));
+    });
+    $(window.infobar).on('manaClicked', function (e, data) {
+      console.log('mana clicked: ' + JSON.stringify(data));
+    });
+  }
 
   $(window).bind('beforeunload', function() {
     return 'You\'re about to navigate away and disconnect avalon.\n\n' +

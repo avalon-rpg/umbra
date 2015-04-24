@@ -157,6 +157,15 @@ ShadowClient.prototype.close = function() {
   }
 };
 
+ShadowClient.prototype.forceClose = function() {
+  if(this.connected) {
+    this.conn.end();
+    this.connected = false;
+    this.conn = null;
+  }
+};
+
+
 ShadowClient.prototype.pause = function() {
   if (this.connected) {
     this.conn.write('aura who on\r\n');
