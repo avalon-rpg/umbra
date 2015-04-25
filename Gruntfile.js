@@ -40,7 +40,8 @@ module.exports = function(grunt) {
     'src/web/thirdparty/jquery-validation/jquery.validate.min.js',
     'src/web/thirdparty/jquery.nanoscroller.js',
     'src/web/thirdparty/screenfull.js',
-    'src/web/thirdparty/typeahead.bundle.min.js'
+    'src/web/thirdparty/typeahead.bundle.min.js',
+    'src/web/thirdparty/interact-1.2.4.min.js'
     //'src/web/thirdparty/modernizr.js'
   ];
 

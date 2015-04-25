@@ -788,6 +788,7 @@ $(function() {
     }
     // Display the welcome message
     log('Welcome to Umbra - You are now connected to Avalon', { prepend: true });
+    $('#buttonbit').removeClass('hidden');
   });
 
   socket.on('login failure', function (msg) {
@@ -809,7 +810,8 @@ $(function() {
     log('*** AVALON DISCONNECTED ***');
     connected = false;
 
-    $('.messages').append($loginForm);
+    $('.messages').append($loginForm);s
+    $('#buttonbit').addClass('hidden');
     showLoginBox();
     $outputBox[0].scrollTop = $outputBox[0].scrollHeight;
     $(".nano").nanoScroller();
@@ -894,13 +896,22 @@ $(function() {
     } else if(code === 'alignment') {
       $('#alignment-stat').text(content);
     } else if(code === 'macro') {
+      let $btn = $('#macrobtn-' + data.macroId);
       if(data.macroDef === 'NO CONTENT') {
+        $btn.addClass('hidden');
         delete macros[data.macroId];
       } else {
+        $btn.removeClass('hidden');
         macros[data.macroId] = data.macroDef;
       }
     }
   }
+
+  $('.macrobtn').click(function() {
+    let macroId = $(this).attr("data-macroId");
+    sendMessage(macroId);
+    return false;
+  });
 
   let commsTypes = {
     'calling from':        { commsClasses: 'from',  iconClasses: 'comment'    },
@@ -1248,6 +1259,59 @@ $(function() {
       console.log('mana clicked: ' + JSON.stringify(data));
     });
   }
+
+  function dragMoveListener (event) {
+    var target = event.target,
+    // keep the dragged position in the data-x/data-y attributes
+      x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+      y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+    // translate the element
+    target.style.webkitTransform =
+      target.style.transform =
+        'translate(' + x + 'px, ' + y + 'px)';
+
+    // update the posiion attributes
+    target.setAttribute('data-x', x);
+    target.setAttribute('data-y', y);
+  }
+
+  interact('#buttonbit')
+    .draggable({
+      onmove: dragMoveListener,
+      restrict: {
+        restriction: "parent",
+        endOnly: false,
+        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+      }
+    })
+    .resizable({
+      edges: { left: true, right: true, bottom: true, top: true },
+      restrict: {
+        restriction: "parent",
+        endOnly: false,
+        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+      }
+    })
+    .on('resizemove', function (event) {
+      let target = event.target;
+      let x = (parseFloat(target.getAttribute('data-x')) || 0);
+      let y = (parseFloat(target.getAttribute('data-y')) || 0);
+
+      // update the element's style
+      target.style.width  = event.rect.width + 'px';
+      target.style.height = event.rect.height + 'px';
+
+      // translate when resizing from right or top edges
+      x += event.deltaRect.right;
+      y += event.deltaRect.top;
+      //
+      target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+
+      target.setAttribute('data-x', x);
+      target.setAttribute('data-y', y);
+      //target.textContent = event.rect.width + '×' + event.rect.height;
+    });
 
   $(window).bind('beforeunload', function() {
     return 'You\'re about to navigate away and disconnect avalon.\n\n' +
