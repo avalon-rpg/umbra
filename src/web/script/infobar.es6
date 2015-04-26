@@ -74,9 +74,33 @@ function InfoBar(elemName) {
     return "A" + radii + xAxisRot + flags + endCoords;
   }
 
-  function eqPathStr(radius) {
+  //function eqPathStr(radius) {
+  //  var top = paperMidY + radius;
+  //  var bottom = paperMidY - radius;
+  //  var pos = params.pos || 'left';
+  //  var isLeft = (pos === 'left');
+  //  //alert(pos);
+  //  var midIndent = crescentWidth + (midOffset) + 4*u;
+  //  var xStart = isLeft ? paperMidX - midIndent : paperMidX + midIndent;
+  //  var xMax = isLeft ? 3*u : (paperWidth - (3*u));
+  //  var maxWidth = xMax-xStart;
+  //
+  //  //alert(maxwidth);
+  //  var fraction = params.hasOwnProperty('fraction') ? params.fraction : 1.0;
+  //  var xEnd = xMax - (maxWidth*(1-fraction));
+  //  //alert(startx +  " " + endx + " " + maxx);
+  //
+  //  var startPath = "M" + xStart + "," + bottom;
+  //  var startCap = arcTo(xStart, top, balanceExtRadius, isLeft ? 1 : 0);
+  //  var topLine = "L" + xEnd + "," + top;
+  //  var midCap = arcTo(xEnd, bottom, balanceExtRadius, isLeft ? 0 : 1);
+  //  var bottomLine = "L" + xStart + "," + bottom;
+  //  var endPath = "Z";
+  //  var str = startPath + startCap + topLine + midCap + bottomLine + endPath;
+  //  //alert(str);
+  //  return str;
+  //}
 
-  }
   function barPathStr(params) {
     var top = (paperHeight-barHeight) / 2;
     var bottom = paperHeight - top;
@@ -111,11 +135,15 @@ function InfoBar(elemName) {
     let isLeft = (pos === 'left');
     var xInner = paperMidX + (isLeft ? -(midOffset) : (midOffset));
 
-    let cw = (params.empty) ? 0.5 : crescentWidth;
-    let xOuter = xInner + (isLeft ? -cw : cw);
+    //let cw = (params.empty) ? 0.5 : crescentWidth;
+    let xOuter = xInner + (isLeft ? -crescentWidth : crescentWidth);
+
+    if(params.endState) {
+      xInner = xOuter;
+    }
 
     let startPath = "M" + xInner + "," + bottom;
-    let innerCap = arcTo(xInner, top, balanceIntRadius, isLeft ? 1 : 0);
+    let innerCap = arcTo(xInner, top, balanceExtRadius, isLeft ? 1 : 0);
     let topLine = "L" + xOuter + "," + top;
     let outerCap = arcTo(xOuter, bottom, balanceExtRadius, isLeft ? 0 : 1);
     let bottomLine = "L" + xInner + "," + bottom;
@@ -391,14 +419,14 @@ function InfoBar(elemName) {
       gotLeftBalance = false;
       balanceLeft.attr(
         {
-          path: balancePathStr({pos:'left', empty:true}),
+          path: balancePathStr({pos:'left', endState:false}),
           fill: 'red'
         }
       );
       if(restoreTime && restoreTime > 0) {
         balanceLeft.animate(
           {
-            path:balancePathStr({pos:'left', empty:false})
+            path:balancePathStr({pos:'left', endState:true})
           },
           restoreTime,
           'linear'
@@ -413,7 +441,7 @@ function InfoBar(elemName) {
       gotLeftBalance = true;
       balanceLeft.attr(
         {
-          path:balancePathStr({pos:'left', empty:false}),
+          path:balancePathStr({pos:'left', endState:false}),
           fill: 'none'
         }
       );
@@ -426,14 +454,14 @@ function InfoBar(elemName) {
       gotRightBalance = false;
       balanceRight.attr(
         {
-          path: balancePathStr({pos:'right', empty:true}),
+          path: balancePathStr({pos:'right', endState:false}),
           fill: 'red'
         }
       );
       if(restoreTime && restoreTime > 0) {
         balanceRight.animate(
           {
-            path: balancePathStr({pos:'right', empty:false})
+            path: balancePathStr({pos:'right', endState:true})
           },
           restoreTime,
           'linear'
@@ -448,7 +476,7 @@ function InfoBar(elemName) {
       gotRightBalance = true;
       balanceRight.attr(
         {
-          path: balancePathStr({pos:'right', empty:false}),
+          path: balancePathStr({pos:'right', endState:false}),
           fill: 'none'
         }
       );
