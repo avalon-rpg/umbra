@@ -39,7 +39,6 @@ ParsedShadowClient.prototype.init = function(params) {
       sc.write('protocol on\r\n');
       ///should really be ###whatmacros, but that's currently broken
       //sc.write('macrolist\r\n');
-      sc.write('###ack macros\r\n');
     } else {
       sc.close();
     }

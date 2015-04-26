@@ -86,10 +86,12 @@ io.on('connection', function (socket) {
       socket.emit("connect game ok");
       let fnReplay = function(blk) { socket.emit('block', blk); };
       if(params.replayFrom) {
-        cli.replayFrom(params.replayFrom, fnReplay);
+        shadowclient.replayFrom(params.replayFrom, fnReplay);
       } else {
-        cli.replay(fnReplay);
+        shadowclient.replay(fnReplay);
       }
+      //shadowclient.write('###ack macros\r\n');
+      shadowclient.write('MM\r\n');
       let protoState = cli.protocolState();
       if(protoState) {
         for (let code in protoState) {

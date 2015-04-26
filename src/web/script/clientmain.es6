@@ -897,7 +897,7 @@ $(function() {
       $('#alignment-stat').text(content);
     } else if(code === 'macro') {
       let $btn = $('#macrobtn-' + data.macroId);
-      if(data.macroDef === 'NO CONTENT') {
+      if(data.macroDef === 'NO CONTENT' || data.macroDef === '') {
         $btn.addClass('hidden');
         delete macros[data.macroId];
       } else {
@@ -986,7 +986,7 @@ $(function() {
       if(pv.flags.indexOf('y') < 0) { ib.regainRightBalance(); }
     }
 
-    if(data.promptExtraVars) {
+    if(data.promptExtraVars || data.promptExtraVars.length > 0) {
 
       let newVisibleExtraVars = {};
 
@@ -1189,7 +1189,12 @@ $(function() {
           entry.fn();
           return false;
         } else if (entry.cmd) {
-          sendMessage(entry.cmd);
+          if(e.ctrlKey) {
+            let prefix = $inputBox.val() + ' ';
+            sendMessage(prefix + entry.cmd);
+          } else {
+            sendMessage(entry.cmd);
+          }
           if (umbra.get("debug")) { console.log(str); }
           return false;
         }
@@ -1275,6 +1280,15 @@ $(function() {
     target.setAttribute('data-x', x);
     target.setAttribute('data-y', y);
   }
+
+  interact('.macrobtn')
+    .on('tap', function (event) {
+      let $elem = $(event.currentTarget);
+      let macroId = $elem.attr("data-macroId");
+      sendMessage(macroId);
+      $elem.transition('pulse');
+      event.preventDefault();
+    });
 
   interact('#buttonbit')
     .draggable({
