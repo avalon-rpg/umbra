@@ -54,9 +54,9 @@ function InfoBar(elemName) {
 
   let balanceOffset;      //offset from the mid line to start drawing balance segments
   let balanceLeft;        // left balance crescent
-  let balanceLeftUnder;   // left balance crescent underlay
+  let balanceLeftBorder;  // left balance crescent underlay
   let balanceRight;       // right balance crescent
-  let balanceRightUnder;  // right balance crescent underlay
+  let balanceRightBorder; // right balance crescent underlay
 
   let healthFraction = 0;
   let manaFraction = 0;
@@ -164,11 +164,11 @@ function InfoBar(elemName) {
     let mCtr = mbb.x + ( (mbb.x2 - mbb.x)/2 );
     manaText = paper.text(mCtr, paperMidY, 'mana');
 
-    balanceLeftUnder = paper.path(balancePathStr({pos:'left'}));
-    balanceRightUnder = paper.path(balancePathStr({pos:'right'}));
-
     balanceLeft = paper.path(balancePathStr({pos:'left'}));
     balanceRight = paper.path(balancePathStr({pos:'right'}));
+
+    balanceLeftBorder = paper.path(balancePathStr({pos:'left'}));
+    balanceRightBorder = paper.path(balancePathStr({pos:'right'}));
 
     eqCircle.attr({fill:'white', stroke:'none'});
     eqCircleUnder.attr({fill:'white', stroke:'none'});
@@ -183,11 +183,11 @@ function InfoBar(elemName) {
     manaBorder.attr({stroke:manaColour, 'stroke-width': 1});
     manaText.attr({fill:'white'});
 
-    balanceLeftUnder.attr({fill:'white', stroke:'none'});
-    balanceRightUnder.attr({fill:'white', stroke:'none'});
+    balanceLeftBorder.attr({stroke:'white', 'stroke-width': 1});
+    balanceRightBorder.attr({stroke:'white', 'stroke-width': 1});
 
-    balanceLeft.attr({fill:'white', stroke:'none'});
-    balanceRight.attr({fill:'white', stroke:'none'});
+    balanceLeft.attr({fill:'black', stroke:'none'});
+    balanceRight.attr({fill:'black', stroke:'none'});
   }
 
   function bindAllEvents() {
@@ -375,13 +375,18 @@ function InfoBar(elemName) {
   self.loseLeftBalance = function(restoreTime) {
     if(gotLeftBalance) {
       gotLeftBalance = false;
-      balanceLeftUnder.attr({fill: 'red'});
+      //balanceLeftUnder.attr({fill: 'red'});
       balanceLeft.attr(
-        { path:balancePathStr({pos:'left', empty:true}) }
+        {
+          path: balancePathStr({pos:'left', empty:true}),
+          fill: 'red'
+        }
       );
       if(restoreTime && restoreTime > 0) {
         balanceLeft.animate(
-          { path:balancePathStr({pos:'left', empty:false}) },
+          {
+            path:balancePathStr({pos:'left', empty:false})
+          },
           restoreTime,
           'linear'
         );
@@ -393,22 +398,30 @@ function InfoBar(elemName) {
     if(!gotLeftBalance) {
       gotLeftBalance = true;
       balanceLeft.attr(
-        { path:balancePathStr({pos:'left', empty:false}) }
+        {
+          path:balancePathStr({pos:'left', empty:false}),
+          fill: 'none'
+        }
       );
-      balanceLeftUnder.attr({fill: 'white'});
+      //balanceLeftUnder.attr({fill: 'white'});
     }
   };
 
   self.loseRightBalance = function(restoreTime) {
     if(gotRightBalance) {
       gotRightBalance = false;
-      balanceRightUnder.attr({fill: 'red'});
+      //balanceRightUnder.attr({fill: 'red'});
       balanceRight.attr(
-        { path:balancePathStr({pos:'right', empty:true}) }
+        {
+          path: balancePathStr({pos:'right', empty:true}),
+          fill: 'red'
+        }
       );
       if(restoreTime && restoreTime > 0) {
         balanceRight.animate(
-          { path:balancePathStr({pos:'right', empty:false}) },
+          {
+            path: balancePathStr({pos:'right', empty:false})
+          },
           restoreTime,
           'linear'
         );
@@ -420,9 +433,12 @@ function InfoBar(elemName) {
     if(!gotRightBalance) {
       gotRightBalance = true;
       balanceRight.attr(
-        { path:balancePathStr({pos:'right', empty:false}) }
+        {
+          path: balancePathStr({pos:'right', empty:false}),
+          fill: 'none'
+        }
       );
-      balanceRightUnder.attr({fill: 'white'});
+      //balanceRightUnder.attr({fill: 'white'});
     }
   };
 
