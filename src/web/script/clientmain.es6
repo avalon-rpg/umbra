@@ -846,12 +846,17 @@ $(function() {
       let splitOne = text.split('@');
       let parts = splitOne[0].split(' ');
       let side = parts[1];
-      let recoveryTime = parts[2] * 10;
+      let restored = parts[2] === 'OK';
+      let recoveryTime;
+      if(!restored) {
+        recoveryTime = parts[2] * 10;
+      }
+      let item = parts[3];
       if(!screenreader) {
-        if (side === 'right') {
-          window.infobar.loseRightBalance(recoveryTime);
+        if(restored) {
+          window.infobar.regainBalance(side, item);
         } else {
-          window.infobar.loseLeftBalance(recoveryTime);
+          window.infobar.loseBalance(side, recoveryTime, item);
         }
       }
     } else if(text.indexOf('equilibrium') === 0) {

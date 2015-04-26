@@ -52,11 +52,14 @@ function InfoBar(elemName) {
   let manaBar;            // core of the mana bar
   let manaText;
 
-  let balanceOffset;      //offset from the mid line to start drawing balance segments
+  let midOffset;          // offset from the mid line to start drawing balance segments
   let balanceLeft;        // left balance crescent
   let balanceLeftBorder;  // left balance crescent underlay
   let balanceRight;       // right balance crescent
   let balanceRightBorder; // right balance crescent underlay
+
+  let wieldedLeftText;
+  let wieldedRightText;
 
   let healthFraction = 0;
   let manaFraction = 0;
@@ -71,13 +74,16 @@ function InfoBar(elemName) {
     return "A" + radii + xAxisRot + flags + endCoords;
   }
 
+  function eqPathStr(radius) {
+
+  }
   function barPathStr(params) {
     var top = (paperHeight-barHeight) / 2;
     var bottom = paperHeight - top;
     var pos = params.pos || 'left';
     var isLeft = (pos === 'left');
     //alert(pos);
-    var midIndent = crescentWidth + (balanceOffset) + 4*u;
+    var midIndent = crescentWidth + (midOffset) + 4*u;
     var xStart = isLeft ? paperMidX - midIndent : paperMidX + midIndent;
     var xMax = isLeft ? 3*u : (paperWidth - (3*u));
     var maxWidth = xMax-xStart;
@@ -103,7 +109,7 @@ function InfoBar(elemName) {
     let bottom = paperHeight - top;
     let pos = params.pos || 'left';
     let isLeft = (pos === 'left');
-    var xInner = paperMidX + (isLeft ? -(balanceOffset) : (balanceOffset));
+    var xInner = paperMidX + (isLeft ? -(midOffset) : (midOffset));
 
     let cw = (params.empty) ? 0.5 : crescentWidth;
     let xOuter = xInner + (isLeft ? -cw : cw);
@@ -138,11 +144,17 @@ function InfoBar(elemName) {
     crescentWidth = paperWidth/6;
     balanceHalfHeight = 7*u;
     balanceHeight = balanceHalfHeight * 2;
-    //midCutoutWidth = 8*u;
-    midCutoutWidth = 0;
-    balanceOffset = midCutoutWidth / 2;
+    midCutoutWidth = 8*u;
+    //midCutoutWidth = 0;
+    midOffset = midCutoutWidth / 2;
     balanceIntRadius = barHalfHeight;
     balanceExtRadius = balanceIntRadius + (4*u);
+  }
+
+  function horzCentreOf(shape) {
+    let bb = shape.getBBox();
+    let ctr = bb.x + ( (bb.x2 - bb.x)/2 );
+    return ctr;
   }
 
   function generateElems() {
@@ -153,22 +165,21 @@ function InfoBar(elemName) {
     healthDelta = paper.path(barPathStr({pos:'left', fraction: 0.01}));
     healthBar = paper.path(barPathStr({pos:'left', fraction: healthFraction}));
     healthBorder = paper.path(barPathStr({pos:'left'}));
-    let hbb = healthBorder.getBBox();
-    let hCtr = hbb.x + ( (hbb.x2 - hbb.x)/2 );
-    healthText = paper.text(hCtr, paperMidY, 'health');
+    healthText = paper.text(horzCentreOf(healthBorder), paperMidY, 'health');
 
     manaDelta = paper.path(barPathStr({pos:'right', fraction: 0.01}));
     manaBar = paper.path(barPathStr({pos:'right', fraction: manaFraction}));
     manaBorder = paper.path(barPathStr({pos:'right'}));
-    let mbb = manaBorder.getBBox();
-    let mCtr = mbb.x + ( (mbb.x2 - mbb.x)/2 );
-    manaText = paper.text(mCtr, paperMidY, 'mana');
+    manaText = paper.text(horzCentreOf(manaBorder), paperMidY, 'mana');
 
     balanceLeft = paper.path(balancePathStr({pos:'left'}));
     balanceRight = paper.path(balancePathStr({pos:'right'}));
 
     balanceLeftBorder = paper.path(balancePathStr({pos:'left'}));
     balanceRightBorder = paper.path(balancePathStr({pos:'right'}));
+
+    wieldedLeftText = paper.text(horzCentreOf(balanceLeftBorder), paperMidY, 'left');
+    wieldedRightText = paper.text(horzCentreOf(balanceRightBorder), paperMidY, 'right');
 
     eqCircle.attr({fill:'white', stroke:'none'});
     eqCircleUnder.attr({fill:'white', stroke:'none'});
@@ -188,6 +199,9 @@ function InfoBar(elemName) {
 
     balanceLeft.attr({fill:'black', stroke:'none'});
     balanceRight.attr({fill:'black', stroke:'none'});
+
+    wieldedLeftText.attr({fill:'white'});
+    wieldedRightText.attr({fill:'white'});
   }
 
   function bindAllEvents() {
@@ -218,22 +232,21 @@ function InfoBar(elemName) {
     healthDelta.attr({path:barPathStr({pos:'left', fraction: 0.01})});
     healthBar.attr({path:barPathStr({pos:'left', fraction: healthFraction})});
     healthBorder.attr({path:barPathStr({pos:'left'})});
-    let hbb = healthBorder.getBBox();
-    let hCtr = hbb.x + ( (hbb.x2 - hbb.x)/2 );
-    healthText.attr('x', hCtr);
+    healthText.attr('x', horzCentreOf(healthBorder));
 
 
     manaDelta.attr({path:barPathStr({pos:'right', fraction: 0.01})});
     manaBar.attr({path:barPathStr({pos:'right', fraction: manaFraction})});
     manaBorder.attr({path:barPathStr({pos:'right'})});
-    let mbb = manaBorder.getBBox();
-    let mCtr = mbb.x + ( (mbb.x2 - mbb.x)/2 );
-    manaText.attr('x', mCtr);
+    manaText.attr('x', horzCentreOf(manaBorder));
 
-    balanceLeftUnder.attr({path:balancePathStr({pos:'left'})});
-    balanceRightUnder.attr({path:balancePathStr({pos:'right'})});
+    balanceLeftBorder.attr({path:balancePathStr({pos:'left'})});
+    balanceRightBorder.attr({path:balancePathStr({pos:'right'})});
     balanceLeft.attr({path:balancePathStr({pos:'left'})});
     balanceRight.attr({path:balancePathStr({pos:'right'})});
+
+    wieldedLeftText.attr('x', horzCentreOf(balanceLeftBorder));
+    wieldedRightText.attr('x',horzCentreOf(balanceRightBorder));
   }
 
   function setup() {
@@ -372,10 +385,10 @@ function InfoBar(elemName) {
     }
   };
 
-  self.loseLeftBalance = function(restoreTime) {
+  self.loseLeftBalance = function(restoreTime, item) {
+    wieldedLeftText.attr('text', item);
     if(gotLeftBalance) {
       gotLeftBalance = false;
-      //balanceLeftUnder.attr({fill: 'red'});
       balanceLeft.attr(
         {
           path: balancePathStr({pos:'left', empty:true}),
@@ -394,7 +407,8 @@ function InfoBar(elemName) {
     }
   };
 
-  self.regainLeftBalance = function() {
+  self.regainLeftBalance = function(item) {
+    wieldedLeftText.attr('text', item);
     if(!gotLeftBalance) {
       gotLeftBalance = true;
       balanceLeft.attr(
@@ -403,14 +417,13 @@ function InfoBar(elemName) {
           fill: 'none'
         }
       );
-      //balanceLeftUnder.attr({fill: 'white'});
     }
   };
 
-  self.loseRightBalance = function(restoreTime) {
+  self.loseRightBalance = function(restoreTime, item) {
+    wieldedRightText.attr('text', item);
     if(gotRightBalance) {
       gotRightBalance = false;
-      //balanceRightUnder.attr({fill: 'red'});
       balanceRight.attr(
         {
           path: balancePathStr({pos:'right', empty:true}),
@@ -429,7 +442,8 @@ function InfoBar(elemName) {
     }
   };
 
-  self.regainRightBalance = function() {
+  self.regainRightBalance = function(item) {
+    wieldedRightText.attr('text', item);
     if(!gotRightBalance) {
       gotRightBalance = true;
       balanceRight.attr(
@@ -438,8 +452,17 @@ function InfoBar(elemName) {
           fill: 'none'
         }
       );
-      //balanceRightUnder.attr({fill: 'white'});
     }
+  };
+
+  self.loseBalance = function(side, restoreTime, item) {
+    if(side === 'left') {self.loseLeftBalance(restoreTime, item); }
+    else {self.loseRightBalance(restoreTime, item); }
+  };
+
+  self.regainBalance = function(side, item) {
+    if(side === 'left') {self.regainLeftBalance(item); }
+    else {self.regainRightBalance(item); }
   };
 
   self.vars = function() {
