@@ -106,6 +106,7 @@ ul {
 
 .macrobtn {
   display: inline-block;
+  visibility: visible;
   min-width: 60px;
   background: rgba(183, 205, 175, 0.56);
   color: white;
@@ -118,7 +119,8 @@ ul {
 }
 
 .macrobtn.hidden {
-  display:none;
+  display: none;
+  visibility: hidden; //screen-readers sometimes don't honour just display: none
 }
 
 /* Font */
