@@ -4,6 +4,7 @@ function InfoBar(elemName) {
   let self = this;
   let $self = $(self);
 
+
   let health = 1;
   let healthMax = 100;
   let mana = 1;
@@ -68,8 +69,8 @@ function InfoBar(elemName) {
     Params:
       height      : of the bar
       pos         : 'left' or 'right'
-      innerMargin : offset from centre where the segment begins
-      outermargin : offset from the edge where the segment ends
+      innerMargin : offset (in pixels) from centre where the segment begins
+      outermargin : offset (in pixels) from the edge where the segment ends
       valueMax    : maximum value of the bar
       value       : initial value of the bar
       text        : text to displar in the centre of the segment
@@ -77,21 +78,20 @@ function InfoBar(elemName) {
       medColour   : colour when value is over 1/3 and under 2/3
       highColour  : colour when bar is over 2/3
       fullColour  : colour when value is 100%
-      useDeltas   : if the segment should use a delta to illustrate value changes
+      capRadius   : radius of the endcap curve (defaults to endcapRadius)
    */
-  function segment(params) {
+  function Segment(params) {
     let height      = params.height;
     let pos         = params.pos || 'left';
     let innerMargin = params.innerMargin || 0;
-    let outermargin = params.outerMargin || 0;
+    let outerMargin = params.outerMargin || 0;
     let valueMax    = params.valueMax || 1.0;
     let value       = params.value || 0.0;
-    let text        = params.text || '';
     let lowColour   = params.lowColour || 'red';
     let medColour   = params.medColour || 'yellow';
     let highColour  = params.highColour || 'green';
     let fullColour  = params.fullColour || highColour;
-    let useDeltas   = params.useDeltas || false;
+    let capRadius   = params.capRadius || endcapRadius;
 
     //fixed dimensions (because the height never changes)
     let halfHeight = height / 2;
@@ -100,54 +100,131 @@ function InfoBar(elemName) {
     let isLeft = pos === 'left';
 
     //width-dependent dimensions
-    let xStart;
-    let xEnd;
+    let segStart; //pixel coords of the start point
+    let segEnd;   //pixel coords of the end point
+    let widthMax; //width (in pixels) of a bar at valueMax
 
     //elements
-    let $border;
     let $bar;
     let $delta;
+    let $border;
     let $text;
 
-    function pathStr(innerPadding, outerPadding) {
-      let paddedStart = isLeft ? xStart-innerPadding : xStart+innerPadding;
-      let paddedEnd = isLeft ? xEnd+outerPadding : xStart+innerPadding;
+    // min, max scaled relative to valueMax
+    function pathStr(min, max) {
+      let scale = widthMax / valueMax;
+      let barStart = segStart + (min * scale);
+      let barEnd = segStart + (max * scale);
 
-      var midIndent = crescentWidth + (midOffset) + 4*u;
-      var xStart = isLeft ? paperMidX - midIndent : paperMidX + midIndent;
-      var xMax = isLeft ? 3*u : (paperWidth - (3*u));
-      var maxWidth = xMax-xStart;
-
-      //alert(maxwidth);
-      var fraction = params.hasOwnProperty('fraction') ? params.fraction : 1.0;
-      var xEnd = xMax - (maxWidth*(1-fraction));
-      //alert(startx +  " " + endx + " " + maxx);
-
-      var startPath = "M" + xStart + "," + bottom;
-      var startCap = arcTo(xStart, top, endcapRadius, isLeft ? 1 : 0);
-      var topLine = "L" + xEnd + "," + top;
-      var midCap = arcTo(xEnd, bottom, endcapRadius, isLeft ? 0 : 1);
-      var bottomLine = "L" + xStart + "," + bottom;
+      var startPath = "M" + barStart + "," + bottom;
+      var startCap = arcTo(barStart, top, capRadius, isLeft ? 1 : 0);
+      var topLine = "L" + barEnd + "," + top;
+      var midCap = arcTo(barEnd, bottom, capRadius, isLeft ? 0 : 1);
+      var bottomLine = "L" + barStart + "," + bottom;
       var endPath = "Z";
       var str = startPath + startCap + topLine + midCap + bottomLine + endPath;
-      //alert(str);
       return str;
     }
-    function initElements() {
 
+    function initElements() {
+      self.calcDimensions();
+
+      $delta = paper.path(pathStr(valueMax,valueMax));
+      $bar = paper.path(pathStr(0,value));
+      $border = paper.path(pathStr(0,valueMax));
+      $text = paper.text(horzCentreOf($border), paperMidY, params.text || '');
     }
 
     self.calcDimensions = function() {
       if(isLeft) {
-        xStart = paperMidX - params.innerMargin;
-        xEnd = params.outerMargin;
+        segStart = paperMidX - innerMargin;
+        segEnd = outerMargin;
+        widthMax = segStart - segEnd;
       } else {
-        xStart = paperMidX + params.innerMargin;
-        xEnd = paperWidth - params.outerMargin;
+        segStart = paperMidX + innerMargin;
+        segEnd = paperWidth - outerMargin;
+        widthMax = segEnd - segStart;
       }
     };
 
+    self.resizeElems = function() {
+      self.calcDimensions();
 
+      $delta.attr('path', pathStr(valueMax, valueMax));
+      $bar.attr('path', pathStr(0, value));
+      $border.attr('path', pathStr(0, valueMax));
+      $text.attr('x', horzCentreOf($border));
+    };
+
+    self.setMax = function(newMax) {
+      valueMax = newMax;
+      self.resizeElems();
+    };
+
+    function fillColourForValue(v) {
+      let fraction = v / valueMax;
+      if     (fraction < 1/3) { return lowColour; }
+      else if(fraction < 2/3) { return medColour; }
+      else if(fraction < 1)   { return highColour; }
+      else                    { return fullColour;}
+    }
+
+    self.deltaToValue = function(newVal) {
+      let oldVal = value;
+      value = newVal;
+      if(newVal > oldVal) {
+        $delta.attr({
+          path: pathStr(oldVal, newVal),
+          fill: 'white'
+        });
+        $bar.animate(
+          {
+            fill: fillColourForValue(newVal),
+            path: pathStr(0, newVal)
+          },
+          250,
+          'linear'
+        );
+      } else if(newVal < oldVal) {
+        $delta.attr({
+          path: pathStr(newVal, oldVal),
+          fill: 'red'
+        });
+        $bar.attr({
+          path: pathStr(0, newVal),
+          fill: fillColourForValue(newVal)
+        });
+        $delta.animate(
+          {
+            path: pathStr(newVal, newVal)
+          },
+          250,
+          'linear'
+        );
+      }
+    };
+
+    self.timedRestore = function(duration) {
+      $bar.attr({
+        path: pathStr(0, valueMax),
+        fill: 'red'
+      });
+      $bar.animate(
+        { path: pathStr(valueMax, valueMax) },
+        duration,
+        'linear'
+      );
+    };
+
+    self.completeRestore = function() {
+      $bar.attr('fill', 'black');
+    };
+
+    self.text = function(newText) {
+      $text.attr('text', newText);
+    };
+
+    initElements();
   }
 
   function arcTo(x,y,radius,sweepFlag) {
