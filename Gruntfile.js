@@ -124,7 +124,7 @@ module.exports = function(grunt) {
         sourceMap: true,
         sourceMapName: 'build/web/script/umbra.map',
         sourceMapIncludeSources : true,
-        mangle: true
+        mangle: false
       },
       web: {
         src: ['src-gen/web/babel/*.js'],

@@ -1,97 +1,97 @@
 'use strict';
 function InfoBar(elemName) {
-  let $elem = $('#' + elemName);
-  let self = this;
-  let $self = $(self);
+  const $elem = $('#' + elemName);
+  const self = this;
+  const $self = $(self);
 
-
-  let health = 1;
-  let healthMax = 100;
-  let mana = 1;
-  let manaMax = 100;
   let gotEq = true;
-  let gotLeftBalance = true;
-  let gotRightBalance = true;
 
+  //static dimensions (height never changes)
+  const paperHeight = $elem.height();
+  const u = paperHeight / 16;
+
+  const eqHeight = 14 * u;
+  const barHeight = 10 * u;
+  const balanceHeight = 14*u;
+
+  const endcapRadius = 12 * u;
+
+  //dynamic dimensions
   let paperWidth = $elem.width();
-  let paperHeight = $elem.height();
-
-  var paper = Raphael(elemName, paperWidth, paperHeight);
-
   var paperMidX = paperWidth / 2;
   var paperMidY = paperHeight/2;
 
-  let healthColour = 'green';
-  let manaColour = 'royalBlue';
-  let posDeltaColour = 'white';
-  let negDeltaColour = 'red';
+  //colours
+  const healthColour   = 'green';
+  const manaColour     = 'royalBlue';
+  const posDeltaColour = 'white';
+  const negDeltaColour = 'red';
 
-  let u;                  // measurement unit, 1/16 of paper height
-  let eqRadius;           // radius of eq circle
-  let barHalfHeight;      // half height of mana/health bars
-  let barHeight;          // half height of mana/health bars
-  let barVertMargin;      // height of space between bar and paper edge
 
-  let eqWidth;            // horz width of the eq segments
-  let crescentWidth;      // horz width of the balance crescents
-  let balanceHalfHeight;  // half height of balance crescents
-  let balanceHeight;      // height of balance crescents
-  let midCutoutWidth;     // width of the central cutout area
+  //paper and segments
+  const paper = Raphael(elemName, paperWidth, paperHeight);
 
-  let endcapRadius;       // radius of segment endcap curves
+  let health;
+  let mana;
+  let balanceLeft;
+  let balanceRight;
+  let eqLeft;
+  let eqRight;
 
   let eqCircle;           // equilibrium circle
   let eqCircleUnder;      // equilibrium circle underlay
 
-  let healthBorder;       // border of the health bar
-  let healthDelta;        // white/red section of the health bar showing changes
-  let healthBar;          // core of the health bar
-  let healthText;
 
-  let manaBorder;         // border of the mana bar
-  let manaDelta;          // white/red section of the mana bar showing changes
-  let manaBar;            // core of the mana bar
-  let manaText;
 
-  let midOffset;          // offset from the mid line to start drawing balance segments
-  let balanceLeft;        // left balance crescent
-  let balanceLeftBorder;  // left balance crescent underlay
-  let balanceRight;       // right balance crescent
-  let balanceRightBorder; // right balance crescent underlay
+  function arcTo(x,y,radius,sweepFlag) {
+    //endcaps are elliptical, so specify the same radius for both
+    //axes to make them a circular arc.
+    var radii = "" + radius + "," + radius + " ";
+    var xAxisRot = "0 ";
+    var flags = "0," + sweepFlag + " ";
+    var endCoords = x + "," + y;
+    return "A" + radii + xAxisRot + flags + endCoords;
+  }
 
-  let wieldedLeftText;
-  let wieldedRightText;
-
-  let healthFraction = 0;
-  let manaFraction = 0;
+  function horzCentreOf(shape) {
+    let bb = shape.getBBox();
+    let ctr = bb.x + ( (bb.x2 - bb.x)/2 );
+    return ctr;
+  }
 
   /*
     Params:
-      height      : of the bar
-      pos         : 'left' or 'right'
-      innerMargin : offset (in pixels) from centre where the segment begins
-      outermargin : offset (in pixels) from the edge where the segment ends
-      valueMax    : maximum value of the bar
-      value       : initial value of the bar
-      text        : text to displar in the centre of the segment
-      lowColour   : colour when value is under 1/3
-      medColour   : colour when value is over 1/3 and under 2/3
-      highColour  : colour when bar is over 2/3
-      fullColour  : colour when value is 100%
-      capRadius   : radius of the endcap curve (defaults to endcapRadius)
+      height            : of the bar
+      pos               : 'left' or 'right'
+      startOffset       : offset (in pixels) from centre where the segment begins (function)
+      endOffset         : offset (in pixels) from centre where the segment ends (function)
+      valueMax          : maximum value of the bar
+      value             : initial value of the bar
+      text              : text to displar in the centre of the segment
+      lowColour         : colour when value is under 1/3
+      medColour         : colour when value is over 1/3 and under 2/3
+      highColour        : colour when bar is over 2/3
+      fullColour        : colour when value is 100%
+      borderColour      : border colour when value < 100%
+      fullBorderColour  : border colour when value is 100%
+      capRadius         : radius of the endcap curve (defaults to endcapRadius)
    */
   function Segment(params) {
-    let height      = params.height;
-    let pos         = params.pos || 'left';
-    let innerMargin = params.innerMargin || 0;
-    let outerMargin = params.outerMargin || 0;
-    let valueMax    = params.valueMax || 1.0;
-    let value       = params.value || 0.0;
-    let lowColour   = params.lowColour || 'red';
-    let medColour   = params.medColour || 'yellow';
-    let highColour  = params.highColour || 'green';
-    let fullColour  = params.fullColour || highColour;
-    let capRadius   = params.capRadius || endcapRadius;
+    let self = this;
+
+    let height           = params.height;
+    let pos              = params.pos || 'left';
+    let offset           = params.offset || function() { return 0; };
+    let endOffset        = params.endOffset || function() { return (paperWidth / 2) - 4*u; };
+    let valueMax         = params.valueMax || 1.0;
+    let value            = params.value || 0.0;
+    let lowColour        = params.lowColour || 'red';
+    let medColour        = params.medColour || 'yellow';
+    let highColour       = params.highColour || 'green';
+    let fullColour       = params.fullColour || highColour;
+    let borderColour     = params.borderColour || fullColour;
+    let fullBorderColour = params.fullBorderColour || 'white';
+    let capRadius        = params.capRadius || endcapRadius;
 
     //fixed dimensions (because the height never changes)
     let halfHeight = height / 2;
@@ -110,20 +110,24 @@ function InfoBar(elemName) {
     let $border;
     let $text;
 
+    self.valueStr = function() { return `${value} / ${valueMax}`; };
+
     // min, max scaled relative to valueMax
     function pathStr(min, max) {
-      let scale = widthMax / valueMax;
-      let barStart = segStart + (min * scale);
-      let barEnd = segStart + (max * scale);
+      const scale = widthMax / valueMax;
+      const scaledMin = (min * scale);
+      const scaledMax = (max * scale);
+      let barStart = segStart + (isLeft ? -scaledMin : scaledMin);
+      let barEnd = segStart + (isLeft ? -scaledMax : scaledMax);
 
+      //console.log(`seg = ${segStart}->${segEnd}, scale = ${scale}, bar = ${min}->${max} (/ ${valueMax}) = ${barStart} -> ${barEnd}`);
       var startPath = "M" + barStart + "," + bottom;
       var startCap = arcTo(barStart, top, capRadius, isLeft ? 1 : 0);
       var topLine = "L" + barEnd + "," + top;
       var midCap = arcTo(barEnd, bottom, capRadius, isLeft ? 0 : 1);
       var bottomLine = "L" + barStart + "," + bottom;
       var endPath = "Z";
-      var str = startPath + startCap + topLine + midCap + bottomLine + endPath;
-      return str;
+      return startPath + startCap + topLine + midCap + bottomLine + endPath;
     }
 
     function initElements() {
@@ -133,18 +137,28 @@ function InfoBar(elemName) {
       $bar = paper.path(pathStr(0,value));
       $border = paper.path(pathStr(0,valueMax));
       $text = paper.text(horzCentreOf($border), paperMidY, params.text || '');
+
+      $delta.attr({fill: negDeltaColour, stroke: 'none'});
+      $bar.attr({fill: fillColourForValue(value)});
+      $border.attr({stroke: borderColour, 'stroke-width': 1});
+      $text.attr({fill: 'white'});
     }
 
     self.calcDimensions = function() {
+      let off = offset();
+      let endOff = endOffset();
+
       if(isLeft) {
-        segStart = paperMidX - innerMargin;
-        segEnd = outerMargin;
+        segStart = paperMidX - off;
+        segEnd = paperMidX - endOff;
         widthMax = segStart - segEnd;
       } else {
-        segStart = paperMidX + innerMargin;
-        segEnd = paperWidth - outerMargin;
+        segStart = paperMidX + off;
+        segEnd = paperMidX + endOff;
         widthMax = segEnd - segStart;
       }
+      //console.log(`segment ${params.text} u=${u} paperWidth=${paperWidth} midX=${paperMidX}`);
+      //console.log(`off=${off} => start=${segStart}, endOff=${endOff} => end=${segEnd}`);
     };
 
     self.resizeElems = function() {
@@ -157,8 +171,10 @@ function InfoBar(elemName) {
     };
 
     self.setMax = function(newMax) {
-      valueMax = newMax;
-      self.resizeElems();
+      if(newMax !== valueMax) {
+        valueMax = newMax;
+        self.resizeElems();
+      }
     };
 
     function fillColourForValue(v) {
@@ -175,7 +191,7 @@ function InfoBar(elemName) {
       if(newVal > oldVal) {
         $delta.attr({
           path: pathStr(oldVal, newVal),
-          fill: 'white'
+          fill: posDeltaColour
         });
         $bar.animate(
           {
@@ -188,7 +204,7 @@ function InfoBar(elemName) {
       } else if(newVal < oldVal) {
         $delta.attr({
           path: pathStr(newVal, oldVal),
-          fill: 'red'
+          fill: negDeltaColour
         });
         $bar.attr({
           path: pathStr(0, newVal),
@@ -202,12 +218,16 @@ function InfoBar(elemName) {
           'linear'
         );
       }
+
+      $border.attr('stroke', value < valueMax ? borderColour : fullBorderColour);
+
     };
 
-    self.timedRestore = function(duration) {
+    self.timedRestore = function(duration, altColour) {
+      const colour = altColour || 'white';
       $bar.attr({
         path: pathStr(0, valueMax),
-        fill: 'red'
+        fill: colour
       });
       $bar.animate(
         { path: pathStr(valueMax, valueMax) },
@@ -227,395 +247,186 @@ function InfoBar(elemName) {
     initElements();
   }
 
-  function arcTo(x,y,radius,sweepFlag) {
-    //endcaps are elliptical, so specify the same radius for both
-    //axes to make them a circular arc.
-    var radii = "" + radius + "," + radius + " ";
-    var xAxisRot = "0 ";
-    var flags = "0," + sweepFlag + " ";
-    var endCoords = x + "," + y;
-    return "A" + radii + xAxisRot + flags + endCoords;
-  }
-
-  function barPathStr(params) {
-    var top = (paperHeight-barHeight) / 2;
-    var bottom = paperHeight - top;
-    var pos = params.pos || 'left';
-    var isLeft = (pos === 'left');
-    //alert(pos);
-    var midIndent = crescentWidth + (midOffset) + 4*u;
-    var xStart = isLeft ? paperMidX - midIndent : paperMidX + midIndent;
-    var xMax = isLeft ? 3*u : (paperWidth - (3*u));
-    var maxWidth = xMax-xStart;
-
-    //alert(maxwidth);
-    var fraction = params.hasOwnProperty('fraction') ? params.fraction : 1.0;
-    var xEnd = xMax - (maxWidth*(1-fraction));
-    //alert(startx +  " " + endx + " " + maxx);
-
-    var startPath = "M" + xStart + "," + bottom;
-    var startCap = arcTo(xStart, top, endcapRadius, isLeft ? 1 : 0);
-    var topLine = "L" + xEnd + "," + top;
-    var midCap = arcTo(xEnd, bottom, endcapRadius, isLeft ? 0 : 1);
-    var bottomLine = "L" + xStart + "," + bottom;
-    var endPath = "Z";
-    var str = startPath + startCap + topLine + midCap + bottomLine + endPath;
-    //alert(str);
-    return str;
-  }
-
-  function balancePathStr(params) {
-    let top = (paperHeight-balanceHeight) / 2;
-    let bottom = paperHeight - top;
-    let pos = params.pos || 'left';
-    let isLeft = (pos === 'left');
-    var xInner = paperMidX + (isLeft ? -(midOffset) : (midOffset));
-
-    //let cw = (params.empty) ? 0.5 : crescentWidth;
-    let xOuter = xInner + (isLeft ? -crescentWidth : crescentWidth);
-
-    if(params.endState) {
-      xInner = xOuter;
-    }
-
-    let startPath = "M" + xInner + "," + bottom;
-    let innerCap = arcTo(xInner, top, endcapRadius, isLeft ? 1 : 0);
-    let topLine = "L" + xOuter + "," + top;
-    let outerCap = arcTo(xOuter, bottom, endcapRadius, isLeft ? 0 : 1);
-    let bottomLine = "L" + xInner + "," + bottom;
-    let endPath = "Z";
-
-    let str = startPath + innerCap + topLine + outerCap + bottomLine + endPath;
-    //alert(str);
-    return str;
-  }
-
   function calcDimensions() {
     paperWidth = $elem.width();
-    paperHeight = $elem.height();
     paper.setSize(paperWidth, paperHeight);
 
     paperMidX = paperWidth / 2;
-    paperMidY = paperHeight/2;
-
-    u = paperHeight / 16;
-    eqRadius = 6 * u;
-    barHalfHeight = 5 * u;
-    barHeight = barHalfHeight * 2; //10u
-    barVertMargin = (paperHeight - barHeight) / 2; //3u
-
-    eqWidth = paperWidth/3;
-    crescentWidth = paperWidth/4;
-    balanceHalfHeight = 7*u;
-    balanceHeight = balanceHalfHeight * 2;
-    midCutoutWidth = 8*u;
-    //midCutoutWidth = 0;
-    midOffset = midCutoutWidth / 2;
-    endcapRadius = barHalfHeight + (4*u);
-  }
-
-  function horzCentreOf(shape) {
-    let bb = shape.getBBox();
-    let ctr = bb.x + ( (bb.x2 - bb.x)/2 );
-    return ctr;
   }
 
   function generateElems() {
     paper.clear();
-    eqCircleUnder = paper.circle(paperMidX, paperMidY, eqRadius);
-    eqCircle = paper.circle(paperMidX, paperMidY, eqRadius);
 
-    healthDelta = paper.path(barPathStr({pos:'left', fraction: 0.01}));
-    healthBar = paper.path(barPathStr({pos:'left', fraction: healthFraction}));
-    healthBorder = paper.path(barPathStr({pos:'left'}));
-    healthText = paper.text(horzCentreOf(healthBorder), paperMidY, 'health');
+    eqLeft = new Segment({
+      height           : eqHeight,
+      pos              : 'left',
+      offset           : function() { return 4*u; },
+      endOffset        : function() { return (paperWidth/24); },
+      text             : 'eq',
+      borderColour     : 'white',
+      fullBorderColour : 'white'
+    });
 
-    manaDelta = paper.path(barPathStr({pos:'right', fraction: 0.01}));
-    manaBar = paper.path(barPathStr({pos:'right', fraction: manaFraction}));
-    manaBorder = paper.path(barPathStr({pos:'right'}));
-    manaText = paper.text(horzCentreOf(manaBorder), paperMidY, 'mana');
+    eqRight = new Segment({
+      height           : eqHeight,
+      pos              : 'right',
+      offset           : function() { return 4*u; },
+      endOffset        : function() { return (paperWidth/24); },
+      text             : 'eq',
+      borderColour     : 'white',
+      fullBorderColour : 'white'
+    });
 
-    balanceLeft = paper.path(balancePathStr({pos:'left'}));
-    balanceRight = paper.path(balancePathStr({pos:'right'}));
+    balanceLeft = new Segment({
+      height           : balanceHeight,
+      pos              : 'left',
+      offset           : function() { return (paperWidth/24) + 4*u; },
+      endOffset        : function() { return (paperWidth/8) + 8*u; },
+      text             : 'left',
+      borderColour     : 'white',
+      fullBorderColour : 'white'
+    });
 
-    balanceLeftBorder = paper.path(balancePathStr({pos:'left'}));
-    balanceRightBorder = paper.path(balancePathStr({pos:'right'}));
+    balanceRight = new Segment({
+      height           : balanceHeight,
+      pos              : 'right',
+      offset           : function() { return (paperWidth/24) + 4*u; },
+      endOffset        : function() { return (paperWidth/8) + 8*u; },
+      text             : 'right',
+      borderColour     : 'white',
+      fullBorderColour : 'white'
+    });
 
-    wieldedLeftText = paper.text(horzCentreOf(balanceLeftBorder), paperMidY, 'left');
-    wieldedRightText = paper.text(horzCentreOf(balanceRightBorder), paperMidY, 'right');
+    health = new Segment({
+      height           : barHeight,
+      pos              : 'left',
+      offset           : function() { return (paperWidth/8) + (12*u); },
+      endOffset        : function() { return (paperWidth/2) - (3*u); },
+      valueMax         : 1.0,
+      value            : 0.0,
+      text             : 'health',
+      highColour       : healthColour,
+      fullColour       : healthColour,
+      borderColour     : healthColour,
+      fullBorderColour : 'white'
+    });
 
-    eqCircle.attr({fill:'white', stroke:'none'});
-    eqCircleUnder.attr({fill:'white', stroke:'none'});
+    mana = new Segment({
+      height           : barHeight,
+      pos              : 'right',
+      offset           : function() { return (paperWidth/8) + (12*u); },
+      endOffset        : function() { return (paperWidth/2) - (3*u); },
+      valueMax         : 1.0,
+      value            : 0.0,
+      text             : 'mana',
+      highColour       : manaColour,
+      fullColour       : manaColour,
+      borderColour     : manaColour,
+      fullBorderColour : 'white'
+    });
 
-    healthDelta.attr({fill:negDeltaColour, stroke:'none'});
-    healthBar.attr({fill:healthColour, stroke:'none'});
-    healthBorder.attr({stroke:healthColour, 'stroke-width': 1});
-    healthText.attr({fill:'white'});
-
-    healthDelta.attr({fill:negDeltaColour, stroke:'none'});
-    manaBar.attr({fill:manaColour});
-    manaBorder.attr({stroke:manaColour, 'stroke-width': 1});
-    manaText.attr({fill:'white'});
-
-    balanceLeftBorder.attr({stroke:'white', 'stroke-width': 1});
-    balanceRightBorder.attr({stroke:'white', 'stroke-width': 1});
-
-    balanceLeft.attr({fill:'black', stroke:'none'});
-    balanceRight.attr({fill:'black', stroke:'none'});
-
-    wieldedLeftText.attr({fill:'white'});
-    wieldedRightText.attr({fill:'white'});
   }
 
   function bindAllEvents() {
-    bindClick([healthDelta,healthBar,healthBorder], function fn() {
-      $self.trigger("healthClicked", {
-        health: health,
-        healthMax: healthMax,
-        ratio: health/healthMax
-      });
-    });
-    bindClick([manaDelta,manaBar,manaBorder], function fn() {
-      $self.trigger("manaClicked", {
-        mana: mana,
-        manaMax: manaMax,
-        ratio: mana/manaMax
-      });
-    });
+    //bindClick([healthDelta,healthBar,healthBorder], function fn() {
+    //  $self.trigger("healthClicked", {
+    //    health: health,
+    //    healthMax: healthMax,
+    //    ratio: health/healthMax
+    //  });
+    //});
+
+    //bindClick([manaDelta,manaBar,manaBorder], function fn() {
+    //  $self.trigger("manaClicked", {
+    //    mana: mana,
+    //    manaMax: manaMax,
+    //    ratio: mana/manaMax
+    //  });
+    //});
 
     //these don't bind click
-    bindEventsFor('health', [healthDelta,healthBar,healthBorder]);
-    bindEventsFor('mana', [manaDelta,manaBar,manaBorder]);
+    //bindEventsFor('health', [healthDelta,healthBar,healthBorder]);
+    //bindEventsFor('mana', [manaDelta,manaBar,manaBorder]);
   }
 
   function resizeElems() {
-    eqCircle.attr({cx:paperMidX, cy:paperMidY, r:eqRadius});
-    eqCircleUnder.attr({cx:paperMidX, cy:paperMidY, r:eqRadius});
+    eqCircle.attr('cx', paperMidX);
+    eqCircleUnder.attr('cx', paperMidX);
 
-    healthDelta.attr({path:barPathStr({pos:'left', fraction: 0.01})});
-    healthBar.attr({path:barPathStr({pos:'left', fraction: healthFraction})});
-    healthBorder.attr({path:barPathStr({pos:'left'})});
-    healthText.attr('x', horzCentreOf(healthBorder));
-
-
-    manaDelta.attr({path:barPathStr({pos:'right', fraction: 0.01})});
-    manaBar.attr({path:barPathStr({pos:'right', fraction: manaFraction})});
-    manaBorder.attr({path:barPathStr({pos:'right'})});
-    manaText.attr('x', horzCentreOf(manaBorder));
-
-    balanceLeftBorder.attr({path:balancePathStr({pos:'left'})});
-    balanceRightBorder.attr({path:balancePathStr({pos:'right'})});
-    balanceLeft.attr({path:balancePathStr({pos:'left'})});
-    balanceRight.attr({path:balancePathStr({pos:'right'})});
-
-    wieldedLeftText.attr('x', horzCentreOf(balanceLeftBorder));
-    wieldedRightText.attr('x',horzCentreOf(balanceRightBorder));
+    health.resizeElems();
+    mana.resizeElems();
+    balanceLeft.resizeElems();
+    balanceRight.resizeElems();
+    eqLeft.resizeElems();
+    eqRight.resizeElems();
   }
 
   function setup() {
     calcDimensions();
-    healthFraction = health/healthMax;
-    manaFraction = mana/manaMax;
     generateElems();
     bindAllEvents();
   }
 
   function cleanRender() {
     calcDimensions();
-    healthFraction = health/healthMax;
-    manaFraction = mana/manaMax;
     resizeElems();
   }
 
-
-
   self.setMaxima = function (newHealthMax, newManaMax) {
-    let dirty = false;
-    if(newHealthMax !== healthMax) {
-      healthMax = newHealthMax;
-      healthText.attr('text', health + ' / ' + healthMax);
-      dirty = true;
-    }
-    if(newManaMax !== manaMax) {
-      manaMax = newManaMax;
-      manaText.attr('text', mana + ' / ' + manaMax);
-      dirty = true;
-    }
-    if(dirty) {
-      cleanRender();
-    }
+    health.setMax(newHealthMax);
+    mana.setMax(newManaMax);
   };
 
-  self.setMaxHealth = function(x) { self.setMaxima(x, manaMax); };
-
-  self.setMaxMana = function(x) { self.setMaxima(healthMax, x); };
-
-  function fillColourForFraction(baseColour, fraction) {
-    return (fraction < 0.333) ? 'red' :
-      (fraction < 0.666) ? 'orange' :
-        baseColour;
-  }
-
-  function animateBar(bar, delta, border, pos, oldFraction, fraction, colour) {
-    if(fraction >= 1.0) {
-      border.attr({stroke:'white'});
-    } else if (fraction <= 0.0) {
-      border.attr({stroke:'red'});
-    } else {
-      border.attr({stroke:colour});
-    }
-    if(fraction > oldFraction) {
-      delta.attr({
-        fill: 'white',
-        path: barPathStr({pos:pos, fraction:fraction})
-      });
-      bar.attr({
-        path: barPathStr({pos:pos, fraction: oldFraction})
-      });
-      bar.animate(
-        {
-          fill: fillColourForFraction(colour, fraction),
-          path: barPathStr({pos:pos, fraction: fraction})
-        },
-        250,
-        'linear'
-      );
-    } else {
-      bar.attr({
-        path: barPathStr({pos:pos, fraction:fraction})
-      });
-      delta.attr({
-        fill: 'red',
-        path: barPathStr({pos:pos, fraction: oldFraction})
-      });
-      bar.animate(
-        {
-          fill: fillColourForFraction(colour, fraction)
-        },
-        250,
-        'linear'
-      );
-      delta.animate(
-        { path: barPathStr({pos:pos, fraction:fraction}) },
-        250,
-        'linear'
-      );
-    }
-  }
-
-  self.setHealth = function(x) {
-    if(x !== health) {
-      let oldHealth = health;
-      let oldHealthFraction = healthFraction;
-      health = x;
-      healthText.attr('text', health + ' / ' + healthMax);
-      healthFraction = health / healthMax;
-      animateBar(healthBar, healthDelta, healthBorder, 'left', oldHealthFraction, healthFraction, healthColour);
-    }
+  self.setMaxHealth = function(x) {
+    health.setMax(x);
+    health.text(health.valueStr());
   };
 
-  self.setMana = function(x) {
-    if(x !== mana) {
-      let oldMana = mana;
-      let oldManaFraction = manaFraction;
-      mana = x;
-      manaText.attr('text', mana + ' / ' + manaMax);
-      manaFraction = mana / manaMax;
-      animateBar(manaBar, manaDelta, manaBorder, 'right', oldManaFraction, manaFraction, manaColour);
-    }
+  self.setMaxMana = function(x) {
+    mana.setMax(x);
+    mana.text(mana.valueStr());
   };
 
-  self.loseEq = function(hardOrSoft, restoreTime) {
-    if(gotEq) {
-      let isHard = hardOrSoft || true;
-      gotEq = false;
-      if(restoreTime) {
-        console.log('eq returns in ' + restoreTime + 'ms');
-        eqCircle.attr({r:0});
-        eqCircleUnder.attr({fill: isHard ? 'red' : 'green'});
-        eqCircle.animate( {r:eqRadius}, restoreTime, 'linear' );
-      } else {
-        eqCircle.attr({fill: 'red'});
-      }
-    }
+  self.setHealth = function(newVal) {
+    health.deltaToValue(newVal);
+    health.text(health.valueStr());
+  };
+
+  self.setMana = function(newVal) {
+    mana.deltaToValue(newVal);
+    mana.text(mana.valueStr());
+  };
+
+  self.loseEq = function(hardOrSoft, duration) {
+    const isHard = hardOrSoft || true;
+    const colour = isHard ? 'purple' : 'green';
+    eqLeft.timedRestore(duration, colour);
+    eqRight.timedRestore(duration, colour);
   };
 
   self.regainEq = function() {
-    if(!gotEq) {
-      gotEq = true;
-      eqCircle.attr({fill: 'white'});
-      eqCircleUnder.attr({fill: 'white'});
-    }
+    eqLeft.completeRestore();
+    eqRight.completeRestore();
   };
 
-  self.loseLeftBalance = function(restoreTime, item) {
-    wieldedLeftText.attr('text', item);
-    if(gotLeftBalance) {
-      gotLeftBalance = false;
-      balanceLeft.attr(
-        {
-          path: balancePathStr({pos:'left', endState:false}),
-          fill: 'red'
-        }
-      );
-      if(restoreTime && restoreTime > 0) {
-        balanceLeft.animate(
-          {
-            path:balancePathStr({pos:'left', endState:true})
-          },
-          restoreTime,
-          'linear'
-        );
-      }
-    }
+  self.loseLeftBalance = function(duration, item) {
+    balanceLeft.text(item);
+    balanceLeft.timedRestore(duration, 'red');
   };
 
   self.regainLeftBalance = function(item) {
-    wieldedLeftText.attr('text', item);
-    if(!gotLeftBalance) {
-      gotLeftBalance = true;
-      balanceLeft.attr(
-        {
-          path:balancePathStr({pos:'left', endState:false}),
-          fill: 'none'
-        }
-      );
-    }
+    balanceLeft.text(item);
+    balanceLeft.completeRestore();
   };
 
-  self.loseRightBalance = function(restoreTime, item) {
-    wieldedRightText.attr('text', item);
-    if(gotRightBalance) {
-      gotRightBalance = false;
-      balanceRight.attr(
-        {
-          path: balancePathStr({pos:'right', endState:false}),
-          fill: 'red'
-        }
-      );
-      if(restoreTime && restoreTime > 0) {
-        balanceRight.animate(
-          {
-            path: balancePathStr({pos:'right', endState:true})
-          },
-          restoreTime,
-          'linear'
-        );
-      }
-    }
+  self.loseRightBalance = function(duration, item) {
+    balanceRight.text(item);
+    balanceRight.timedRestore(duration, 'red');
   };
 
   self.regainRightBalance = function(item) {
-    wieldedRightText.attr('text', item);
-    if(!gotRightBalance) {
-      gotRightBalance = true;
-      balanceRight.attr(
-        {
-          path: balancePathStr({pos:'right', endState:false}),
-          fill: 'none'
-        }
-      );
-    }
+    balanceRight.text(item);
+    balanceRight.completeRestore();
   };
 
   self.loseBalance = function(side, restoreTime, item) {
@@ -626,15 +437,6 @@ function InfoBar(elemName) {
   self.regainBalance = function(side, item) {
     if(side === 'left') {self.regainLeftBalance(item); }
     else {self.regainRightBalance(item); }
-  };
-
-  self.vars = function() {
-    return {
-      health: health,
-      healthMax: healthMax,
-      mana: mana,
-      manaMax: manaMax
-    };
   };
 
   function bindEventsFor(name, elems) {
@@ -653,7 +455,7 @@ function InfoBar(elemName) {
   setup();
 
   $(window).resize(function(e) {
-    console.log('infobar sizing from ' + paperWidth + ' to ' + $elem.width());
+    //console.log('infobar sizing from ' + paperWidth + ' to ' + $elem.width());
     if ($elem.width() !== paperWidth) {
       paperWidth = $elem.width();
       cleanRender();
