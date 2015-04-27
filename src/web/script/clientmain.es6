@@ -1282,10 +1282,28 @@ $(function() {
       target.style.transform =
         'translate(' + x + 'px, ' + y + 'px)';
 
-    // update the posiion attributes
+    // update the position attributes
     target.setAttribute('data-x', x);
     target.setAttribute('data-y', y);
   }
+
+  //build the macrobuttons
+  //this is done dynamically to:
+  // a) avoid duplication
+  // b) stop them being "seen" by screen readers with CSS disabled
+  if(!screenreader) {
+    let range = (start, end) => [...Array(end - start + 1)].map((_, i) => start + i);
+
+    let charA = "A".charCodeAt(0);
+    let macrobuttons = range(0, 25).map(function (i) {
+      let id = i + 223;
+      let char = String.fromCharCode(charA + i);
+      return $(`<a class="macrobtn hidden" id="macrobtn-${id}" data-macroId="${id}" href="#">Umbra ${char}</a>`);
+    });
+
+    $('#buttonbit').append(macrobuttons);
+  }
+
 
   interact('.macrobtn')
     .on('tap', function (event) {
