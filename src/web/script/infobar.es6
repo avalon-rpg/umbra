@@ -29,15 +29,15 @@ function InfoBar(elemName) {
   let eqRadius;           // radius of eq circle
   let barHalfHeight;      // half height of mana/health bars
   let barHeight;          // half height of mana/health bars
-  let barArcRadius;       // radius of health/mana endcaps
   let barVertMargin;      // height of space between bar and paper edge
 
+  let eqWidth;            // horz width of the eq segments
   let crescentWidth;      // horz width of the balance crescents
   let balanceHalfHeight;  // half height of balance crescents
   let balanceHeight;      // height of balance crescents
   let midCutoutWidth;     // width of the central cutout area
-  let balanceIntRadius;   // internal radius of balance crescent
-  let balanceExtRadius;   // external radius of balance crescent
+
+  let endcapRadius;       // radius of segment endcap curves
 
   let eqCircle;           // equilibrium circle
   let eqCircleUnder;      // equilibrium circle underlay
@@ -64,6 +64,92 @@ function InfoBar(elemName) {
   let healthFraction = 0;
   let manaFraction = 0;
 
+  /*
+    Params:
+      height      : of the bar
+      pos         : 'left' or 'right'
+      innerMargin : offset from centre where the segment begins
+      outermargin : offset from the edge where the segment ends
+      valueMax    : maximum value of the bar
+      value       : initial value of the bar
+      text        : text to displar in the centre of the segment
+      lowColour   : colour when value is under 1/3
+      medColour   : colour when value is over 1/3 and under 2/3
+      highColour  : colour when bar is over 2/3
+      fullColour  : colour when value is 100%
+      useDeltas   : if the segment should use a delta to illustrate value changes
+   */
+  function segment(params) {
+    let height      = params.height;
+    let pos         = params.pos || 'left';
+    let innerMargin = params.innerMargin || 0;
+    let outermargin = params.outerMargin || 0;
+    let valueMax    = params.valueMax || 1.0;
+    let value       = params.value || 0.0;
+    let text        = params.text || '';
+    let lowColour   = params.lowColour || 'red';
+    let medColour   = params.medColour || 'yellow';
+    let highColour  = params.highColour || 'green';
+    let fullColour  = params.fullColour || highColour;
+    let useDeltas   = params.useDeltas || false;
+
+    //fixed dimensions (because the height never changes)
+    let halfHeight = height / 2;
+    let top = paperMidY - halfHeight;
+    let bottom = paperMidY + halfHeight;
+    let isLeft = pos === 'left';
+
+    //width-dependent dimensions
+    let xStart;
+    let xEnd;
+
+    //elements
+    let $border;
+    let $bar;
+    let $delta;
+    let $text;
+
+    function pathStr(innerPadding, outerPadding) {
+      let paddedStart = isLeft ? xStart-innerPadding : xStart+innerPadding;
+      let paddedEnd = isLeft ? xEnd+outerPadding : xStart+innerPadding;
+
+      var midIndent = crescentWidth + (midOffset) + 4*u;
+      var xStart = isLeft ? paperMidX - midIndent : paperMidX + midIndent;
+      var xMax = isLeft ? 3*u : (paperWidth - (3*u));
+      var maxWidth = xMax-xStart;
+
+      //alert(maxwidth);
+      var fraction = params.hasOwnProperty('fraction') ? params.fraction : 1.0;
+      var xEnd = xMax - (maxWidth*(1-fraction));
+      //alert(startx +  " " + endx + " " + maxx);
+
+      var startPath = "M" + xStart + "," + bottom;
+      var startCap = arcTo(xStart, top, endcapRadius, isLeft ? 1 : 0);
+      var topLine = "L" + xEnd + "," + top;
+      var midCap = arcTo(xEnd, bottom, endcapRadius, isLeft ? 0 : 1);
+      var bottomLine = "L" + xStart + "," + bottom;
+      var endPath = "Z";
+      var str = startPath + startCap + topLine + midCap + bottomLine + endPath;
+      //alert(str);
+      return str;
+    }
+    function initElements() {
+
+    }
+
+    self.calcDimensions = function() {
+      if(isLeft) {
+        xStart = paperMidX - params.innerMargin;
+        xEnd = params.outerMargin;
+      } else {
+        xStart = paperMidX + params.innerMargin;
+        xEnd = paperWidth - params.outerMargin;
+      }
+    };
+
+
+  }
+
   function arcTo(x,y,radius,sweepFlag) {
     //endcaps are elliptical, so specify the same radius for both
     //axes to make them a circular arc.
@@ -73,33 +159,6 @@ function InfoBar(elemName) {
     var endCoords = x + "," + y;
     return "A" + radii + xAxisRot + flags + endCoords;
   }
-
-  //function eqPathStr(radius) {
-  //  var top = paperMidY + radius;
-  //  var bottom = paperMidY - radius;
-  //  var pos = params.pos || 'left';
-  //  var isLeft = (pos === 'left');
-  //  //alert(pos);
-  //  var midIndent = crescentWidth + (midOffset) + 4*u;
-  //  var xStart = isLeft ? paperMidX - midIndent : paperMidX + midIndent;
-  //  var xMax = isLeft ? 3*u : (paperWidth - (3*u));
-  //  var maxWidth = xMax-xStart;
-  //
-  //  //alert(maxwidth);
-  //  var fraction = params.hasOwnProperty('fraction') ? params.fraction : 1.0;
-  //  var xEnd = xMax - (maxWidth*(1-fraction));
-  //  //alert(startx +  " " + endx + " " + maxx);
-  //
-  //  var startPath = "M" + xStart + "," + bottom;
-  //  var startCap = arcTo(xStart, top, balanceExtRadius, isLeft ? 1 : 0);
-  //  var topLine = "L" + xEnd + "," + top;
-  //  var midCap = arcTo(xEnd, bottom, balanceExtRadius, isLeft ? 0 : 1);
-  //  var bottomLine = "L" + xStart + "," + bottom;
-  //  var endPath = "Z";
-  //  var str = startPath + startCap + topLine + midCap + bottomLine + endPath;
-  //  //alert(str);
-  //  return str;
-  //}
 
   function barPathStr(params) {
     var top = (paperHeight-barHeight) / 2;
@@ -118,9 +177,9 @@ function InfoBar(elemName) {
     //alert(startx +  " " + endx + " " + maxx);
 
     var startPath = "M" + xStart + "," + bottom;
-    var startCap = arcTo(xStart, top, balanceExtRadius, isLeft ? 1 : 0);
+    var startCap = arcTo(xStart, top, endcapRadius, isLeft ? 1 : 0);
     var topLine = "L" + xEnd + "," + top;
-    var midCap = arcTo(xEnd, bottom, balanceExtRadius, isLeft ? 0 : 1);
+    var midCap = arcTo(xEnd, bottom, endcapRadius, isLeft ? 0 : 1);
     var bottomLine = "L" + xStart + "," + bottom;
     var endPath = "Z";
     var str = startPath + startCap + topLine + midCap + bottomLine + endPath;
@@ -143,9 +202,9 @@ function InfoBar(elemName) {
     }
 
     let startPath = "M" + xInner + "," + bottom;
-    let innerCap = arcTo(xInner, top, balanceExtRadius, isLeft ? 1 : 0);
+    let innerCap = arcTo(xInner, top, endcapRadius, isLeft ? 1 : 0);
     let topLine = "L" + xOuter + "," + top;
-    let outerCap = arcTo(xOuter, bottom, balanceExtRadius, isLeft ? 0 : 1);
+    let outerCap = arcTo(xOuter, bottom, endcapRadius, isLeft ? 0 : 1);
     let bottomLine = "L" + xInner + "," + bottom;
     let endPath = "Z";
 
@@ -166,17 +225,16 @@ function InfoBar(elemName) {
     eqRadius = 6 * u;
     barHalfHeight = 5 * u;
     barHeight = barHalfHeight * 2; //10u
-    barArcRadius = barHalfHeight;
     barVertMargin = (paperHeight - barHeight) / 2; //3u
 
-    crescentWidth = paperWidth/6;
+    eqWidth = paperWidth/3;
+    crescentWidth = paperWidth/4;
     balanceHalfHeight = 7*u;
     balanceHeight = balanceHalfHeight * 2;
     midCutoutWidth = 8*u;
     //midCutoutWidth = 0;
     midOffset = midCutoutWidth / 2;
-    balanceIntRadius = barHalfHeight;
-    balanceExtRadius = balanceIntRadius + (4*u);
+    endcapRadius = barHalfHeight + (4*u);
   }
 
   function horzCentreOf(shape) {

@@ -158,6 +158,8 @@ ShadowClient.prototype.close = function() {
 };
 
 ShadowClient.prototype.forceClose = function() {
+  console.log('shadowclient force close requested, currently connected = ' + this.connected);
+  this.emit('avalon disconnected', false);
   if(this.connected) {
     this.conn.end();
     this.connected = false;

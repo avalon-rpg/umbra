@@ -810,7 +810,7 @@ $(function() {
     log('*** AVALON DISCONNECTED ***');
     connected = false;
 
-    $('.messages').append($loginForm);s
+    $('.messages').append($loginForm);
     $('#buttonbit').addClass('hidden');
     showLoginBox();
     $outputBox[0].scrollTop = $outputBox[0].scrollHeight;
@@ -912,11 +912,12 @@ $(function() {
     }
   }
 
-  $('.macrobtn').click(function() {
-    let macroId = $(this).attr("data-macroId");
-    sendMessage(macroId);
-    return false;
-  });
+  // seems that it gets handled as a tap event too
+  //$('.macrobtn').click(function() {
+  //  let macroId = $(this).attr("data-macroId");
+  //  sendMessage(macroId);
+  //  return false;
+  //});
 
   let commsTypes = {
     'calling from':        { commsClasses: 'from',  iconClasses: 'comment'    },

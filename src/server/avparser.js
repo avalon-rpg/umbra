@@ -584,11 +584,6 @@ AvParser.prototype.init = function(shadowclient) {
           replacableId: 'far-attack-' + dirn
         });
       }
-    },{
-      regex: /^Log-out to clear connection if your client does not automatically do so\.$/,
-      func: function(match, rawLine) {
-        emit('forceClientClose');
-      }
     }
   ];
 

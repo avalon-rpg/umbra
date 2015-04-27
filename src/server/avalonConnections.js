@@ -43,10 +43,12 @@ AvalonConnections.prototype.get = function(params) {
         ret.reject(err);
       }
     });
-    client.once('avalon disconnected', function() {
+    client.once('avalon disconnected', function(has_error) {
+      console.log('avalon disconnected - removing ' + id + ' from connection pool');
       self.map.delete(id);
     });
     client.on('closed', function() {
+      console.log('closed - removing ' + id + ' from connection pool');
       self.map.delete(id);
     });
   }
