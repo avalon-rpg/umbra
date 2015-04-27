@@ -257,11 +257,14 @@ function InfoBar(elemName) {
   function generateElems() {
     paper.clear();
 
+    function eqWidth() { return Math.max(paperWidth/24, 14*u); }
+    function balanceWidth() { return paperWidth/10; }
+
     eqLeft = new Segment({
       height           : eqHeight,
       pos              : 'left',
       offset           : function() { return 4*u; },
-      endOffset        : function() { return (paperWidth/24); },
+      endOffset        : function() { return (4*u) + eqWidth(); },
       text             : 'eq',
       borderColour     : 'white',
       fullBorderColour : 'white'
@@ -271,7 +274,7 @@ function InfoBar(elemName) {
       height           : eqHeight,
       pos              : 'right',
       offset           : function() { return 4*u; },
-      endOffset        : function() { return (paperWidth/24); },
+      endOffset        : function() { return (4*u) + eqWidth(); },
       text             : 'eq',
       borderColour     : 'white',
       fullBorderColour : 'white'
@@ -280,8 +283,8 @@ function InfoBar(elemName) {
     balanceLeft = new Segment({
       height           : balanceHeight,
       pos              : 'left',
-      offset           : function() { return (paperWidth/24) + 4*u; },
-      endOffset        : function() { return (paperWidth/8) + 8*u; },
+      offset           : function() { return (8*u) + eqWidth(); },
+      endOffset        : function() { return (8*u) + eqWidth() + balanceWidth(); },
       text             : 'left',
       borderColour     : 'white',
       fullBorderColour : 'white'
@@ -290,8 +293,8 @@ function InfoBar(elemName) {
     balanceRight = new Segment({
       height           : balanceHeight,
       pos              : 'right',
-      offset           : function() { return (paperWidth/24) + 4*u; },
-      endOffset        : function() { return (paperWidth/8) + 8*u; },
+      offset           : function() { return (8*u) + eqWidth(); },
+      endOffset        : function() { return (8*u) + eqWidth() + balanceWidth(); },
       text             : 'right',
       borderColour     : 'white',
       fullBorderColour : 'white'
@@ -300,7 +303,7 @@ function InfoBar(elemName) {
     health = new Segment({
       height           : barHeight,
       pos              : 'left',
-      offset           : function() { return (paperWidth/8) + (12*u); },
+      offset           : function() { return (12*u) + eqWidth() + balanceWidth(); },
       endOffset        : function() { return (paperWidth/2) - (3*u); },
       valueMax         : 1.0,
       value            : 0.0,
@@ -314,7 +317,7 @@ function InfoBar(elemName) {
     mana = new Segment({
       height           : barHeight,
       pos              : 'right',
-      offset           : function() { return (paperWidth/8) + (12*u); },
+      offset           : function() { return (12*u) + eqWidth() + balanceWidth(); },
       endOffset        : function() { return (paperWidth/2) - (3*u); },
       valueMax         : 1.0,
       value            : 0.0,
@@ -350,9 +353,6 @@ function InfoBar(elemName) {
   }
 
   function resizeElems() {
-    eqCircle.attr('cx', paperMidX);
-    eqCircleUnder.attr('cx', paperMidX);
-
     health.resizeElems();
     mana.resizeElems();
     balanceLeft.resizeElems();
