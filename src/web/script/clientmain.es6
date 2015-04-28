@@ -1323,14 +1323,8 @@ $(function() {
   }
 
   $('.macrobtn')
-    .click(function() {
-      let $btn = $(this);
-      let macroId = $btn.attr("data-macroId");
-      $btn.transition('pulse');
-      sendMessage(macroId);
-      return false;
-    })
     .tap(function() {
+      //also reacts to click
       let $btn = $(this);
       let macroId = $(this).attr("data-macroId");
       $btn.transition('pulse');
