@@ -57,17 +57,18 @@ AvParser.prototype.init = function(shadowclient) {
 
   const promptRegex = /^(\d+)\/(\d+)h, (\d+)\/(\d+)m (\S*) (.*)(?:-|=).*$/;
 
-  let flushOutput = function(prompt) {
+  let flushOutput = function(ansiPrompt) {
     let block = blockStack.popAll();
     if(block) {
       try {
-        if(prompt) {
+        if(ansiPrompt) {
+          block.ansiPrompt = ansiPrompt;
+          const prompt = stripAnsi(ansiPrompt).trim();
           block.prompt = prompt;
-          let cleanPrompt = stripAnsi(prompt).trim();
           if(shadowclient.username === 'gwahir') {
-            console.log('clean prompt: [' + cleanPrompt + ']');
+            console.log('clean prompt: [' + prompt + ']');
           }
-          let promptMatch = promptRegex.exec(cleanPrompt);
+          let promptMatch = promptRegex.exec(prompt);
           if(promptMatch) {
             let promptVars = {
               health: promptMatch[1],

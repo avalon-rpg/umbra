@@ -80,6 +80,7 @@ $(function() {
   let native = false;
 
   let visibleExtraVars = {};
+  let inBB = false;
 
 
 
@@ -189,10 +190,16 @@ $(function() {
     text = cleanInput(text);
     // if there is a non-empty message and a socket connection
     if (text && connected) {
-      var _ref = text.split(umbra.get("cmdDelimiter"));
-      for (var i = 0; i < _ref.length; i++) {
-        if (umbra.get("debug")) console.log("sent: " + _ref[i]);
-        socket.emit('send', _ref[i]);
+      if(inBB) {
+        socket.emit('send', text);
+        const prefix = $('#alt-prompt').text();
+        $outputBox.append($(`<div>${prefix} ${text}</div>`));
+      } else {
+        let _ref = text.split(umbra.get("cmdDelimiter"));
+        for (let i = 0; i < _ref.length; i++) {
+          if (umbra.get("debug")) console.log("sent: " + _ref[i]);
+          socket.emit('send', _ref[i]);
+        }
       }
     }
   }
@@ -365,6 +372,7 @@ $(function() {
     'tags',
     'tag',
     'monospaced',
+    'ansiPrompt',
     'prompt',
     'promptVars',
     'promptExtraVars',
@@ -957,8 +965,8 @@ $(function() {
       console.log(data);
     }
 
-    const hasPromptVars = data.promptVars;
-    const hasPromptExtras = (data.promptExtraVars || data.promptExtraVars.length > 0);
+    const hasPromptVars = (data.promptVars);
+    const hasPromptExtras = (data.promptExtraVars);
 
     if(hasPromptVars && !screenreader) {
       let pv = data.promptVars;
@@ -1018,14 +1026,27 @@ $(function() {
       visibleExtraVars = newVisibleExtraVars;
     }
 
-    if(hasPromptVars && hasPromptExtras) {
+    if(hasPromptVars) {
+      if(inBB) {
+        inBB = false;
+        console.log("*** Out of the BB ***");
+      }
       $('#prompt-inclusions').removeClass('hidden');
       $('#alt-prompt').addClass('hidden');
+      $('#alt-prompt').html('');
     } else {
+      if(data.prompt.trim() === "BB>") {
+        console.log("*** In the BB ***");
+        inBB = true;
+      }
+      let promptHtml = data.prompt;
+      if(data.hasOwnProperty('ansiPrompt')) {
+        promptHtml = styler.ansi_to_html(data.ansiPrompt);
+      }
       $('#prompt-inclusions').addClass('hidden');
       $('#alt-prompt')
         .removeClass('hidden')
-        .html(styler.ansi_to_html(data.prompt));
+        .html(promptHtml);
     }
     if(umbra.get("debug")) { console.groupEnd(); }
 
@@ -1144,9 +1165,8 @@ $(function() {
   };
 
   function onKeyDown(e) {
-    if ($('#search-help').is(":focus")) {
-      return;
-    }
+    //macros, num keypad, etc. shouldn't be applied in the BB!
+    if (inBB) { return; }
 
     if (connected) {
       let macroId = lookupMacroCmd(e);
