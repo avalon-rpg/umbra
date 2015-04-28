@@ -39,7 +39,6 @@ function getParameterByName(name) {
   return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-
 $(function() {
   let lastInput = "";
 
@@ -912,13 +911,6 @@ $(function() {
     }
   }
 
-  // seems that it gets handled as a tap event too
-  //$('.macrobtn').click(function() {
-  //  let macroId = $(this).attr("data-macroId");
-  //  sendMessage(macroId);
-  //  return false;
-  //});
-
   let commsTypes = {
     'calling from':        { commsClasses: 'from',  iconClasses: 'comment'    },
     'calling to':          { commsClasses: 'to',    iconClasses: 'comment'    },
@@ -1287,6 +1279,8 @@ $(function() {
     target.setAttribute('data-y', y);
   }
 
+  const $buttonbit = $('#buttonbit');
+
   //build the macrobuttons
   //this is done dynamically to:
   // a) avoid duplication
@@ -1301,10 +1295,61 @@ $(function() {
       return $(`<a class="macrobtn hidden" id="macrobtn-${id}" data-macroId="${id}" href="#">Umbra ${char}</a>`);
     });
 
-    $('#buttonbit').append(macroButtons);
+    $buttonbit.append(macroButtons);
   }
 
+  function buttonsToTop() {
+    $buttonbit.animate( { top: 0 }, 250 );
+    return false;
+  }
 
+  function buttonsToBottom() {
+    let height = $buttonbit.outerHeight(true);
+    let containerHeight = $('#output-segment').height();
+    $buttonbit.animate( { top: (containerHeight - height) }, 250 );
+    return false;
+  }
+
+  function buttonsToLeft() {
+    $buttonbit.animate( { left: 0 }, 250 );
+    return false;
+  }
+
+  function buttonsToRight() {
+    let width = $buttonbit.outerWidth(true);
+    let containerWidth = $('#output-segment').width();
+    $buttonbit.animate( { left: (containerWidth - width) }, 250 );
+    return false;
+  }
+
+  $('.macrobtn')
+    .click(function() {
+      let $btn = $(this);
+      let macroId = $btn.attr("data-macroId");
+      $btn.transition('pulse');
+      sendMessage(macroId);
+      return false;
+    })
+    .tap(function() {
+      let $btn = $(this);
+      let macroId = $(this).attr("data-macroId");
+      $btn.transition('pulse');
+      sendMessage(macroId);
+      return false;
+    })
+    .swipeup(buttonsToTop)
+    .swipedown(buttonsToBottom)
+    .swipeleft(buttonsToLeft)
+    .swiperight(buttonsToRight);
+
+  $buttonbit
+    .swipeup(buttonsToTop)
+    .swipedown(buttonsToBottom)
+    .swipeleft(buttonsToLeft)
+    .swiperight(buttonsToRight);
+
+
+  /*
   interact('.macrobtn')
     .on('tap', function (event) {
       let $elem = $(event.currentTarget);
@@ -1350,6 +1395,7 @@ $(function() {
       target.setAttribute('data-y', y);
       //target.textContent = event.rect.width + '×' + event.rect.height;
     });
+   */
 
   $(window).bind('beforeunload', function() {
     return 'You\'re about to navigate away and disconnect avalon.\n\n' +
