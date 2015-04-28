@@ -661,6 +661,9 @@ $(function() {
       case 'smaller':
         fontSize = '.9em';
         break;
+      case 'normal':
+        fontSize = '.95em';
+        break;
       case 'bigger':
         fontSize = '1em';
         break;
@@ -669,6 +672,26 @@ $(function() {
         break;
     }
     $('body').css({ 'font-size': fontSize });
+  });
+
+  $(".macrobtn-size.select").tap( function(event) {
+
+    let fontSize = 'x-large';
+    switch($(this).text()) {
+      case 'smallest':
+        fontSize = 'medium';
+        break;
+      case 'smaller':
+        fontSize = 'large';
+        break;
+      case 'bigger':
+        fontSize = 'x-large';
+        break;
+      case 'biggest':
+        fontSize = 'xx-large';
+        break;
+    }
+    $('.macrobtn').css({ 'font-size': fontSize });
   });
 
   $('#newUserDropdown').accordion({
