@@ -971,7 +971,10 @@ $(function() {
       console.log(data);
     }
 
-    if(data.promptVars && !screenreader) {
+    const hasPromptVars = data.promptVars;
+    const hasPromptExtras = (data.promptExtraVars || data.promptExtraVars.length > 0);
+
+    if(hasPromptVars && !screenreader) {
       let pv = data.promptVars;
       if(umbra.get("debug")) { console.log(pv); }
       let ib = window.infobar;
@@ -984,7 +987,7 @@ $(function() {
       if(pv.flags.indexOf('y') < 0) { ib.regainRightBalance(); }
     }
 
-    if(data.promptExtraVars || data.promptExtraVars.length > 0) {
+    if(hasPromptExtras) {
 
       let newVisibleExtraVars = {};
 
@@ -1006,7 +1009,7 @@ $(function() {
             let $elem = $('<div id="promptvar-' + name + '" class="promptextra"/>');
             $elem.text(name + '=' + value);
             newVisibleExtraVars[name] = $elem;
-            $('#extrasbar').append($elem);
+            $('#prompt-inclusions').append($elem);
           }
 
           if(visibleExtraVars.hasOwnProperty(name)) { delete visibleExtraVars[name]; }
@@ -1029,6 +1032,15 @@ $(function() {
       visibleExtraVars = newVisibleExtraVars;
     }
 
+    if(hasPromptVars && hasPromptExtras) {
+      $('#prompt-inclusions').removeClass('hidden');
+      $('#alt-prompt').addClass('hidden');
+    } else {
+      $('#prompt-inclusions').addClass('hidden');
+      $('#alt-prompt')
+        .removeClass('hidden')
+        .html(styler.ansi_to_html(data.prompt));
+    }
     if(umbra.get("debug")) { console.groupEnd(); }
 
   }
@@ -1263,22 +1275,6 @@ $(function() {
     });
   }
 
-  function dragMoveListener (event) {
-    var target = event.target,
-    // keep the dragged position in the data-x/data-y attributes
-      x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-      y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-    // translate the element
-    target.style.webkitTransform =
-      target.style.transform =
-        'translate(' + x + 'px, ' + y + 'px)';
-
-    // update the position attributes
-    target.setAttribute('data-x', x);
-    target.setAttribute('data-y', y);
-  }
-
   const $buttonbit = $('#buttonbit');
 
   //build the macrobuttons
@@ -1341,55 +1337,6 @@ $(function() {
     .swipedown(buttonsToBottom)
     .swipeleft(buttonsToLeft)
     .swiperight(buttonsToRight);
-
-
-  /*
-  interact('.macrobtn')
-    .on('tap', function (event) {
-      let $elem = $(event.currentTarget);
-      let macroId = $elem.attr("data-macroId");
-      sendMessage(macroId);
-      $elem.transition('pulse');
-      event.preventDefault();
-    });
-
-  interact('#buttonbit')
-    .draggable({
-      onmove: dragMoveListener,
-      restrict: {
-        restriction: "parent",
-        endOnly: false,
-        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-      }
-    })
-    .resizable({
-      edges: { left: true, right: true, bottom: true, top: true },
-      restrict: {
-        restriction: "parent",
-        endOnly: false,
-        elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-      }
-    })
-    .on('resizemove', function (event) {
-      let target = event.target;
-      let x = (parseFloat(target.getAttribute('data-x')) || 0);
-      let y = (parseFloat(target.getAttribute('data-y')) || 0);
-
-      // update the element's style
-      target.style.width  = event.rect.width + 'px';
-      target.style.height = event.rect.height + 'px';
-
-      // translate when resizing from right or top edges
-      x += event.deltaRect.right;
-      y += event.deltaRect.top;
-      //
-      target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px,' + y + 'px)';
-
-      target.setAttribute('data-x', x);
-      target.setAttribute('data-y', y);
-      //target.textContent = event.rect.width + '×' + event.rect.height;
-    });
-   */
 
   $(window).bind('beforeunload', function() {
     return 'You\'re about to navigate away and disconnect avalon.\n\n' +
