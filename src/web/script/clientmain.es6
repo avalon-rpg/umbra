@@ -1295,13 +1295,13 @@ $(function() {
     let range = (start, end) => [...Array(end - start + 1)].map((_, i) => start + i);
 
     let charA = "A".charCodeAt(0);
-    let macrobuttons = range(0, 25).map(function (i) {
+    let macroButtons = range(0, 25).map(function (i) {
       let id = i + 223;
       let char = String.fromCharCode(charA + i);
       return $(`<a class="macrobtn hidden" id="macrobtn-${id}" data-macroId="${id}" href="#">Umbra ${char}</a>`);
     });
 
-    $('#buttonbit').append(macrobuttons);
+    $('#buttonbit').append(macroButtons);
   }
 
 
