@@ -608,7 +608,7 @@ $(function() {
 
 
 
-  $( document ).on( "click", "a.item", function(event) {
+  $( document ).on( "tap", "a.item", function(event) {
     var cmd = $(this).data('command');
     if(cmd) {
       $inputBox.val(cmd + ' ');
@@ -638,15 +638,15 @@ $(function() {
     event.preventDefault();
   });
 
-  $("#input-box-send").click( function(event) {
+  $("#input-box-send").tap( function(event) {
     onInput();
   });
 
-  $("#logOut").click( function(event) {
+  $("#logOut").tap( function(event) {
     socket.emit('logout');
   });
 
-  $(".theme.select").click( function(event) {
+  $(".theme.select").tap( function(event) {
     let themename = $(this).data("themename");
     umbra.set("theme", themename).save();
     setTheme();
@@ -657,7 +657,7 @@ $(function() {
     $('#theme-stylesheet').attr('href', href);
   }
 
-  $(".size.select").click( function(event) {
+  $(".size.select").tap( function(event) {
 
     let fontSize = '.95em';
     switch($(this).text()) {
@@ -748,7 +748,7 @@ $(function() {
   // Click events
 
 
-  $('#toggleFullscreen').click(function () {
+  $('#toggleFullscreen').tap(function () {
 
     if (screenfull.isFullscreen) {
       $('#toggleFullscreen').removeClass('compress').addClass('expand');
@@ -759,20 +759,6 @@ $(function() {
     }
 
   });
-
-
-  function openHelp() {
-    var help = $("#searchHelp input").val();
-    window.open('http://www.avalon-rpg.com/help/search?page='+help,'_blank','width=600,height=800,scrollbars=1');
-  }
-
-  $("#searchHelp input").keyup(function(e) {
-    if (e.keyCode === 13) openHelp(); // will usually be blocked
-  });
-
-  $("#searchHelp i.icon").click(openHelp);
-
-
 
   // Socket events
 
