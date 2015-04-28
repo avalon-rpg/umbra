@@ -287,7 +287,6 @@ $(function() {
 
   // Log a message
   function mkLine (data) {
-    //if(prevMsgType === 'prompt') { addPromptMark(); }
 
     if(data.hasOwnProperty('replacableId')) {
       $('.' + data.replacableId).remove();
@@ -320,18 +319,6 @@ $(function() {
   function log (message, options) {
     addMessageElements(mkLine(message), options);
   }
-
-  function addPrompt(text) {
-    if(prevMsgType === 'line') {
-      prevMsgType = 'prompt';
-    }
-    let content = styler.ansi_to_html(text);
-    $promptBar.html(content);
-    return null;
-  }
-
-  function mkPromptMark() { return $('<i class="icon caret right prompt">'); }
-  function addPromptMark() { addMessageElements(mkPromptMark()); }
   
   function mkIcon(classes) { return $('<i class="' + classes + ' icon">'); }
 
@@ -346,7 +333,6 @@ $(function() {
       let whohtml = styler.style(data.who);
       parts.push($('<div class="who">').html(whohtml));
     }
-
 
     if(data.city) {
       parts.push($('<div class="city">').html(data.city));
@@ -863,6 +849,33 @@ $(function() {
     }
   }
 
+  function handlePromptVar(name, value) {
+    const ib = window.infobar;
+
+    if((name === 'health') && ib) {
+      const healthParts = value.split(' ');
+      ib.setMaxHealth(healthParts[1]);
+      ib.setHealth(healthParts[0]);
+    } else if((name === 'mana') && ib) {
+      const manaParts = value.split(' ');
+      ib.setMaxMana(manaParts[1]);
+      ib.setMana(manaParts[0]);
+    } else if((name === 'l') && ib) {
+      ib.wieldLeft(value);
+    } else if((name === 'r') && ib) {
+      ib.wieldRight(value);
+    } else {
+      let $existing = $('#promptvar-' + name);
+      if($existing.length) {
+        $existing.text(name + '=' + value);
+      } else {
+        let $elem = $('<div id="promptvar-' + name + '" class="promptextra"/>');
+        $elem.text(name + '=' + value);
+        $('#prompt-inclusions').append($elem);
+      }
+    }
+  }
+
   function handleProto(e, data) {
     var code = data.code;
     var content = data.content;
@@ -871,6 +884,8 @@ $(function() {
 
     if(code === 'ack') {
       handleAck(content);
+    } else if(code === 'promptvar') {
+      handlePromptVar(data.name, data.value);
     } else if(code === 'playername') {
       $('#playername').text(content);
     } else if(code === 'city') {
@@ -959,74 +974,31 @@ $(function() {
 
     if(data.prompt) {
       if (umbra.get("debug")) { console.log('prompt: ' + data.prompt); }
-      let $el = addPrompt(data.prompt);
-      addMessageElements($el);
     } else {
       console.log(data);
     }
 
-    const hasPromptVars = (data.promptVars);
-    const hasPromptExtras = (data.promptExtraVars);
 
-    if(hasPromptVars && !screenreader) {
+    if(data.hasOwnProperty('promptVars')) {
       let pv = data.promptVars;
       if(umbra.get("debug")) { console.log(pv); }
-      let ib = window.infobar;
 
-      ib.setMaxima(pv.healthMax, pv.manaMax);
-      ib.setHealth(pv.health);
-      ib.setMana(pv.mana);
-      if(pv.flags.indexOf('e') >= 0) { ib.regainEq(); }
-      if(pv.flags.indexOf('z') < 0) { ib.regainLeftBalance(); }
-      if(pv.flags.indexOf('y') < 0) { ib.regainRightBalance(); }
-    }
+      if(!screenreader) {
+        let ib = window.infobar;
 
-    if(hasPromptExtras) {
-
-      let newVisibleExtraVars = {};
-
-      if(umbra.get("debug")) {
-        console.log('prompt extras');
-        console.log(data.promptExtraVars);
-      }
-
-      // values as discovered are transferred from visibleExtraVars to newVisibleExtraVars
-      // any left in the original object are then removed from the DOM
-      for(let name in data.promptExtraVars) {
-        if (name !== 'health' && name !== 'mana' && data.promptExtraVars.hasOwnProperty(name)) {
-          let value = data.promptExtraVars[name];
-          let $existing = $('#promptvar-' + name);
-          if($existing.length) {
-            $existing.text(name + '=' + value);
-            newVisibleExtraVars[name] = visibleExtraVars[name];
-          } else {
-            let $elem = $('<div id="promptvar-' + name + '" class="promptextra"/>');
-            $elem.text(name + '=' + value);
-            newVisibleExtraVars[name] = $elem;
-            $('#prompt-inclusions').append($elem);
-          }
-
-          if(visibleExtraVars.hasOwnProperty(name)) { delete visibleExtraVars[name]; }
+        ib.setMaxima(pv.healthMax, pv.manaMax);
+        ib.setHealth(pv.health);
+        ib.setMana(pv.mana);
+        if (pv.flags.indexOf('e') >= 0) {
+          ib.regainEq();
+        }
+        if (pv.flags.indexOf('z') < 0) {
+          ib.regainLeftBalance();
+        }
+        if (pv.flags.indexOf('y') < 0) {
+          ib.regainRightBalance();
         }
       }
-
-      if(umbra.get("debug")) {
-        console.log('visible');
-        console.log(newVisibleExtraVars);
-        console.log('culling');
-        console.log(visibleExtraVars);
-      }
-
-      for(let cullname in visibleExtraVars) {
-        if(visibleExtraVars.hasOwnProperty(cullname)) {
-          visibleExtraVars[cullname].remove();
-        }
-      }
-
-      visibleExtraVars = newVisibleExtraVars;
-    }
-
-    if(hasPromptVars) {
       if(inBB) {
         inBB = false;
         console.log("*** Out of the BB ***");
@@ -1035,7 +1007,7 @@ $(function() {
       $('#alt-prompt').addClass('hidden');
       $('#alt-prompt').html('');
     } else {
-      if(data.prompt.trim() === "BB>") {
+      if(data.hasOwnProperty('prompt') && data.prompt.trim() === "BB>") {
         console.log("*** In the BB ***");
         inBB = true;
       }

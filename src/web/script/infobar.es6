@@ -429,6 +429,14 @@ function InfoBar(elemName) {
     balanceRight.completeRestore();
   };
 
+  self.wieldLeft = function (item) {
+    balanceLeft.text(item);
+  };
+
+  self.wieldRight = function (item) {
+    balanceRight.text(item);
+  };
+
   self.loseBalance = function(side, restoreTime, item) {
     if(side === 'left') {self.loseLeftBalance(restoreTime, item); }
     else {self.loseRightBalance(restoreTime, item); }

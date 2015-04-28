@@ -44,8 +44,6 @@ AvParser.prototype.init = function(shadowclient) {
   let mapLoc = '';
   let mapLines = [];
   let umbraMsg = false;
-//  let inMacroList = false;
-  let promptExtraVars = {};
 
   const emit = function() {
     self._emitter.emit.apply(self._emitter, arguments);
@@ -84,8 +82,7 @@ AvParser.prototype.init = function(shadowclient) {
             block.promptVars = promptVars;
           }
         }
-        block.promptExtraVars = promptExtraVars;
-        promptExtraVars = {};
+
         block.emitted = new Date();
         emit('block', block);
       } catch (err) {
@@ -153,7 +150,12 @@ AvParser.prototype.init = function(shadowclient) {
     {
       regex: /^###ack prompt (\S*) (.*)$/,
       func: function(match) {
-        promptExtraVars[match[1]] = match[2];
+        emit('protocol', {
+          code: 'promptvar',
+          content: match[0],
+          name: match[1],
+          value:  match[2]
+        });
       }
     },{
       regex: /^UmBrA:\s$/,
@@ -161,7 +163,7 @@ AvParser.prototype.init = function(shadowclient) {
         umbraMsg = true;
       }
     },{
-      regex: /^###ack macro@ ###id=(\d+) ###name=(.+) ###definition=(.*)$/,
+      regex: /^###ack macro@ ###id=(\d+) ###name=(.+) ###def=(.*)$/,
       func: function(match) {
         appendOutput({
           qual:     'protocol',
