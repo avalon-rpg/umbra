@@ -1018,11 +1018,16 @@ $(function() {
       addMessageElements($el);
     }
 
+    let promptTxt;
+
     if(data.prompt) {
+      promptTxt = data.prompt.trim();
       if (umbra.get("debug")) { console.log('prompt: ' + data.prompt); }
     } else {
+      promptTxt = '';
       console.log(data);
     }
+
 
 
     if(data.hasOwnProperty('promptVars')) {
@@ -1060,18 +1065,21 @@ $(function() {
       $('#alt-prompt').addClass('hidden');
       $('#alt-prompt').html('');
     } else {
-      if(data.hasOwnProperty('prompt') && data.prompt.trim() === "BB>") {
+
+      if(data.hasOwnProperty('prompt') && promptTxt === "BB>") {
         console.log("*** In the BB ***");
         inBB = true;
       }
-      let promptHtml = data.prompt;
-      if(data.hasOwnProperty('ansiPrompt')) {
-        promptHtml = styler.ansi_to_html(data.ansiPrompt);
+      if(promptTxt !== '') {
+        let promptHtml = data.prompt;
+        if (data.hasOwnProperty('ansiPrompt')) {
+          promptHtml = styler.ansi_to_html(data.ansiPrompt);
+        }
+        $('#prompt-inclusions').addClass('hidden');
+        $('#alt-prompt')
+          .removeClass('hidden')
+          .html(promptHtml);
       }
-      $('#prompt-inclusions').addClass('hidden');
-      $('#alt-prompt')
-        .removeClass('hidden')
-        .html(promptHtml);
     }
     if(umbra.get("debug")) { console.groupEnd(); }
 
