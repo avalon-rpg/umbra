@@ -90,8 +90,7 @@ io.on('connection', function (socket) {
       } else {
         shadowclient.replay(fnReplay);
       }
-      //shadowclient.write('###ack macros\r\n');
-      shadowclient.write('MM\r\n');
+      shadowclient.write('###ack macros\r\n');
       let protoState = cli.protocolState();
       if(protoState) {
         for (let code in protoState) {
