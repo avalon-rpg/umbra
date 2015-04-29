@@ -4,8 +4,6 @@ function InfoBar(elemName) {
   const self = this;
   const $self = $(self);
 
-  let gotEq = true;
-
   //static dimensions (height never changes)
   const paperHeight = $elem.height();
   const u = paperHeight / 16;
@@ -78,11 +76,13 @@ function InfoBar(elemName) {
    */
   function Segment(params) {
     let self = this;
+    const $segmentSelf = $(this);
 
     let height           = params.height;
     let pos              = params.pos || 'left';
     let offset           = params.offset || function() { return 0; };
     let endOffset        = params.endOffset || function() { return (paperWidth / 2) - 4*u; };
+    let stateName        = params.stateName || 'OK';
     let valueMax         = params.valueMax || 1.0;
     let value            = params.value || 0.0;
     let lowColour        = params.lowColour || 'red';
@@ -130,6 +130,17 @@ function InfoBar(elemName) {
       return startPath + startCap + topLine + midCap + bottomLine + endPath;
     }
 
+    function onTouchHandler() {
+      let fraction = value / valueMax;
+      let fractionBand = 4;
+      if     (fraction < 1/3) { fractionBand = 1; }
+      else if(fraction < 2/3) { fractionBand = 2; }
+      else if(fraction < 1)   { fractionBand = 3; }
+      else                    { fractionBand = 4;}
+
+      let data = {value: value, valueMax: valueMax, stateName: stateName, fractionBand: fractionBand};
+      $segmentSelf.trigger('tap', data);
+    }
     function initElements() {
       self.calcDimensions();
 
@@ -142,6 +153,11 @@ function InfoBar(elemName) {
       $bar.attr({fill: fillColourForValue(value)});
       $border.attr({stroke: borderColour, 'stroke-width': 1});
       $text.attr({fill: 'white'});
+
+      $delta.click(onTouchHandler);
+      $bar.click(onTouchHandler);
+      $border.click(onTouchHandler);
+      $text.click(onTouchHandler);
     }
 
     self.calcDimensions = function() {
@@ -220,10 +236,10 @@ function InfoBar(elemName) {
       }
 
       $border.attr('stroke', value < valueMax ? borderColour : fullBorderColour);
-
     };
 
-    self.timedRestore = function(duration, altColour) {
+    self.timedRestore = function(newStateName, duration, altColour) {
+      stateName = newStateName;
       const colour = altColour || 'white';
       $bar.attr({
         path: pathStr(0, valueMax),
@@ -236,7 +252,8 @@ function InfoBar(elemName) {
       );
     };
 
-    self.completeRestore = function() {
+    self.completeRestore = function(newStateName) {
+      stateName = newStateName || 'OK';
       $bar.attr('fill', 'black');
     };
 
@@ -328,36 +345,18 @@ function InfoBar(elemName) {
       fullBorderColour : 'white'
     });
 
-
-
     $topFlagText = paper.text(paperMidX, paperHeight*0.33, '^');
     $topFlagText.attr({fill: 'white'});
 
     $bottomFlagText = paper.text(paperMidX, paperHeight*0.67, 'v');
     $bottomFlagText.attr({fill: 'white'});
 
-  }
-
-  function bindAllEvents() {
-    //bindClick([healthDelta,healthBar,healthBorder], function fn() {
-    //  $self.trigger("healthClicked", {
-    //    health: health,
-    //    healthMax: healthMax,
-    //    ratio: health/healthMax
-    //  });
-    //});
-
-    //bindClick([manaDelta,manaBar,manaBorder], function fn() {
-    //  $self.trigger("manaClicked", {
-    //    mana: mana,
-    //    manaMax: manaMax,
-    //    ratio: mana/manaMax
-    //  });
-    //});
-
-    //these don't bind click
-    //bindEventsFor('health', [healthDelta,healthBar,healthBorder]);
-    //bindEventsFor('mana', [manaDelta,manaBar,manaBorder]);
+    $(health).on('tap', function (e, data) { $self.trigger('healthTapped', data); });
+    $(mana).on('tap', function (e, data) { $self.trigger('manaTapped', data); });
+    $(balanceLeft).on('tap', function (e, data) { $self.trigger('leftBalanceTapped', data); });
+    $(balanceRight).on('tap', function (e, data) { $self.trigger('rightBalanceTapped', data); });
+    $(eqLeft).on('tap', function (e, data) { $self.trigger('eqTapped', data); });
+    $(eqRight).on('tap', function (e, data) { $self.trigger('eqTapped', data); });
   }
 
   function resizeElems() {
@@ -374,7 +373,6 @@ function InfoBar(elemName) {
   function setup() {
     calcDimensions();
     generateElems();
-    bindAllEvents();
   }
 
   function cleanRender() {
@@ -418,8 +416,8 @@ function InfoBar(elemName) {
   self.loseEq = function(hardOrSoft, duration) {
     const isSoft = (hardOrSoft === 'soft') || false;
     const colour = isSoft ? 'green': 'purple';
-    eqLeft.timedRestore(duration, colour);
-    eqRight.timedRestore(duration, colour);
+    eqLeft.timedRestore(hardOrSoft, duration, colour);
+    eqRight.timedRestore(hardOrSoft, duration, colour);
   };
 
   self.regainEq = function() {
@@ -429,7 +427,7 @@ function InfoBar(elemName) {
 
   self.loseLeftBalance = function(duration, item) {
     balanceLeft.text(item);
-    balanceLeft.timedRestore(duration, 'red');
+    balanceLeft.timedRestore(item, duration, 'red');
   };
 
   self.regainLeftBalance = function(item) {
@@ -439,7 +437,7 @@ function InfoBar(elemName) {
 
   self.loseRightBalance = function(duration, item) {
     balanceRight.text(item);
-    balanceRight.timedRestore(duration, 'red');
+    balanceRight.timedRestore(item, duration, 'red');
   };
 
   self.regainRightBalance = function(item) {
@@ -464,19 +462,6 @@ function InfoBar(elemName) {
     if(side === 'left') {self.regainLeftBalance(item); }
     else {self.regainRightBalance(item); }
   };
-
-  function bindEventsFor(name, elems) {
-    bindTouchStart(elems, function (e) { console.log(name + ' touch start, e=' + JSON.stringify(e)); });
-    bindTouchMove(elems, function(e) { console.log(name + ' touch move, e=' + JSON.stringify(e)); });
-    bindTouchEnd(elems, function(e) { console.log(name + ' touch end, e=' + JSON.stringify(e)); });
-    bindTouchCancel(elems, function(e) { console.log(name + ' touch cancel, e=' + JSON.stringify(e)); });
-  }
-
-  function bindClick(elems, handler) { elems.forEach(function (elem) {elem.click(handler);}); }
-  function bindTouchStart(elems, handler) { elems.forEach(function (elem) {elem.touchstart(handler);}); }
-  function bindTouchMove(elems, handler) { elems.forEach(function (elem) {elem.touchmove(handler);}); }
-  function bindTouchEnd(elems, handler) { elems.forEach(function (elem) {elem.touchend(handler);}); }
-  function bindTouchCancel(elems, handler) { elems.forEach(function (elem) {elem.touchcancel(handler);}); }
 
   setup();
 

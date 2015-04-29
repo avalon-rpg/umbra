@@ -898,7 +898,16 @@ $(function() {
         $existing.text(name + '=' + value);
       } else {
         let $elem = $('<div id="promptvar-' + name + '" class="promptextra"/>');
+        $elem.data('varname', name);
         $elem.text(name + '=' + value);
+        switch(name) {
+          case 'slp': $elem.tap(function(){sendMessage('vigour');}); break;
+          case 'cht': $elem.tap(function(){sendMessage('cast');}); break;
+          case 'brh': $elem.tap(function(){sendMessage('breathe');}); break;
+          case 'bld': $elem.tap(function(){sendMessage('clot');}); break;
+          case 'dra': $elem.tap(function(){sendMessage('drains');}); break;
+        }
+
         $('#prompt-inclusions').append($elem);
       }
     }
@@ -1036,7 +1045,11 @@ $(function() {
           ib.regainRightBalance();
         }
 
-        ib.setTopFlagText(data.promptVars.flags);
+        let cleanflags = data.promptVars.flags
+          .replace('e', '')
+          .replace('y', '')
+          .replace('z', '');
+        ib.setTopFlagText(cleanflags);
         ib.setBottomFlagText(data.prompt.split(' ').slice(-1)[0]);
       }
       if(inBB) {
@@ -1285,11 +1298,53 @@ $(function() {
     $('#infobar').addClass('hidden');
   } else {
     window.infobar = new InfoBar('infobar');
-    $(window.infobar).on('healthClicked', function (e, data) {
-      console.log('health clicked: ' + JSON.stringify(data));
+
+    $(window.infobar).on('healthTapped', function (e, data) {
+      //201 uH+1: umbra health 1
+      //202 uH+2: umbra health 2
+      //203 uH+3: umbra health 3
+      //204 uH+4: umbra health 4
+      switch(data.fractionBand) {
+        case 1: sendMessage(201); break;
+        case 2: sendMessage(202); break;
+        case 3: sendMessage(203); break;
+        case 4: sendMessage(204); break;
+      }
+      //console.log('health clicked: ' + JSON.stringify(data));
     });
-    $(window.infobar).on('manaClicked', function (e, data) {
-      console.log('mana clicked: ' + JSON.stringify(data));
+    $(window.infobar).on('manaTapped', function (e, data) {
+      //205 uM+1: umbra mana 1
+      //206 uM+2: umbra mana 2
+      //207 uM+3: umbra mana 3
+      //208 uM+4: umbra mana 4
+      switch(data.fractionBand) {
+        case 1: sendMessage(205); break;
+        case 2: sendMessage(206); break;
+        case 3: sendMessage(207); break;
+        case 4: sendMessage(208); break;
+      }
+      //console.log('mana clicked: ' + JSON.stringify(data));
+    });
+    $(window.infobar).on('leftBalanceTapped', function (e, data) {
+      //209 uL+1: umbra left bal
+      sendMessage(209);
+      //console.log('left bal clicked: ' + JSON.stringify(data));
+    });
+    $(window.infobar).on('rightBalanceTapped', function (e, data) {
+      //210 uR+1: dummy umbra right bal
+      sendMessage(210);
+      //console.log('right bal clicked: ' + JSON.stringify(data));
+    });
+    $(window.infobar).on('eqTapped', function (e, data) {
+      //211 uE+1: dummy umbra eq soft
+      //212 uE+2: dummy umbra eq hard
+      //213 uE+3: dummy umbra eq ok
+      switch(data.stateName) {
+        case 'soft': sendMessage(211); break;
+        case 'hard': sendMessage(212); break;
+        default:     sendMessage(213); break;
+      }
+      //console.log('eq clicked: ' + JSON.stringify(data));
     });
   }
 
