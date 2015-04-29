@@ -852,6 +852,7 @@ $(function() {
       let splitOne = text.split('@');
       let parts = splitOne[0].split(' ');
       let side = parts[1];
+      if(side ==='left:') { side = 'left'; }
       let restored = parts[2] === 'OK';
       let recoveryTime;
       if(!restored) {
