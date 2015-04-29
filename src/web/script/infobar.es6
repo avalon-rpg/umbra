@@ -416,8 +416,8 @@ function InfoBar(elemName) {
   };
 
   self.loseEq = function(hardOrSoft, duration) {
-    const isHard = hardOrSoft || true;
-    const colour = isHard ? 'purple' : 'green';
+    const isSoft = (hardOrSoft === 'soft') || false;
+    const colour = isSoft ? 'green': 'purple';
     eqLeft.timedRestore(duration, colour);
     eqRight.timedRestore(duration, colour);
   };
