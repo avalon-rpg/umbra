@@ -943,6 +943,13 @@ $(function() {
         delete macros[data.macroId];
       } else {
         $btn.removeClass('hidden');
+        if($btn.length > 0) {
+          let defParts = data.macroDef.split("::");
+          let part1 = defParts[0];
+          if(part1.indexOf('btnname') === 0) {
+            $btn.text(part1.substring(8));
+          }
+        }
         macros[data.macroId] = data.macroDef;
       }
     }
