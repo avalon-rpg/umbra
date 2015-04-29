@@ -948,6 +948,8 @@ $(function() {
           let part1 = defParts[0];
           if(part1.indexOf('btnname') === 0) {
             $btn.text(part1.substring(8));
+          } else if(part1.indexOf('button') === 0) {
+            $btn.text(part1.substring(7));
           }
         }
         macros[data.macroId] = data.macroDef;
