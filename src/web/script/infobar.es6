@@ -38,8 +38,8 @@ function InfoBar(elemName) {
   let eqLeft;
   let eqRight;
 
-  let eqCircle;           // equilibrium circle
-  let eqCircleUnder;      // equilibrium circle underlay
+  let $topFlagText;
+  let $bottomFlagText;
 
 
 
@@ -263,8 +263,8 @@ function InfoBar(elemName) {
     eqLeft = new Segment({
       height           : eqHeight,
       pos              : 'left',
-      offset           : function() { return 4*u; },
-      endOffset        : function() { return (4*u) + eqWidth(); },
+      offset           : function() { return 8*u; },
+      endOffset        : function() { return (8*u) + eqWidth(); },
       text             : 'eq',
       borderColour     : 'white',
       fullBorderColour : 'white'
@@ -273,8 +273,8 @@ function InfoBar(elemName) {
     eqRight = new Segment({
       height           : eqHeight,
       pos              : 'right',
-      offset           : function() { return 4*u; },
-      endOffset        : function() { return (4*u) + eqWidth(); },
+      offset           : function() { return 8*u; },
+      endOffset        : function() { return (8*u) + eqWidth(); },
       text             : 'eq',
       borderColour     : 'white',
       fullBorderColour : 'white'
@@ -283,8 +283,8 @@ function InfoBar(elemName) {
     balanceLeft = new Segment({
       height           : balanceHeight,
       pos              : 'left',
-      offset           : function() { return (8*u) + eqWidth(); },
-      endOffset        : function() { return (8*u) + eqWidth() + balanceWidth(); },
+      offset           : function() { return (11*u) + eqWidth(); },
+      endOffset        : function() { return (11*u) + eqWidth() + balanceWidth(); },
       text             : 'left',
       borderColour     : 'white',
       fullBorderColour : 'white'
@@ -293,8 +293,8 @@ function InfoBar(elemName) {
     balanceRight = new Segment({
       height           : balanceHeight,
       pos              : 'right',
-      offset           : function() { return (8*u) + eqWidth(); },
-      endOffset        : function() { return (8*u) + eqWidth() + balanceWidth(); },
+      offset           : function() { return (11*u) + eqWidth(); },
+      endOffset        : function() { return (11*u) + eqWidth() + balanceWidth(); },
       text             : 'right',
       borderColour     : 'white',
       fullBorderColour : 'white'
@@ -303,7 +303,7 @@ function InfoBar(elemName) {
     health = new Segment({
       height           : barHeight,
       pos              : 'left',
-      offset           : function() { return (12*u) + eqWidth() + balanceWidth(); },
+      offset           : function() { return (14*u) + eqWidth() + balanceWidth(); },
       endOffset        : function() { return (paperWidth/2) - (3*u); },
       valueMax         : 1.0,
       value            : 0.0,
@@ -317,7 +317,7 @@ function InfoBar(elemName) {
     mana = new Segment({
       height           : barHeight,
       pos              : 'right',
-      offset           : function() { return (12*u) + eqWidth() + balanceWidth(); },
+      offset           : function() { return (14*u) + eqWidth() + balanceWidth(); },
       endOffset        : function() { return (paperWidth/2) - (3*u); },
       valueMax         : 1.0,
       value            : 0.0,
@@ -327,6 +327,14 @@ function InfoBar(elemName) {
       borderColour     : manaColour,
       fullBorderColour : 'white'
     });
+
+
+
+    $topFlagText = paper.text(paperMidX, paperHeight*0.33, '^');
+    $topFlagText.attr({fill: 'white'});
+
+    $bottomFlagText = paper.text(paperMidX, paperHeight*0.67, 'v');
+    $bottomFlagText.attr({fill: 'white'});
 
   }
 
@@ -359,6 +367,8 @@ function InfoBar(elemName) {
     balanceRight.resizeElems();
     eqLeft.resizeElems();
     eqRight.resizeElems();
+    $topFlagText.attr('x', paperMidX);
+    $bottomFlagText.attr('x', paperMidX);
   }
 
   function setup() {
@@ -395,6 +405,14 @@ function InfoBar(elemName) {
   self.setMana = function(newVal) {
     mana.deltaToValue(newVal);
     mana.text(mana.valueStr());
+  };
+
+  self.setTopFlagText = function(newVal) {
+    $topFlagText.attr('text', newVal);
+  };
+
+  self.setBottomFlagText = function(newVal) {
+    $bottomFlagText.attr('text', newVal);
   };
 
   self.loseEq = function(hardOrSoft, duration) {

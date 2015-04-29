@@ -1025,6 +1025,9 @@ $(function() {
         if (pv.flags.indexOf('y') < 0) {
           ib.regainRightBalance();
         }
+
+        ib.setTopFlagText(data.promptVars.flags);
+        ib.setBottomFlagText(data.prompt.split(' ').slice(-1)[0]);
       }
       if(inBB) {
         inBB = false;
