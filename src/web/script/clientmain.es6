@@ -694,6 +694,10 @@ $(function() {
     $('.macrobtn').css({ 'font-size': fontSize });
   });
 
+  $("#launch-mini-manual").tap( function(event) {
+    $("#mini-manual").modal("show");
+  });
+
   $('#newUserDropdown').accordion({
     onOpen: function () {
       createNewUser = true;

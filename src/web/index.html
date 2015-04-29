@@ -82,6 +82,10 @@
             <div class="item macrobtn-size select">biggest</div>
           </div>
         </div>
+        <div id="launch-mini-manual" class="item">
+          <i class="help circle icon"></i>
+          <span class="text">Mini-Manual</span>
+        </div>
       </div>
     </div>
 
@@ -93,6 +97,36 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="map"></div>
+  </div>
+
+  <div id="mini-manual" class="ui fullscreen modal">
+      <i class="close icon"></i>
+      <div class="header">
+          The Umbra mini-manual
+      </div>
+      <div class="content">
+          <div class="description">
+              <div class="ui header">Welcome to Umbra.</div>
+              <p>Here are some useful tips to get you started:</p>
+              <ul>
+                  <li>multiple commands on a line can be separated with a ;</li>
+                  <li>hit ENTER on a blank input to re-send your last command</li>
+                  <li>A number keypad can be used for movement, including - and + for up and down, * and / for in and out</li>
+                  <li>It can also be used for other commands with CTRL. e.g. typing ROLL then pressing CTRL+8 will send "ROLL N"</li>
+                  <li>Avalon-standard keyboard macros are supported.  Read HELP MACROS and HELP MM.  As an example, a macro for CTRL+L might be defined as "SM CTRL+L look::eye" - once defined, Umbra can use this macro right away</li>
+                  <li>For mobile/tablet users, we also have a button bar.  Macros here can be defined as UMBRA+A thru UMBRA+Z.  The button box can be moved around the screen with a swipe gesture.</li>
+                  <li>See PROMPT HELP for extra variables that can be displayed on your prompt.</li>
+                  <li>In the bulletin board, your input will be echoed back.  You'll also find that semicolons can be used normally and keyboard macros are disabled.</li>
+                  <li>If you lose your connection, Umbra will keep you logged in (safely) as an aura.  You can even reconnect from a different device and see some of your recent history replayed.</li>
+                  <li>Use the QQ command or logout from the menu to truly quit.</li>
+              </ul>
+          </div>
+      </div>
+      <div class="actions">
+          <div class="ui positive right button">
+              Close
+          </div>
+      </div>
   </div>
 
   <!-- Main Body -->
