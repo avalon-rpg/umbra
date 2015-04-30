@@ -170,7 +170,7 @@ ShadowClient.prototype.forceClose = function() {
 
 ShadowClient.prototype.pause = function() {
   if (this.connected) {
-    this.conn.write('aura who on\r\n');
+    //this.conn.write('aura who on\r\n');
     this.conn.write('###ack disconnect@\r\n');
   }
 };
