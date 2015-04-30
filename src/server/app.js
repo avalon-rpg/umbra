@@ -123,9 +123,6 @@ io.on('connection', function (socket) {
   socket.on('logout', function() {
     if(shadowclient) {
       shadowclient.write('qq\r\n');
-      //setTimeout(function() {
-      //  if(shadowclient) { shadowclient.close(); }
-      //}, 20000);
     }
   });
 
