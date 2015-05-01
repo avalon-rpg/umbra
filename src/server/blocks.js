@@ -74,7 +74,7 @@ function BlockStack() {
    * @returns {boolean} true if the block was popped, false if the current block is already root
    */
   self.pop = function () {
-    if (current.entries.length === 1) {
+    if (current.hasOwnProperty('entries') && current.entries.length === 1) {
       let soleEntry = current.entries[0];
       if (soleEntry.comms) {
         current = soleEntry;
