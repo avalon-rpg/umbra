@@ -1056,7 +1056,14 @@ $(function() {
           .replace('z', '');
         ib.setTopFlagText(cleanflags);
         ib.setBottomFlagText(data.prompt.split(' ').slice(-1)[0]);
+      } else {
+        let promptHtml = data.prompt.replace(',', ' ');
+        if (data.hasOwnProperty('ansiPrompt')) {
+          promptHtml = styler.ansi_to_html(data.ansiPrompt.replace(',', ' '));
+        }
+        $('#prompt-bar').html(promptHtml);
       }
+
       if(inBB) {
         inBB = false;
         console.log("*** Out of the BB ***");
@@ -1070,7 +1077,9 @@ $(function() {
         console.log("*** In the BB ***");
         inBB = true;
       }
-      if(promptTxt !== '') {
+      //if a non standard prompt, swap it into the inclusions area
+      //unless it's for a screenreader, when we're already showing the prompt elsewhere
+      if(promptTxt !== '' && !screenreader) {
         let promptHtml = data.prompt;
         if (data.hasOwnProperty('ansiPrompt')) {
           promptHtml = styler.ansi_to_html(data.ansiPrompt);
