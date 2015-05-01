@@ -75,40 +75,39 @@ io.on('connection', function (socket) {
   //////////////////
   // SOCKET EVENTS 
 
+  let onConnectSuccess = function(data) {
+    let params = data.params;
+    shadowclient = data.client;
+
+    shadowclient.write('###ack connect@ ' + playerAddress + '\r\n');
+    wireClientEvents(shadowclient);
+    socket.emit("connect game ok");
+
+    let fnReplayState = function(blk) { socket.emit('protocol', blk); };
+    let fnReplay = function(blk) { socket.emit('block', blk); };
+
+    shadowclient.replayState(fnReplayState);
+
+    if(params.hasOwnProperty('replayFrom')) {
+      shadowclient.replayFrom(params.replayFrom, fnReplay);
+    } else {
+      shadowclient.replay(fnReplay);
+    }
+    shadowclient.write('###ack macros\r\n');
+  };
+
+  let onConnectFailure = function(data) {
+    let err = data.err;
+    let params = data.params;
+    console.log('login failure for ' + params.username + '@' + params.playerAddress + ': ' + JSON.stringify(err));
+    socket.emit('login failure', err.result.reason);
+  };
+
   socket.on('connect game', function (params) {
     params.playerAddress = playerAddress;
     username = params.username;
-
-    let onConnect = function(cli) {
-      shadowclient = cli;
-      shadowclient.write('###ack connect@ ' + playerAddress + '\r\n');
-      wireClientEvents(cli);
-      socket.emit("connect game ok");
-      let fnReplay = function(blk) { socket.emit('block', blk); };
-      if(params.replayFrom) {
-        shadowclient.replayFrom(params.replayFrom, fnReplay);
-      } else {
-        shadowclient.replay(fnReplay);
-      }
-      shadowclient.write('###ack macros\r\n');
-      let protoState = cli.protocolState();
-      if(protoState) {
-        for (let code in protoState) {
-          if (protoState.hasOwnProperty(code)) {
-            socket.emit('protocol', {code: code, content: protoState[code]});
-          }
-        }
-      } else {
-        console.log('empty protocol stste');
-      }
-    };
-
-    let onFailure = function(err) {
-      console.log('login failure: ' + JSON.stringify(err));
-      socket.emit('login failure', err.result.reason);
-    };
-
-    avalonConnections.get(params).done(onConnect, onFailure);
+    console.log('connect game request for: [' + username + ']');
+    avalonConnections.get(params, onConnectSuccess, onConnectFailure);
   });
 
   socket.on('log', function(msg) {

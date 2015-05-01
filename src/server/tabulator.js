@@ -63,29 +63,20 @@ Tabulator.prototype.tabulate = function (data) {
 
     }
 
-    function unTag(block, tag) {
-      if(block && block.tags && block.tags.length > 0) {
-        var idx = block.tags.indexOf(tag)
-        if (idx > -1) {
-          block.tags.splice(idx, 1);
-        }
-      }
-    }
-
     if(block.tags) {
       if (block.tags.indexOf('spheresense') >= 0) {
         tableType = 'sphereSense';
-        unTag(block, 'monospaced');
+        block.untag('monospaced');
       }
 
       if (block.tags.indexOf('guilds') >= 0) {
         tableType = 'guilds';
-        unTag(block, 'monospaced');
+        block.untag('monospaced');
       }
 
       if (block.tags.indexOf('bbstatus') >= 0) {
         tableType = 'bbstatus';
-        unTag(block, 'monospaced');
+        block.untag('monospaced');
       }
     }
 

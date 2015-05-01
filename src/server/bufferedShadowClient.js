@@ -41,6 +41,7 @@ const statefulProtoVars = [
 BufferedShadowClient.prototype.init = function(params) {
 
   let protoState = {};
+  let promptVars = {};
 
   let self = this;
   self.setMaxListeners(30);
@@ -61,10 +62,26 @@ BufferedShadowClient.prototype.init = function(params) {
   });
 
   sc.on('protocol', function (data) {
-    if(statefulProtoVars.indexOf(data.code) >= 0) {
-      protoState[data.code] = data.content;
+    let code = data.code;
+    if(statefulProtoVars.indexOf(code) >= 0) {
+      //only emit if changed from previously seen value
+      if(!protoState.hasOwnProperty(code) || protoState[code].content !== data.content) {
+        protoState[data.code] = data;
+        self.emit('protocol', data);
+      }
+    } else if (data.code === 'promptvar') {
+      let name = data.name;
+      let value = data.value;
+      if(!promptVars.hasOwnProperty(name) || promptVars[name].value !== value) {
+        console.log('sending updated promptvar ' + name + ' = ' + value);
+        promptVars[name] = data;
+        self.emit('protocol', data);
+      } else {
+        console.log('suppressing unchanged promptvar ' + name + ' = ' + value);
+      }
+    } else {
+      self.emit('protocol', data);
     }
-    self.emit('protocol', data);
   });
 
   sc.on('prompt', function (data) {
@@ -77,6 +94,19 @@ BufferedShadowClient.prototype.init = function(params) {
   self.close = function() { sc.close(); };
 
   self.pause = function() { sc.pause(); };
+
+  self.replayState = function(outputFn) {
+    for (let code in protoState) {
+      if (protoState.hasOwnProperty(code)) {
+        outputFn(protoState[code]);
+      }
+    }
+    for (let name in promptVars) {
+      if (promptVars.hasOwnProperty(name)) {
+        outputFn(promptVars[name]);
+      }
+    }
+  };
 
   self.replay = function(outputFn) {
     inputBuffer.forEach(outputFn);

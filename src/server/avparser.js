@@ -326,25 +326,22 @@ AvParser.prototype.init = function(shadowclient) {
         let suppress = false;
         let txt = match[1];
 
-        //If this corresponds to speech already in the block, skip it
-        if(blockStack.current && blockStack.current.entries) {
-          blockStack.current.entries.forEach(function (entry) {
-            //matching text
-            if(entry.comms && txt.indexOf(entry.msg) >= 0) {
-              if (entry.qual === 'speech to' || entry.qual === 'tell to') {
-                //from us!
-                suppress = true;
-              } else if (entry.who && txt.indexOf(entry.who) >= 0) {
-                //matching person
-                suppress = true;
-              }
+        blockStack.currentEntries().forEach(function (entry) {
+          //matching text
+          if(entry.comms && txt.indexOf(entry.msg) >= 0) {
+            if (entry.qual === 'speech to' || entry.qual === 'tell to') {
+              //from us!
+              suppress = true;
+            } else if (entry.who && txt.indexOf(entry.who) >= 0) {
+              //matching person
+              suppress = true;
             }
-            //TODO: if there's an existing entry from "someone" or "a shadowy figure"
-            //      but the body matches regardless...
-            //      match that as well and rewrite the name
+          }
+          //TODO: if there's an existing entry from "someone" or "a shadowy figure"
+          //      but the body matches regardless...
+          //      match that as well and rewrite the name
 
-          });
-        }
+        });
 
         if(!suppress) {
           appendOutput({

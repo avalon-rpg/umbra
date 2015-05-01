@@ -6,9 +6,8 @@ function Block (qual) {
   this.entries = [];
   this.timestamp = new Date();
 }
-
 //returns true if the tag was added
-Block.prototype.tag = function(tagname) {
+Block.prototype.tag = function (tagname) {
   if (!this.tags || this.tags.length === 0) {
     this.tags = [tagname];
     return true;
@@ -21,7 +20,7 @@ Block.prototype.tag = function(tagname) {
   return false;
 };
 
-Block.prototype.untag = function(tagname) {
+Block.prototype.untag = function (tagname) {
   if (this.tags && this.tags.length > 0) {
     let idx = this.tags.indexOf(tagname);
     if (idx > -1) {
@@ -40,79 +39,71 @@ Block.prototype.addEntry = function (entry) {
   }
 };
 
+
+
 function BlockStack() {
-  this.reset();
-}
+  const self = this;
+  let root = new Block('root');
+  let current = root;
+  let stack = [current];
 
-BlockStack.prototype.reset = function() {
-  this.root = null;
-  this.current = null;
-  this.stack = [];
-};
-
-BlockStack.prototype.ensureCurrent = function () {
-  if(!this.current) {
-    this.root = new Block('root');
-    this.current = this.root;
-    this.stack = [this.current];
+  function reset() {
+    root = new Block('root');
+    current = root;
+    stack = [current];
   }
-};
 
-BlockStack.prototype.addEntry = function (entry) {
-  this.ensureCurrent();
-  this.current.addEntry(entry);
-};
+  self.addEntry = function (entry) { current.addEntry(entry); };
 
-BlockStack.prototype.tagCurrent = function(tagname) {
-  this.ensureCurrent();
-  this.current.tag(tagname);
-};
+  self.tagCurrent = function (tagname) { current.tag(tagname); };
 
-BlockStack.prototype.untagCurrent = function(tagname) {
-  this.ensureCurrent();
-  this.current.untag(tagname);
-};
+  self.untagCurrent = function (tagname) { current.untag(tagname); };
 
-BlockStack.prototype.push = function(block) {
-  if (this.stack.length === 0) {
-    this.stack = [block];
-  } else {
-    this.stack.push(block);
-  }
-  this.current = block;
-  //console.log('entering block at depth ' + blockStack.length + ': ' + JSON.stringify(block));
-};
+  self.currentEntries = function() { return current.entries; };
 
-BlockStack.prototype.pop = function() {
-  if(this.current && this.current.entries && this.current.entries.length === 1) {
-    let soleEntry = this.current.entries[0];
-    if(soleEntry.comms) {
-      this.current = soleEntry;
-      return false;
-    } else {
-       this.tagCurrent('oneliner');
+  self.push = function (block) {
+    current = block;
+    stack.push(block);
+    //console.log('entering block at depth ' + stack.length + ': ' + JSON.stringify(block));
+  };
+
+  /**
+   * Runs some cleanup on the current block (such as tagging one-liners)
+   * Then, if higher blocks exist in the stack, pops it and appends as
+   *       an entry to the parent block.
+   * @returns {boolean} true if the block was popped, false if the current block is already root
+   */
+  self.pop = function () {
+    if (current.entries.length === 1) {
+      let soleEntry = current.entries[0];
+      if (soleEntry.comms) {
+        current = soleEntry;
+        return false;
+      } else {
+        current.tag('oneliner');
+      }
     }
-  }
-  if(this.stack && this.stack.length > 1) {
-    let block = this.stack.pop();
-    this.current = this.stack.last();
-    this.current.addEntry(block);
-    return true;
-  } else {
-    return false;
-  }
-};
+    if (stack.length > 1) {
+      let block = stack.pop();
+      //console.log('popping block : ' + JSON.stringify(block));
+      current = stack.last();
+      //console.log('current block is now: ' + JSON.stringify(current));
+      current.addEntry(block);
+      return true;
+    } else {
+      return false;
+    }
+  };
 
-BlockStack.prototype.popAll = function() {
-  this.ensureCurrent();
-  while(this.pop()) {
-    //do nowt
-  }
-  let ret = this.current;
-  this.reset();
-  return ret;
-};
-
+  self.popAll = function () {
+    while (self.pop()) {
+      //do nowt
+    }
+    let ret = current;
+    reset();
+    return ret;
+  };
+}
 
 exports.Block = Block;
 exports.BlockStack = BlockStack;

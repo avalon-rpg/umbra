@@ -28,6 +28,25 @@ function GaBlockSplitter(params) {
     params.onPrompt(prompt);
   };
 
+  let processBlock = function(text, isClean) {
+    let lines = (buffer + text).split("\r\n");
+    buffer = '';
+    let lastLine = lines.pop();  //lines is mutated
+    lines.forEach(emitLine);
+    if(isClean) {
+      emitPrompt(lastLine);
+    } else {
+      emitLine(lastLine);
+    }
+  };
+
+  let processCleanBlock = function(block) {
+    if(params.blockDebug) {
+      console.log('clean block: «««' + block + '»»»');
+    }
+    processBlock(block, true);
+  };
+
   let clearFlushTimeout = function() {
     if(flushTimeout) {
       clearTimeout(flushTimeout);
@@ -47,24 +66,6 @@ function GaBlockSplitter(params) {
     setTimeout(onFlushTimeout, 1000);
   };
 
-  let processBlock = function(text, isClean) {
-    let lines = (buffer + text).split("\r\n");
-    buffer = '';
-    let lastLine = lines.pop();  //lines is mutated
-    lines.forEach(emitLine);
-    if(isClean) {
-      emitPrompt(lastLine);
-    } else {
-      emitLine(lastLine);
-    }
-  };
-
-  let processCleanBlock = function(block) {
-    if(params.blockDebug) {
-      console.log('clean block: «««' + block + '»»»');
-    }
-    processBlock(block, true);
-  };
 
   let processDirtyBlock = function(block) {
     if(params.blockDebug) {

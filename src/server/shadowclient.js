@@ -55,7 +55,7 @@ ShadowClient.prototype.init = function(params) {
     if(!self.loggedIn) {
       if(self.loggingIn) {
         if(line.startsWith('###ACK LOGIN OK')) {
-          console.log(self.username + ' « ' + line);
+          console.log('Seen ###ACK LOGIN OK for ' + self.username);
           self.loggedIn = true;
           self.loggingIn = false;
           if(params.playerAddress) {

@@ -18,14 +18,13 @@ function idFrom(params) {
   }
 }
 
-AvalonConnections.prototype.get = function(params) {
+AvalonConnections.prototype.get = function(params, onSuccessFn, onFailureFn) {
   let self = this;
-  let ret = Q.defer();
 
   let id = idFrom(params);
   if(self.map.has(id)) {
     console.log('located existing connection for ' + id);
-    ret.resolve(self.map.get(id));
+    onSuccessFn({client:self.map.get(id),params:params});
   } else {
     console.log('establishing new connection for ' + id);
 
@@ -35,12 +34,12 @@ AvalonConnections.prototype.get = function(params) {
       if(data.success) {
         console.log('login success for ' + id);
         self.map.set(id, client);
-        ret.resolve(client);
+        onSuccessFn({client:client, params:params});
       } else {
         console.log('login failure for ' + id);
         let err = new Error('login failure for ' + id);
         err.result = data;
-        ret.reject(err);
+        onFailureFn({err:err, params:params});
       }
     });
     client.once('avalon disconnected', function(has_error) {
@@ -52,8 +51,6 @@ AvalonConnections.prototype.get = function(params) {
       self.map.delete(id);
     });
   }
-
-  return ret.promise;
 };
 
 module.exports = AvalonConnections;
