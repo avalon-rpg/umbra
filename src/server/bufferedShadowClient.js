@@ -73,11 +73,11 @@ BufferedShadowClient.prototype.init = function(params) {
       let name = data.name;
       let value = data.value;
       if(!promptVars.hasOwnProperty(name) || promptVars[name].value !== value) {
-        console.log('sending updated promptvar ' + name + ' = ' + value);
+        //console.log('sending updated promptvar ' + name + ' = ' + value);
         promptVars[name] = data;
         self.emit('protocol', data);
       } else {
-        console.log('suppressing unchanged promptvar ' + name + ' = ' + value);
+        //console.log('suppressing unchanged promptvar ' + name + ' = ' + value);
       }
     } else {
       self.emit('protocol', data);

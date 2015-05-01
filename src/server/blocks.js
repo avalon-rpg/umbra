@@ -74,18 +74,25 @@ function BlockStack() {
    * @returns {boolean} true if the block was popped, false if the current block is already root
    */
   self.pop = function () {
-    if (current.hasOwnProperty('entries') && current.entries.length === 1) {
-      let soleEntry = current.entries[0];
-      if (soleEntry.comms) {
-        current = soleEntry;
-        return false;
-      } else {
-        current.tag('oneliner');
+    //console.log('popping block : ' + JSON.stringify(current));
+
+    if (current.hasOwnProperty('entries')) {
+      //console.log("this block has entries...");
+      if (current.entries.length === 1) {
+        //console.log("...just one though...");
+        let soleEntry = current.entries[0];
+        if (soleEntry.comms) {
+          //console.log("... it's a comms block");
+          current = soleEntry;
+          return false;
+        } else {
+          current.tag('oneliner');
+        }
       }
     }
     if (stack.length > 1) {
-      let block = stack.pop();
-      //console.log('popping block : ' + JSON.stringify(block));
+      let block = current;
+      stack.pop();
       current = stack.last();
       //console.log('current block is now: ' + JSON.stringify(current));
       current.addEntry(block);

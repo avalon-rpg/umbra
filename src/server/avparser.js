@@ -264,11 +264,7 @@ AvParser.prototype.init = function(shadowclient) {
             newBlock[key] = value.trim();
           }
         }
-        //if(newBlock.cmd && newBlock.cmd === 'MACROLIST') {
-        //  inMacroList = true;
-        //} else {
-          blockStack.push(newBlock);
-        //}
+        blockStack.push(newBlock);
       }
     },{
       regex: /^###end@.*$/,
