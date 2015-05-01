@@ -880,17 +880,17 @@ $(function() {
   function handlePromptVar(name, value) {
     const ib = window.infobar;
 
-    if((name === 'health') && ib) {
+    if((name === 'health') && !screenreader && ib) {
       const healthParts = value.split(' ');
       ib.setMaxHealth(healthParts[1]);
       ib.setHealth(healthParts[0]);
-    } else if((name === 'mana') && ib) {
+    } else if((name === 'mana') && !screenreader && ib) {
       const manaParts = value.split(' ');
       ib.setMaxMana(manaParts[1]);
       ib.setMana(manaParts[0]);
-    } else if((name === 'l') && ib) {
+    } else if((name === 'l') && !screenreader && ib) {
       ib.wieldLeft(value);
-    } else if((name === 'r') && ib) {
+    } else if((name === 'r') && !screenreader && ib) {
       ib.wieldRight(value);
     } else {
       let $existing = $('#promptvar-' + name);
