@@ -1,8 +1,7 @@
 {
   "apps" : [{
-    "name"        : "umbradev",
-    "script"      : "./build/server/app.js",
-    "node_args"   : "--harmony",
+    "name"             : "umbradev",
+    "script"           : "./build/server/app.js",
     "env": {
       "NODE_ENV": "dev"
     }

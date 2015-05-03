@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 
 function Block (qual) {
   this.qual = qual || '';
@@ -8,6 +9,7 @@ function Block (qual) {
 }
 //returns true if the tag was added
 Block.prototype.tag = function (tagname) {
+  console.log('tagging block with: ' + tagname);
   if (!this.tags || this.tags.length === 0) {
     this.tags = [tagname];
     return true;
@@ -37,6 +39,33 @@ Block.prototype.addEntry = function (entry) {
   } else {
     this.entries = [entry];
   }
+};
+
+if (typeof Array.prototype.flatMap !== 'function') {
+  Array.prototype.flatMap = function (lambda) {
+    return Array.prototype.concat.apply([], this.map(lambda));
+  };
+}
+
+Block.prototype.deepMap = function (lambda) {
+  let self = this;
+
+  let alteredEntries = [];
+
+  if(self.hasOwnProperty('entries')) {
+    alteredEntries = self.entries.map(function(x){
+      if(x instanceof Block) {
+        return x.deepMap(lambda);
+      } else {
+        return lambda(x);
+      }
+    });
+    self.entries = alteredEntries;
+  }
+
+  let altered = lambda(self) || self;
+
+  return altered;
 };
 
 
@@ -76,25 +105,20 @@ function BlockStack() {
   self.pop = function () {
     //console.log('popping block : ' + JSON.stringify(current));
 
-    if (current.hasOwnProperty('entries')) {
-      //console.log("this block has entries...");
-      if (current.entries.length === 1) {
-        //console.log("...just one though...");
-        let soleEntry = current.entries[0];
-        if (soleEntry.comms) {
-          //console.log("... it's a comms block");
-          current = soleEntry;
-          return false;
-        } else {
-          current.tag('oneliner');
-        }
+    //bail out fast if it's just a comms line
+    if (current.hasOwnProperty('entries') && current.entries.length === 1) {
+      let soleEntry = current.entries[0];
+      if (soleEntry.comms) {
+        current = soleEntry;
+        return false;
       }
     }
+
     if (stack.length > 1) {
       let block = current;
       stack.pop();
       current = stack.last();
-      //console.log('current block is now: ' + JSON.stringify(current));
+      //console.log('parent block is: ' + JSON.stringify(current));
       current.addEntry(block);
       return true;
     } else {

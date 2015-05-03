@@ -292,20 +292,16 @@ $(function() {
       $('.' + data.replacableId).remove();
     }
 
-    if(data.tags && data.who && data.tags.indexOf("sphere-movement") >= 0) {
-      var previous = $('.sphere-movement.person-'+data.who).remove();
-    }
-
-
-    var cssClasses = '';
+    let cssClasses = '';
     if(data.tags && data.tags.length > 0) {
       cssClasses = data.tags.join(' ');
     }
 
     prevMsgType = 'line';
-    var msghtml = styler.style(data.line);
+    let rawText = (data.hasOwnProperty('text')) ? data.text : data.line;
+    let msghtml = styler.style(rawText);
 
-    var $el = $('<div class="' + cssClasses + '">').addClass('line').html(msghtml);
+    let $el = $('<div class="' + cssClasses + '">').addClass('line').html(msghtml);
     if(data.hasOwnProperty('replacableId')) {
       $el.addClass(data.replacableId);
     }
@@ -314,6 +310,10 @@ $(function() {
     } else {
       return $el;
     }
+  }
+
+  function mkSimpleText(text) {
+    return $('<div class="line">').html(styler.style(text));
   }
 
   function log (message, options) {
@@ -446,7 +446,16 @@ $(function() {
       });
       $table.append($body);
     }
-    return $table;
+
+    let ret = [];
+    if(table.pre && table.pre.trim() !== '') {
+      ret.push(mkSimpleText(table.pre));
+    }
+    ret.push($table);
+    if(table.post && table.post.trim() !== '') {
+      ret.push(mkSimpleText(table.post));
+    }
+    return ret;
   }
 
   function mkLoginAnnouncement(user) {
@@ -1100,7 +1109,7 @@ $(function() {
       block.entries.forEach(function (entry) {
         let $el = processEntry(entry);
         if ($el) {
-          elems.push($el);
+          elems = elems.concat($el);
         }
       });
     } else {
@@ -1154,6 +1163,9 @@ $(function() {
 
     let $elems;
 
+    if(!data.hasOwnProperty('qual')) {
+      console.error(data);
+    }
     let ct = lookupCommsType(data.qual);
     if(ct) {
       data.iconClasses = ct.iconClasses;
@@ -1173,6 +1185,8 @@ $(function() {
     } else if (data.qual === 'table') {
       $elems = mkTable(data);
     } else if(data.qual === 'line') {
+      $elems = mkLine(data);
+    } else if(data.qual === 'text') {
       $elems = mkLine(data);
     } else if(data.qual === 'protocol') {
       $(umbra).trigger("protocol", data);

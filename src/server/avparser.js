@@ -39,6 +39,8 @@ AvParser.prototype.init = function(shadowclient) {
   self.shadowclient = shadowclient;
 
   let blockStack = new blocks.BlockStack();
+  let lineBuffer = [];
+  let monospaced = false;
 
   let inMap = false;
   let mapLoc = '';
@@ -49,13 +51,41 @@ AvParser.prototype.init = function(shadowclient) {
     self._emitter.emit.apply(self._emitter, arguments);
   };
 
+  let flushLineBuffer = function() {
+    if(lineBuffer.length > 0) {
+      let entry = {qual:'text', lines:lineBuffer};
+      if(monospaced) { entry.tags = ['monospaced']; }
+      blockStack.addEntry(entry);
+      if(lineBuffer.length === 1) {
+        blockStack.tagCurrent('oneliner');
+      }
+      monospaced = false;
+      lineBuffer = [];
+    }
+  };
+
   let appendOutput = function(data) {
+    flushLineBuffer();
     blockStack.addEntry(data);
+  };
+
+  let appendLine = function(line) {
+    if(line.indexOf('   ') >= 0) { monospaced = true; }
+    lineBuffer.push(line.trim());
+  };
+
+  let appendReplacableLine = function(line, id) {
+    appendOutput({
+      qual: 'line',
+      line:  line,
+      replacableId: id
+    });
   };
 
   const promptRegex = /^(\d+)\/(\d+)h, (\d+)\/(\d+)m (\S*) (.*)(?:-|=).*$/;
 
   let flushOutput = function(ansiPrompt) {
+    flushLineBuffer();
     let block = blockStack.popAll();
     if(block) {
       try {
@@ -90,6 +120,7 @@ AvParser.prototype.init = function(shadowclient) {
           console.log('emit is fubar, currently set to: ' + JSON.stringify(emit));
         }
         console.log('error in popped block: ' + JSON.stringify(block));
+        console.log(err);
         throw err;
       }
     } else {
@@ -159,9 +190,7 @@ AvParser.prototype.init = function(shadowclient) {
       }
     },{
       regex: /^UmBrA:\s$/,
-      func: function(match) {
-        umbraMsg = true;
-      }
+      func: function() { umbraMsg = true; }
     },{
       regex: /^###ack macro@ ###id=(\d+) ###name=(.+) ###def=(.*)$/,
       func: function(match) {
@@ -174,18 +203,6 @@ AvParser.prototype.init = function(shadowclient) {
           macroDef:  match[3]
         });
       }
-    //},{
-    //  regex: /^(\d+) (.*)$/,
-    //  cond: () => inMacroList,
-    //  func: function(match) {
-    //    appendOutput({
-    //      qual:    'protocol',
-    //      code:    'macro',
-    //      content:  match[0],
-    //      macroId:  match[1],
-    //      macroDef: match[2]
-    //    });
-    //  }
     },{
       regex: /^###macro (\d+) (.*)$/,
       func: function(match) {
@@ -199,7 +216,7 @@ AvParser.prototype.init = function(shadowclient) {
       }
     },{
       regex: /^(.*) >>> (.*)$/,
-      cond: () => umbraMsg,
+      cond: function() {return umbraMsg;},
       func: function(match, rawLine) {
         umbraMsg = false;
         appendOutput({
@@ -225,7 +242,7 @@ AvParser.prototype.init = function(shadowclient) {
       func: fnEndMap
     },{
       regex: /^.*$/,
-      cond: () => inMap,
+      cond: function(){return inMap;},
       func: function(match, rawLine) {
         mapLines.push(rawLine);
       }
@@ -268,36 +285,16 @@ AvParser.prototype.init = function(shadowclient) {
       }
     },{
       regex: /^###end@.*$/,
-      func: blockStack.pop
-    },{
-      regex: /^You engage in a moment's deep thought, gathering a sense of the domain\.$/,
-      func: function(match, rawLine) {
-        appendOutput({ qual: 'marker', markerFor: 'spheresense' });
-        blockStack.tagCurrent('spheresense');
-      }
-    },{
-      regex: /^Guild Name *\| Guildhead *\| Patron Deity *\| Where *$/,
-      func: function(match, rawLine) {
-        appendOutput({ qual: 'marker', markerFor: 'guilds' });
-        blockStack.tagCurrent('guilds');
-      }
-    },{
-      regex: /^(\S+) BB: +Read (\d+) out of (\d+)$/,
-      func: function(match, rawLine) {
-        if(blockStack.tagCurrent('bbstatus')) {
-          appendOutput({ qual: 'marker', markerFor: 'bbstatus' });
-        }
-        appendOutput({qual: 'line',  line: rawLine});
+      func: function () {
+        flushLineBuffer();
+        blockStack.pop();
       }
     },{
       //de-duping locations in oracular watch
       regex: /^At "(.*)": (At \1: )(.*)\.$/,
       func: function(match, rawLine) {
         let spammyBit = match[2];
-        appendOutput({
-          qual: 'line',
-          line: rawLine.replace(spammyBit, '')
-        });
+        appendLine(rawLine.replace(spammyBit, ''));
       }
     },{
       regex: /^###channel (\S+) (.+)$/,
@@ -470,115 +467,69 @@ AvParser.prototype.init = function(shadowclient) {
       }
     },{
       regex: /^(\S+) has just departed beyond the confines of your sphere of control\.$/,
-      func: function(match) {
+      func: function(match, rawLine) {
         var who = match[1].toLowerCase().replace('(','').replace(')','');
-        appendOutput({
-          qual: 'line',
-          line:  match[0],
-          who: who,
-          tags:  ['sphere-movement', 'sphere-departure', 'person-' + who]
-        });
+        appendReplacableLine(rawLine, 'oracle-sphere-movement-' + who);
       }
     },{
       regex: /^(\S+) has just stepped within your sphere of control\.$/,
       func: function(match, rawLine) {
         var who = match[1].toLowerCase().replace('(','').replace(')','');
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          who:   who,
-          tags:  ['sphere-movement', 'sphere-entry', 'person-' + who]
-        });
+        appendReplacableLine(rawLine, 'oracle-sphere-movement-' + who);
       }
     },{
       regex: /^The ethereal flow continues to be absorbed into your seedpod: (\d+) seeds absorbed into (\d+) potency within the pod\.$/,
       func: function(match, rawLine) {
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          replacableId: 'oracle-pod-absorb-self'
-        });
+        appendReplacableLine(rawLine, 'oracle-pod-absorb-self');
       }
     },{
       regex: /^You note marks of your own ethereal seed below. Ethereal marking at "(.*)" now at: (\d+)\.$/,
       func: function(match, rawLine) {
         let loc = match[1].replace(/\s/g, '-').replace(/'/g, "").replace(/"/g, '');
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          replacableId: 'oracle-marking-' + loc
-        });
+        appendReplacableLine(rawLine, 'oracle-marking-' + loc);
       }
     },{
       regex: /^You note marks of your own ethereal seed below. You allow an ethereal seed of ether to fall through the oracle-eye. The seed markings at "(.+)" now number (.+)\.$/,
       func: function(match, rawLine) {
         let loc = match[1].replace(/\s/g, '-').replace(/'/g, "").replace(/"/g, '');
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          replacableId: 'oracle-marking-' + loc
-        });
+        appendReplacableLine(rawLine, 'oracle-marking-' + loc);
       }
     },{
       regex: /^Below at "(.+)" the ether continue to twine and thicken about the (.+), the wall (.*) percent towards completion\.$/,
       func: function(match, rawLine) {
         let dirn = match[2];
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          replacableId: 'oracle-wall-building-' + dirn
-        });
+        appendReplacableLine(rawLine, 'oracle-wall-building-' + dirn);
       }
     },{
       regex: /^The oracle-eye focus is unusually sharp as it draws up a sparkling flow of ether from the (.+) of "(.+)", directing it (.*) to gather density; (.*) percent complete\.$/,
       func: function(match, rawLine) {
         let srcdirn = match[1];
         let tgtdirn = match[3];
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          replacableId: 'oracle-raising-' + tgtdirn
-        });
+        appendReplacableLine(rawLine, 'oracle-raising-' + tgtdirn);
       }
     },{
       regex: /^(.+) is fully manifested at the (.+) reaches of the wind; the last of the sparkling flow having passed up through the oracle-eye.$/,
       func: function(match, rawLine) {
         let tgtdirn = match[2];
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          replacableId: 'oracle-raising-' + tgtdirn
-        });
+        appendReplacableLine(rawLine, 'oracle-raising-' + tgtdirn);
       }
     },{
       regex: /^Ether continues to flow through the eye, from the (.+) region to "(.+)" below. The supercharged particles gather at the (.+), enlarging (\d+)% of the ethereal creation\.$/,
       func: function(match, rawLine) {
         let dirn1 = match[1];
         let dirn2 = match[3];
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          replacableId: 'oracle-lowering-' + dirn1 + '-' + dirn2
-        });
+        appendReplacableLine(rawLine, 'oracle-lowering-' + dirn1 + '-' + dirn2);
       }
     },{
       regex: /^(.+) has dropped seed markings below\.$/,
       func: function(match, rawLine) {
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          replacableId: 'oracle-othermarks-' + match[1]
-        });
+        appendReplacableLine(rawLine, 'oracle-othermarks-' + match[1]);
       }
     },{
       regex: /^The battle for supremacy with (.*) over "(.*)" continues: (.*) further focus bouts and the attack (.*) will be completed, permanently expanding the (.*) sphere of control\.$/,
       func: function(match, rawLine) {
         let dirn = match[4];
-        appendOutput({
-          qual: 'line',
-          line:  rawLine,
-          replacableId: 'far-attack-' + dirn
-        });
+        appendReplacableLine(rawLine, 'far-attack-' + dirn);
       }
     }
   ];
@@ -612,11 +563,7 @@ AvParser.prototype.init = function(shadowclient) {
     }
 
     //default fallback
-    if(line.trim() !== '') {
-      appendOutput({qual: 'line',  line: line});
-    }
-
-    if(line.indexOf('   ') >= 0) { blockStack.tagCurrent('monospaced'); }
+    if(line.trim() !== '') { appendLine(line); }
   };
 
 

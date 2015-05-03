@@ -165,7 +165,7 @@ function InlineStyler() {
       return replacement;
     }
 
-    const regex = /<##(.*?)##>|&lt;##(.*?)##&gt;/gm;
+    const regex = /(?:<##(.*?)##>|&lt;##(.*?)##&gt;)\n?/gm;
 
     let openingSalvo = spanForStack();
     if (openingSalvo !== '') {

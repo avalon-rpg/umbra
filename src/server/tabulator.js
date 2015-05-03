@@ -1,4 +1,5 @@
 'use strict';
+let blocks = require('./blocks');
 
 if (typeof Array.prototype.flatMap !== 'function') {
   Array.prototype.flatMap = function (lambda) {
@@ -7,148 +8,172 @@ if (typeof Array.prototype.flatMap !== 'function') {
 }
 
 function Tabulator() {
-}
+  const self = this;
 
-const sphereSenseRegex = /(\S+) \[([^\]]+)\](?:\s*)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/;
-const bbstatusRegex = /^(.*): +Read (\d+) out of (\d+)$/;
-const staggeredHorizRuleRegex = /-[- ]+/;
+  let ParseState = {
+    PRE: 'pre',
+    SEP: 'separator',
+    ROWS: 'row',
+    COMPLETE: 'complete'
+  };
 
-Tabulator.prototype.tabulate = function (data) {
-  return process(data);
+  function defaultPostProcess(row) {
+    return row.splice(1);
+  }
 
-  function process(block) {
-    if (!block.entries || block.entries.length === 0) {
-      return block;
-    }
+  function TableSpec(params) {
+    let self = this;
+    let headerRegex = params.hasOwnProperty('headerRegex') ? params.headerRegex : null;
+    let separatorRegex = params.hasOwnProperty('separatorRegex') ? params.separatorRegex : null;
+    let rowRegex = params.rowRegex;
+    let headerPostProcess = params.headerPostProcess || defaultPostProcess;
+    let rowPostProcess = params.rowPostProcess || defaultPostProcess;
 
-    let outEntries;
-    let table;
-    let tableType = '';
+    self.attemptStart = function(line) {
+      let ctx = {
+        state: ParseState.PRE,
+        rows: []
+      };
 
-    function flushTable() {
-      if (table) {
-        //console.log('tabulator flushing: ' + rows.length + " rows");
-        addEntry(table);
-        table = null;
-      }
-    }
-
-    function addEntry(entry) {
-      //console.log('tabulator adding entry: ' + JSON.stringify(entry, null, 2));
-
-      if(!outEntries || outEntries.length == 0) {
-        outEntries = [process(entry)];
-      } else {
-        outEntries.push(process(entry));
-      }
-    }
-
-    function addRow(row) {
-      if(!table) {
-        table = {
-          qual: 'table',
-          body: {
-            rows: [row]
+      let match;
+      if(headerRegex) {
+        match = headerRegex.exec(line);
+        if(match) {
+          ctx.header = (params.hasOwnProperty('fixedHeader')) ? params.fixedHeader : headerPostProcess(match);
+          if (separatorRegex) {
+            ctx.state = ParseState.SEP;
+          } else {
+            ctx.state = ParseState.ROWS;
           }
-        };
-      } else if(!table.body) {
-        table.body = {
-          rows: [row]
-        };
-      } else if(!table.body.rows || table.body.rows.length <= 0) {
-        table.body.rows = [row];
-      } else {
-        table.body.rows.push(row);
-      }
-
-    }
-
-    if(block.tags) {
-      if (block.tags.indexOf('spheresense') >= 0) {
-        tableType = 'sphereSense';
-        block.untag('monospaced');
-      }
-
-      if (block.tags.indexOf('guilds') >= 0) {
-        tableType = 'guilds';
-        block.untag('monospaced');
-      }
-
-      if (block.tags.indexOf('bbstatus') >= 0) {
-        tableType = 'bbstatus';
-        block.untag('monospaced');
-      }
-    }
-
-    let len = block.entries.length;
-    for (let i = 0; i < len; ++i) {
-      let entry = block.entries[i];
-      //console.log('tabulator scanning: ' + JSON.stringify(entry, null, 2));
-
-
-      if (tableType === 'sphereSense') {
-        var match = sphereSenseRegex.exec(entry.line);
-        if (match) {
-          addRow([match[1], match[2], match[3], match[4]]);
-        } else if(entry.qual === 'marker' && entry.markerFor === 'spheresense') {
-          table = {
-            qual: 'table',
-            header: {
-              rows: [
-                ['who', 'where', 'health', 'mana']
-              ]
-            }
-          };
-        } else {
-          addEntry(entry);
-        }
-      } else if (tableType === 'guilds') {
-
-        var cols;
-        if(entry.line) { cols = entry.line.split('|'); }
-
-        if(entry.qual === 'marker' && entry.markerFor === 'guilds') {
-          table = {
-            qual: 'table',
-            header: {
-              rows: [
-                ['name', 'head', 'patron', 'where']
-              ]
-            }
-          };
-        } else if (cols && cols.length == 4) { //we got a row
-          addRow([cols[0].trim(), cols[1].trim(), cols[2].trim(), cols[3].trim()]);
-        } else if (staggeredHorizRuleRegex.exec(entry.line)) {
-          //do nothing
-        } else {
-          flushTable();
-          addEntry(entry);
-        }
-      } else if (tableType === 'bbstatus') {
-        let match = bbstatusRegex.exec(entry.line);
-        if (match) {
-          addRow([match[1], match[2], match[3]]);
-        } else if(entry.qual === 'marker' && entry.markerFor === 'bbstatus') {
-          table = {
-            qual: 'table',
-            header: {
-              rows: [
-                ['board', 'read', 'of']
-              ]
-            }
-          };
-        } else {
-          addEntry(entry);
         }
       } else {
-        addEntry(entry);
+        match = rowRegex.exec(line);
+        if(match) {
+          if(params.hasOwnProperty('fixedHeader')) {ctx.header = params.fixedHeader;}
+          ctx.rows = [rowPostProcess(match)];
+          ctx.state = ParseState.ROWS;
+        }
       }
-    }
-    flushTable();
 
-    block.entries = outEntries;
+      if(ctx.state !== ParseState.PRE) {
+        console.log(`match for ${params.tag}`);
+        ctx.processor = self;
+        return ctx;
+      }
+    };
+
+    self.progress = function(line, ctx) {
+      console.log(params.tag + ' ' + ctx.state + ' - ' + line);
+      let match;
+      switch (ctx.state) {
+        case ParseState.PRE:
+          console.error("can't progress a table match in the PRE state");
+          return ctx;
+
+        case ParseState.SEP:
+          ctx.state = ParseState.ROWS;
+          return ctx;
+
+        case ParseState.ROWS:
+          match = rowRegex.exec(line);
+          if (match) {
+            ctx.rows.push(rowPostProcess(match));
+          } else {
+            ctx.partingShot = line;
+            ctx.state = ParseState.COMPLETE;
+          }
+          return ctx;
+
+        case ParseState.COMPLETE:
+          console.error("can't progress a table match in the COMPLETE state");
+          return ctx;
+      }
+    };
+  }
+
+  const spheresense = new TableSpec({
+    tag: 'spheresense',
+    headerRegex: /You engage in a moment's deep thought, gathering a sense of the domain/,
+    fixedHeader: ['Who', 'Where', 'Health', 'Mana'],
+    rowRegex: /(\S+) \[([^\]]+)\](?:\s*)H: ((?:\d+)\/(?:\d+))(?:\s*)M: ((?:\d+)\/(?:\d+))/
+  });
+
+  const guilds = new TableSpec({
+    tag: 'guilds',
+    headerRegex: /^Guild Name *\| Guildhead *\| Patron Deity *\| Where *$/,
+    fixedHeader: ['Guild', 'Head', 'Term', 'Patron', 'Location'],
+    separatorRegex: /^-+ +-+ +-+ +-+$/,
+    rowRegex: /^(.*?) Guild *\| (\S*) (?:\((\d+yr)\))? *\| (.*?) *\| (.*?) *$/
+  });
+
+  const bb = new TableSpec({
+    tag: 'bbstatus',
+    fixedHeader: ['Board', 'Read', 'Latest'],
+    rowRegex: /^(?:(\S+) BB:|(Guildmasters):) +(?:(?:Read (\d+) out of (\d+))|(.*))$/,
+    rowPostProcess: function(match) {
+      return match.slice(1).filter(function(x){ return typeof x !== 'undefined'; });
+    }
+  });
+
+  function collapseLines(block) {
+    block.text = block.lines.join('\n');
+    delete block.lines;
     return block;
   }
-};
+
+  function processBlock(block) {
+    if(block.hasOwnProperty('qual') && block.qual === 'text') {
+      let lines = block.lines;
+      console.log('tabulating block: ' + block.lines);
+      let pre = [];
+      let post = [];
+      let ctx;
+      lines.forEach(function(line){
+        if(ctx) {
+          if(ctx.state === ParseState.COMPLETE) {
+            post.push(line);
+          } else {
+            ctx = ctx.processor.progress(line, ctx);
+            if(ctx && ctx.partingShot) { post.push(ctx.partingShot); }
+          }
+        } else {
+          ctx =
+            bb.attemptStart(line) ||
+            guilds.attemptStart(line) ||
+            spheresense.attemptStart(line);
+          if(!ctx) {
+            pre.push(line);
+          }
+        }
+      });
+
+      if(ctx) {
+        let table = {
+          qual: 'table',
+          pre: pre.join('\n'),
+          header: {
+            rows: [ ctx.header ]
+          },
+          body: {
+            rows: ctx.rows
+          },
+          post: post.join('\n')
+        };
+
+        console.log(table);
+        return table;
+      } else {
+        return collapseLines(block);
+      }
+    } else {
+      return block;
+    }
+  }
+
+  self.tabulate = function(block) {
+    return (block instanceof blocks.Block) ? block.deepMap(processBlock) : block;
+  };
+
+}
 
 module.exports = Tabulator;

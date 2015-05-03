@@ -12,9 +12,12 @@ let app = express();
 
 if(process.env.UMBRA_PORT) {
   app.set('port', process.env.UMBRA_PORT);
+  console.log('running on custom port: ' + process.env.UMBRA_PORT);
 } else if (process.env.NODE_ENV === "production") {
+  console.log('running on production port: 2252');
   app.set('port', 2252);
 } else {
+  console.log('running on dev port: 3353');
   app.set("port", 3353);
 }
 

@@ -52,9 +52,10 @@ ParsedShadowClient.prototype.init = function(params) {
     self.emit('closed', had_error);
   });
 
-  parser.on('block', function (data) {
-    let processedBlock = tabulator.tabulate(data);
+  parser.on('block', function (block) {
+    let processedBlock = tabulator.tabulate(block);
     if(sc.loggedIn) { self.emit('block', processedBlock); }
+    //if(sc.loggedIn) { self.emit('block', block); }
   });
 
   parser.on('protocol', function (data) {

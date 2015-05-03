@@ -7,13 +7,12 @@
   "private": true,
   "license": "avalon-rpg",
   "scripts": {
-    "once": "node --harmony ./build/server/app.js",
-    "startdev": "pm2 start umbra-dev.json",
-    "stopdev": "pm2 stop umbra-dev.json",
-    "start": "pm2 start umbra-prod.json",
-    "stop": "pm2 stop umbra-prod.json",
-    "restart": "pm2 restart ./build/server/app.js --node-args=\"--harmony\"",
-    "test": "mocha --harmony -R spec --recursive ./build/test/*.js"
+    "once": "grunt && iojs ./build/server/app.js",
+    "startdev": "set NODE_ENV=dev&& pm2 start ./build/server/app.js --name umbradev --interpreter iojs",
+    "stopdev": "set NODE_ENV=dev&& pm2 stop umbradev --interpreter iojs",
+    "start": "set NODE_ENV=production&& pm2 start ./build/server/app.js --name umbra --interpreter iojs",
+    "stop": "set NODE_ENV=production&& pm2 stop umbra --interpreter iojs",
+    "test": "mocha -R spec --recursive ./build/test/*.js"
   },
   "dependencies": {
     "CBuffer": "^1.1.0",
@@ -28,6 +27,7 @@
     "express": "^4.12.3",
     "jade": "^1.9.2",
     "jquery": "^1.11.2",
+    "lodash": "^3.7.0",
     "mobile-detect": "^1.0.0",
     "murmur": "^0.0.2",
     "pako": "^0.2.6",
