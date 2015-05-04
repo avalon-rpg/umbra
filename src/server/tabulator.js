@@ -56,14 +56,14 @@ function Tabulator() {
       }
 
       if(ctx.state !== ParseState.PRE) {
-        console.log(`match for ${params.tag}`);
+        //console.log(`match for ${params.tag}`);
         ctx.processor = self;
         return ctx;
       }
     };
 
     self.progress = function(line, ctx) {
-      console.log(params.tag + ' ' + ctx.state + ' - ' + line);
+      //console.log(params.tag + ' ' + ctx.state + ' - ' + line);
       let match;
       switch (ctx.state) {
         case ParseState.PRE:
@@ -124,7 +124,7 @@ function Tabulator() {
   function processBlock(block) {
     if(block.hasOwnProperty('qual') && block.qual === 'text') {
       let lines = block.lines;
-      console.log('tabulating block: ' + block.lines);
+      //console.log('tabulating block: ' + block.lines);
       let pre = [];
       let post = [];
       let ctx;
@@ -160,7 +160,7 @@ function Tabulator() {
           post: post.join('\n')
         };
 
-        console.log(table);
+        //console.log(table);
         return table;
       } else {
         return collapseLines(block);
