@@ -53,6 +53,8 @@ AvParser.prototype.init = function(shadowclient) {
 
   let flushLineBuffer = function() {
     if(lineBuffer.length > 0) {
+      //console.log("flushing lines: ");
+      //lineBuffer.forEach(function(line) { console.log(`  »»${line}««`);  });
       let entry = {qual:'text', lines:lineBuffer};
       let tags = [];
       if(monospaced) { tags.push('monospaced'); }
@@ -71,6 +73,7 @@ AvParser.prototype.init = function(shadowclient) {
 
   let appendLine = function(line) {
     if(line.indexOf('   ') >= 0) { monospaced = true; }
+    //console.log(`        appending line: »»${line}««`);
     lineBuffer.push(line.trim());
   };
 
@@ -483,13 +486,13 @@ AvParser.prototype.init = function(shadowclient) {
         appendReplacableLine(rawLine, 'oracle-pod-absorb-self');
       }
     },{
-      regex: /^You note marks of your own ethereal seed below. Ethereal marking at "(.*)" now at: (\d+)\.$/,
+      regex: /^(?:You note marks of your own ethereal seed below\. )?Ethereal marking at "(.*)" now at: (\d+)\.$/,
       func: function(match, rawLine) {
         let loc = match[1].replace(/\s/g, '-').replace(/'/g, "").replace(/"/g, '');
         appendReplacableLine(rawLine, 'oracle-marking-' + loc);
       }
     },{
-      regex: /^You note marks of your own ethereal seed below. You allow an ethereal seed of ether to fall through the oracle-eye. The seed markings at "(.+)" now number (.+)\.$/,
+      regex: /^(?:You note marks of your own ethereal seed below\. )?You allow an ethereal seed of ether to fall through the oracle-eye. The seed markings at "(.+)" now number (.+)\.$/,
       func: function(match, rawLine) {
         let loc = match[1].replace(/\s/g, '-').replace(/'/g, "").replace(/"/g, '');
         appendReplacableLine(rawLine, 'oracle-marking-' + loc);
@@ -563,7 +566,7 @@ AvParser.prototype.init = function(shadowclient) {
     }
 
     //default fallback
-    if(line.trim() !== '') { appendLine(line); }
+    appendLine(line);
   };
 
 

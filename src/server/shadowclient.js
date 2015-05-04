@@ -49,7 +49,7 @@ ShadowClient.prototype.init = function(params) {
 
   let onLine = function (line) {
     if(self.username === 'gwahir') {
-      console.log(self.username + ' « ' + line);
+      console.log(`${self.username} got: »»${line.replace('\n','\\n')}««`);
     }
 
     if(!self.loggedIn) {
@@ -100,7 +100,7 @@ ShadowClient.prototype.init = function(params) {
   let onPrompt = function (prompt) {
     if(self.loggedIn) {
       if(self.username === 'gwahir') {
-        console.log(self.username + ' ««««««««««««« ' + prompt);
+        console.log(`${self.username} prompt: »»${prompt}««`);
       }
       self.emit('prompt', prompt);
     } else if(!self.badCredentials && prompt.indexOf('What is the name of your character?') === 0) {
