@@ -54,11 +54,11 @@ AvParser.prototype.init = function(shadowclient) {
   let flushLineBuffer = function() {
     if(lineBuffer.length > 0) {
       let entry = {qual:'text', lines:lineBuffer};
-      if(monospaced) { entry.tags = ['monospaced']; }
+      let tags = [];
+      if(monospaced) { tags.push('monospaced'); }
+      if(lineBuffer.length === 1) { tags.push('oneliner'); }
+      if(tags.length > 0) { entry.tags = tags; }
       blockStack.addEntry(entry);
-      if(lineBuffer.length === 1) {
-        blockStack.tagCurrent('oneliner');
-      }
       monospaced = false;
       lineBuffer = [];
     }
