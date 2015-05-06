@@ -1,5 +1,6 @@
 'use strict';
 let blocks = require('./blocks');
+var ansiStripper = require('strip-ansi');
 
 if (typeof Array.prototype.flatMap !== 'function') {
   Array.prototype.flatMap = function (lambda) {
@@ -28,8 +29,11 @@ function Tabulator() {
     let rowRegex = params.rowRegex;
     let headerPostProcess = params.headerPostProcess || defaultPostProcess;
     let rowPostProcess = params.rowPostProcess || defaultPostProcess;
+    let stripAnsi = params.stripAnsi || false;
 
-    self.attemptStart = function(line) {
+    self.attemptStart = function(rawLine) {
+      let line = stripAnsi ? ansiStripper(rawLine) : rawLine;
+
       let ctx = {
         state: ParseState.PRE,
         rows: []
@@ -62,7 +66,9 @@ function Tabulator() {
       }
     };
 
-    self.progress = function(line, ctx) {
+    self.progress = function(rawLine, ctx) {
+      let line = stripAnsi ? ansiStripper(rawLine) : rawLine;
+
       //console.log(params.tag + ' ' + ctx.state + ' - ' + line);
       let match;
       switch (ctx.state) {
@@ -91,6 +97,29 @@ function Tabulator() {
     };
   }
 
+  function collapseBlanks(match) { return match.slice(1).filter(function(x){ return typeof x !== 'undefined'; }); }
+
+  const who = new TableSpec({
+    tag: 'who',
+    headerRegex: /You can see the following people in the land:/,
+    fixedHeader: ['Standing', 'Who', 'Idle', 'Where'],
+    rowRegex: /^(\u001b\[\d+m)?(?:(?:\[)(.*?)(?:\])|(\{.*?\}))?\s*(.*?)\s*(?:<< idle (\d+H \d+m) >>)? ?(?:\[At: (.*) \])?\.?$/,
+    rowPostProcess: function(match) {
+      if(!match[1]) { match[1] = ''; } //ensure unmatched ANSI start is '' and not undefined
+      if(!match[2] && !match[3]) {
+        //named CCC entourage, fake an empty stature and prefix
+        match[2] = '';
+        match[4] = ' - ' + match[4];
+      }
+      if(!match[5]) { match[5] = ''; } //ensure unmatched idle time is '' and not undefined
+      if(!match[6]) { match[6] = ''; } //ensure unmatched location is '' and not undefined
+      let row = collapseBlanks(match); //strips match] [0] and coalesces undefined columns
+      let head = row.shift(); //detach the first col (opening ANSI seq)
+      row[0] = head + row[0];
+      return row;
+    }
+  });
+
   const spheresense = new TableSpec({
     tag: 'spheresense',
     headerRegex: /You engage in a moment's deep thought, gathering a sense of the domain/,
@@ -110,10 +139,14 @@ function Tabulator() {
     tag: 'bbstatus',
     fixedHeader: ['Board', 'Read', 'Latest'],
     rowRegex: /^(?:(\S+) BB:|(Guildmasters):) +(?:(?:Read (\d+) out of (\d+))|(.*))$/,
-    rowPostProcess: function(match) {
-      return match.slice(1).filter(function(x){ return typeof x !== 'undefined'; });
-    }
+    rowPostProcess: collapseBlanks
   });
+
+  const herblist = new TableSpec(({
+    tag: 'herblist',
+    headerRegex: /^(Herb|Poison) *(Method) *(Effect)$/,
+    rowRegex: /^(\S*) *(\S*) *(.*)$/,
+  }));
 
   function collapseLines(block) {
     block.text = block.lines.join('\n');
@@ -138,9 +171,11 @@ function Tabulator() {
           }
         } else {
           ctx =
+            who.attemptStart(line) ||
             bb.attemptStart(line) ||
             guilds.attemptStart(line) ||
-            spheresense.attemptStart(line);
+            spheresense.attemptStart(line) ||
+            herblist.attemptStart(line);
           if(!ctx) {
             pre.push(line);
           }
