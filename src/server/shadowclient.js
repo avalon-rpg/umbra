@@ -49,7 +49,7 @@ ShadowClient.prototype.init = function(params) {
 
   let onLine = function (line) {
     if(self.username === 'gwahir') {
-      console.log(`${self.username} got: »»${line.replace('\n','\\n')}««`);
+      console.log(`${self.username} got: »»${line.replace('\u001b','◘').replace('\n','\\n')}««`);
     }
 
     if(!self.loggedIn) {
