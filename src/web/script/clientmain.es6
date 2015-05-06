@@ -1263,6 +1263,8 @@ $(function() {
         } else if (entry.cmd) {
           if(e.ctrlKey) {
             let prefix = $inputBox.val() + ' ';
+            //select so that any subsequent typing will over-write
+            $inputBox.select();
             sendMessage(prefix + entry.cmd);
           } else {
             sendMessage(entry.cmd);
