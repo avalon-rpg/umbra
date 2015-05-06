@@ -1,35 +1,3 @@
-/*
-Build process:
-
-1. less:dist
-
-   convert all src/web/style/umbra.less => build/web/style/umbra.css
-   This will @include all other less/css files needed
-
-2. riot:dist
-
-   compile riot tag files from src/web/tags/*.tag into src-gen/web/tags/*.js
-   The resulting js is not minified
-
-3. babel:dist
-
-   babel compile es6 files from src/web/script/ into src-gen/web/babel/
-   generates a corresponding map file for each output
-
-4. copy:
-
-   3rd party scripts into src-gen/web/3rdparty
-
-5. concat_with_sourcemaps:dist
-
-   concat all js files currently in src-gen/web into src-gen/web/concatted/umbra.js
-   Therefore including:
-     - src-gen/web/babel
-     - src-gen/web/tags
-     - 3rdparty scripts
-
-
- */
 
 
 module.exports = function(grunt) {
@@ -189,7 +157,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-concat-sourcemaps');
-  grunt.loadNpmTasks('grunt-riot');
   grunt.loadNpmTasks('grunt-babel');
 
   //don't watch by default, 'grunt watch' works perfectly well without killing CI
