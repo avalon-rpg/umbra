@@ -48,8 +48,6 @@ function Replaceables() {
   ];
 
   this.attempt = function(text) {
-    console.log(`testing replaceable: ${text}`);
-
     let tag;
     entries.some(function(entry) {
       let match = entry.regex.exec(text);
