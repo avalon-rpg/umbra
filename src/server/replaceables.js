@@ -21,11 +21,11 @@ function Replaceables() {
       regex: /^The ethereal flow continues to be absorbed into your seedpod: (\d+) seeds absorbed into (\d+) potency within the pod\.$/,
       func: function() { return 'oracle-pod-absorb-self'; }
     },{
-      regex: /^(?:You note marks of your own ethereal seed below\. )?Ethereal marking at "(.*)" now at: (\d+)\.$/,
-      func: function(match) { return 'oracle-marking-' + escape(match[1]); }
+      regex: /^(You note marks of your own ethereal seed below\. )?Ethereal marking at "(.*)" now at: (\d+)\.$/,
+      func: function(match) { return 'oracle-marking-' + escape(match[2]); }
     },{
-      regex: /^(?:You note marks of your own ethereal seed below\. )?You allow an ethereal seed of ether to fall through the oracle-eye. The seed markings at "(.+)" now number (.+)\.$/,
-      func: function(match) { return 'oracle-marking-' + escape(match[1]); }
+      regex: /^(You note marks of your own ethereal seed below\. )?You allow an ethereal seed of ether to fall through the oracle-eye. The seed markings at "(.+)" now number (.+)\.$/,
+      func: function(match) { return 'oracle-marking-' + escape(match[2]); }
     },{
       regex: /^Below at "(.+)" the ether continue to twine and thicken about the (.+), the wall (.*) percent towards completion\.$/,
       func: function(match) { return 'oracle-wall-building-' + match[2]; }
@@ -48,10 +48,18 @@ function Replaceables() {
   ];
 
   this.attempt = function(text) {
-    entries.forEach(function(entry) {
+    console.log(`testing replaceable: ${text}`);
+
+    let tag;
+    entries.some(function(entry) {
       let match = entry.regex.exec(text);
-      if(match) { return entry.func(match); }
+      if(match) {
+        tag = entry.func(match);
+        return true;
+      }
     });
+
+    if(tag) { return tag; }
   };
 }
 

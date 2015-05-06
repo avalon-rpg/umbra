@@ -507,12 +507,8 @@ AvParser.prototype.init = function(shadowclient) {
     }
 
     let tag = replacables.attempt(cleanLine);
-    if(tag) {
-      appendReplacableLine(line, tag);
-    } else {
-      //default fallback
-      appendLine(line);
-    }
+    tag ? appendReplacableLine(line, tag)
+        : appendLine(line);
   };
 
 
