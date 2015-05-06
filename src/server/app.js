@@ -10,6 +10,18 @@ let bodyParser = require('body-parser');
 
 let app = express();
 
+console.log(`
+
+ _|    _|                  _|
+ _|    _|  _|_|_|  _|_|    _|_|_|    _|  _|_|    _|_|_|
+ _|    _|  _|    _|    _|  _|    _|  _|_|      _|    _|
+ _|    _|  _|    _|    _|  _|    _|  _|        _|    _|
+   _|_|    _|    _|    _|  _|_|_|    _|          _|_|_|
+
+
+`);
+
+
 if(process.env.UMBRA_PORT) {
   app.set('port', process.env.UMBRA_PORT);
   console.log('running on custom port: ' + process.env.UMBRA_PORT);
