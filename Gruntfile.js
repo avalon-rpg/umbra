@@ -65,6 +65,7 @@ module.exports = function(grunt) {
     babel: {
       options: {
         sourceMap: true
+        //plugins: ["closure-elimination"]
       },
       web: {
         files: [{

@@ -214,9 +214,9 @@ $(function() {
   function completeCommand(line, incr) {
     if (umbra.get("completeCommand") === false || cmdHistory.length === 0) { return false; }
 
-    var cmds = cmdHistory.filter(function (cmd) {
-      return cmd.indexOf(line) === 0;
-    });
+    function startsWithLine(cmd) { return cmd.indexOf(line) === 0; }
+
+    var cmds = cmdHistory.filter(startsWithLine);
 
     if (cmds.length === 0) return false;
 
@@ -577,6 +577,7 @@ $(function() {
 
     let pinnedBeforeRefresh = pinScroll;
     $("#output-scroller").nanoScroller(); //refresh for the size of the content
+    //in theory, either of the two next statements could do the size refresh, this doesn't appear to be the case
 
     if(pinnedBeforeRefresh) {
       $("#output-scroller").nanoScroller({flash: true});
@@ -992,8 +993,10 @@ $(function() {
     return commsTypes[name.trim()];
   }
 
-  socket.on('block', function(block) { processInput(block); });
-  socket.on('protocol', function(data) { $(umbra).trigger("protocol", data); });
+  function onProto(data) { $(umbra).trigger("protocol", data); }
+
+  socket.on('block', processInput);
+  socket.on('protocol', onProto);
 
 
 

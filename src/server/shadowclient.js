@@ -49,7 +49,7 @@ ShadowClient.prototype.init = function(params) {
 
   let onLine = function (line) {
     if(self.username === 'gwahir') {
-      console.log(`${self.username} got: »»${line.replace('\u001b','◘').replace('\n','\\n')}««`);
+      console.log(`${self.username} got: »»${line.replace(/\u001b/g,'◘').replace(/\n/g,'\\n')}««`);
     }
 
     if(!self.loggedIn) {
@@ -150,7 +150,7 @@ ShadowClient.prototype.write = function(input) {
 
 ShadowClient.prototype.close = function() {
   if(this.connected) {
-    this.conn.write('###ack logout@ ' + this.username + '\r\n');
+    this.write('###ack logout@ ' + this.username + '\r\n');
     //this.emit('closed', false);
     //this.connected = false;
     //this.conn = null;
@@ -171,7 +171,7 @@ ShadowClient.prototype.forceClose = function() {
 ShadowClient.prototype.pause = function() {
   if (this.connected) {
     //this.conn.write('aura who on\r\n');
-    this.conn.write('###ack disconnect@\r\n');
+    this.write('###ack disconnect@\r\n');
   }
 };
 

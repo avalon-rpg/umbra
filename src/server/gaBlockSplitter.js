@@ -32,6 +32,11 @@ function GaBlockSplitter(params) {
     let lines = (buffer + text).split("\r\n");
     buffer = '';
     let lastLine = lines.pop();  //lines is mutated
+
+    //leading blank lines? Lose em
+    while(lines[0] && lines[0].trim() === '') {
+      lines.shift();
+    }
     lines.forEach(emitLine);
     if(isClean) {
       emitPrompt(lastLine);

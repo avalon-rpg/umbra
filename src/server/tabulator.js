@@ -13,6 +13,7 @@ function Tabulator() {
 
   let ParseState = {
     PRE: 'pre',
+    TRIGGERED: 'triggered',
     SEP: 'separator',
     ROWS: 'row',
     COMPLETE: 'complete'
@@ -24,23 +25,30 @@ function Tabulator() {
 
   function TableSpec(params) {
     let self = this;
-    let headerRegex = params.hasOwnProperty('headerRegex') ? params.headerRegex : null;
-    let separatorRegex = params.hasOwnProperty('separatorRegex') ? params.separatorRegex : null;
+    let headerRegex = params.headerRegex;
+    let separatorRegex = params.separatorRegex;
+    let triggerRegex = params.triggerRegex;
     let rowRegex = params.rowRegex;
+    let skipRegex = params.skipRegex;
     let headerPostProcess = params.headerPostProcess || defaultPostProcess;
     let rowPostProcess = params.rowPostProcess || defaultPostProcess;
     let stripAnsi = params.stripAnsi || false;
 
-    self.attemptStart = function(rawLine) {
+    self.attemptStart = function(rawLine, prevCtx) {
       let line = stripAnsi ? ansiStripper(rawLine) : rawLine;
 
-      let ctx = {
+      let ctx = prevCtx || {
         state: ParseState.PRE,
         rows: []
       };
 
       let match;
-      if(headerRegex) {
+      if(triggerRegex && ctx.state === ParseState.PRE) {
+        match = triggerRegex.exec(line);
+        if(match) {
+          ctx.state = ParseState.TRIGGERED;
+        }
+      } else if(headerRegex) {
         match = headerRegex.exec(line);
         if(match) {
           ctx.header = (params.hasOwnProperty('fixedHeader')) ? params.fixedHeader : headerPostProcess(match);
@@ -80,11 +88,21 @@ function Tabulator() {
           ctx.state = ParseState.ROWS;
           return ctx;
 
+        case ParseState.TRIGGERED:
         case ParseState.ROWS:
           match = rowRegex.exec(line);
+          var bailout = false;
           if (match) {
             ctx.rows.push(rowPostProcess(match));
           } else {
+            if(skipRegex) {
+              bailout = !skipRegex.exec(line);
+            } else {
+              bailout = true;
+            }
+          }
+
+          if(bailout) {
             ctx.partingShot = line;
             ctx.state = ParseState.COMPLETE;
           }
@@ -139,6 +157,7 @@ function Tabulator() {
     tag: 'bbstatus',
     fixedHeader: ['Board', 'Read', 'Latest'],
     rowRegex: /^(?:(\S+) BB:|(Guildmasters):) +(?:(?:Read (\d+) out of (\d+))|(.*))$/,
+    skipRegex: /^$/,
     rowPostProcess: collapseBlanks
   });
 
@@ -165,6 +184,8 @@ function Tabulator() {
         if(ctx) {
           if(ctx.state === ParseState.COMPLETE) {
             post.push(line);
+          } else if(ctx.state === ParseState.TRIGGERED) {
+            ctx = ctx.processor.attemptStart(line,ctx);
           } else {
             ctx = ctx.processor.progress(line, ctx);
             if(ctx && ctx.partingShot) { post.push(ctx.partingShot); }
@@ -176,7 +197,7 @@ function Tabulator() {
             guilds.attemptStart(line) ||
             spheresense.attemptStart(line) ||
             herblist.attemptStart(line);
-          if(!ctx) {
+          if(!ctx || ctx.state === ParseState.TRIGGERED) {
             pre.push(line);
           }
         }

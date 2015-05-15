@@ -23,6 +23,10 @@ if (!Array.prototype.last){
 /////////////////////////////////////////
 // AvParser setup
 
+const channelrefs = {
+
+
+};
 
 function AvParser(shadowclient) {
   this._emitter = new EventEmitter();
@@ -46,7 +50,6 @@ AvParser.prototype.init = function(shadowclient) {
   let inMap = false;
   let mapLoc = '';
   let mapLines = [];
-  let umbraMsg = false;
 
   const emit = function() {
     self._emitter.emit.apply(self._emitter, arguments);
@@ -193,9 +196,6 @@ AvParser.prototype.init = function(shadowclient) {
         });
       }
     },{
-      regex: /^UmBrA:\s$/,
-      func: function() { umbraMsg = true; }
-    },{
       regex: /^###ack macro@ ###id=(\d+) ###name=(.+) ###def=(.*)$/,
       func: function(match) {
         appendOutput({
@@ -219,10 +219,8 @@ AvParser.prototype.init = function(shadowclient) {
         });
       }
     },{
-      regex: /^(.*) >>> (.*)$/,
-      cond: function() {return umbraMsg;},
+      regex: /^>>> (.*) @ UMBRA: "(.*)"$/,
       func: function(match, rawLine) {
-        umbraMsg = false;
         appendOutput({
           qual: 'umbra',
           chan: 'umbra',
@@ -247,9 +245,7 @@ AvParser.prototype.init = function(shadowclient) {
     },{
       regex: /^.*$/,
       cond: function(){return inMap;},
-      func: function(match, rawLine) {
-        mapLines.push(rawLine);
-      }
+      func: function(match, rawLine) { mapLines.push(rawLine); }
     },{
       regex: /^###msg@ (.+)$/,
       func: function(match) {
@@ -355,39 +351,35 @@ AvParser.prototype.init = function(shadowclient) {
         }
       }
     },{
-      regex: /^(\S+) novice-calls from (.+?): "(.*)"$/,
+      regex: /^>>> (.+) @ NOVICES: "(.*)"$/,
       func: function(match) {
+        let who = match[1];
+        let msg = match[2];
+        let dirn = (who === 'You call') ? 'to' : 'from';
         appendOutput({
-          qual: 'novice-calling from',
+          qual: 'novice-calling ' + dirn,
           chan: 'novices',
           comms: true,
-          who:  match[1],
-          city: match[2],
-          msg: match[3]
+          who:   who,
+          msg:   msg
         });
       }
     },{
-      regex: /^You novice-call from (.+?): "(.*)"$/,
+      regex: /^>>> (.+) @ (.+): "(.*)"$/,
       func: function(match) {
+        let who = match[1];
+        let chan = match[2];
+        let msg = match[3];
+        let dirn = (who === 'You call') ? 'to' : 'from';
         appendOutput({
-          qual: 'novice-calling to',
-          chan: 'novices',
+          qual: 'calling ' + dirn,
           comms: true,
-          city: match[1],
-          msg: match[2]
+          who:   who,
+          chan:  chan,
+          msg:   msg
         });
       }
     },{
-      regex: /^(\S+) novice-calls: "(.*)"$/,
-      func: function(match) {
-        appendOutput({
-          qual: 'novice-calling from',
-          chan: 'novices',
-          comms: true,
-          who:  match[1],
-          msg: match[2]
-        });
-      }    },{
       regex: /^(\S+) calls to (.+?): "(.*)"$/,
       func: function(match) {
         appendOutput({
@@ -513,8 +505,6 @@ AvParser.prototype.init = function(shadowclient) {
 
 
   let onPrompt = function(prompt) {
-    umbraMsg = false;
-    //inMacroList = false;
     if(inMap) { endMapFor('unknown'); }
     flushOutput(prompt);
   };
