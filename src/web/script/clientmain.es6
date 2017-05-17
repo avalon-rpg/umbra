@@ -62,6 +62,7 @@ $(function() {
 
   // Prompt for setting a username
   let $loginForm = $('#login-form-outer');
+  let $newUserForm = $('#newUserDropdown');
   let username;
   let password;
   let connected = false;
@@ -101,6 +102,7 @@ $(function() {
       if ($loginForm.css("visibility") === "hidden") {
         $loginForm.transition({ animation: 'vertical flip' });
       }
+      $newUserForm.show();
     } else {
       androidUmbra.showLogin();
     }
@@ -109,6 +111,7 @@ $(function() {
   let hideLoginBox = function() {
     if ($loginForm.css("visibility") !== "hidden") {
       $loginForm.transition({ animation: 'vertical flip' });
+      $newUserForm.hide();
     }
   };
 
@@ -663,22 +666,28 @@ $(function() {
 
   $(".size.select").tap( function(event) {
 
-    let fontSize = '.95em';
+    let fontSize = '1em';
     switch($(this).text()) {
-      case 'smallest':
-        fontSize = '.8em';
+      case '75%':
+        fontSize = '.75em';
         break;
-      case 'smaller':
+      case '90%':
         fontSize = '.9em';
         break;
-      case 'normal':
-        fontSize = '.95em';
-        break;
-      case 'bigger':
+      case '100%':
         fontSize = '1em';
         break;
-      case 'biggest':
+      case '110%':
         fontSize = '1.1em';
+        break;
+      case '125%':
+        fontSize = '1.25em';
+        break;
+      case '150%':
+        fontSize = '1.5em';
+        break;
+      case '200%':
+        fontSize = '2em';
         break;
     }
     $('body').css({ 'font-size': fontSize });
@@ -708,7 +717,8 @@ $(function() {
     $("#mini-manual").modal("show");
   });
 
-  $('#newUserDropdown').accordion({
+//  $('#newUserDropdown')
+  $newUserForm.accordion({
     onOpen: function () {
       createNewUser = true;
       $("#form-submit-button").val("Create New User");
