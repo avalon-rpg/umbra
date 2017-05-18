@@ -13,20 +13,20 @@ window.umbra = {
     // password
   },
   protocol: {},
-  load() {
+  load: function() {
     if(localStorage && localStorage.umbra) {
       this.settings = JSON.parse(localStorage.umbra);
     }
     return this;
   },
-  save() {
+  save: function() {
     if(localStorage) {
       localStorage.umbra = JSON.stringify(this.settings);
     }
     return this;
   },
-  get(key) { return this.settings[key] || this.defaults[key]; },
-  set(key, value) {
+  get: function(key) { return this.settings[key] || this.defaults[key]; },
+  set: function(key, value) {
     this.settings[key] = value;
     return this;
   }
