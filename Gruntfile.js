@@ -64,7 +64,8 @@ module.exports = function(grunt) {
     },
     babel: {
       options: {
-        sourceMap: true
+        sourceMap: true,
+        presets: ['es2015']
         //plugins: ["closure-elimination"]
       },
       web: {
@@ -152,12 +153,10 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-jade');
   grunt.loadNpmTasks("grunt-contrib-less");
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-concat-sourcemaps');
   grunt.loadNpmTasks('grunt-babel');
 
   //don't watch by default, 'grunt watch' works perfectly well without killing CI
