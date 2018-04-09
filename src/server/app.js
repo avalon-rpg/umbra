@@ -35,7 +35,7 @@ if(process.env.UMBRA_PORT) {
 
 let server = app.listen(app.get('port'), '0.0.0.0');
 console.log("Listening on %s", app.get('port'));
-let io = require('socket.io')(server);
+let io = require('socket.io')(server, { wsEngine: "uws" });
 
 //let MobileDetect = require('mobile-detect');
 
