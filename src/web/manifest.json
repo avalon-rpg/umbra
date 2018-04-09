@@ -1,0 +1,22 @@
+{
+  "name": "Umbra for Avalon; the Legend Lives",
+  "short_name": "Umbra",
+  "lang": "en-GB",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "theme_color": "#cecece",
+  "icons": [
+    {
+      "src": "/img/solar-eclipse.ico",
+      "sizes": "256x256",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/img/total-eclipse.ico",
+      "sizes": "256x256",
+      "type": "image/x-icon"
+    }
+  ],
+  "background_color": "#000000"
+}

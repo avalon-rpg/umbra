@@ -1,9 +1,15 @@
 @indent: 10px;
-@curve-radius: 1em;
+@curve-radius: 0.2em;
 @vert-spacer: 1em;
 
 .horz-gradient(@color1,@color2) {
-  background-image: -webkit-gradient(linear, left top, left top, color-stop(0%, @color1), color-stop(100% @color2));
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    left top,
+    color-stop(0%, @color1),
+    color-stop(100% @color2)
+  );
   background-image: -webkit-linear-gradient(left, @color1 0%, @color2 100%);
   background-image: -moz-linear-gradient(left, @color1 0%, @color2 100%);
   background-image: -ms-linear-gradient(left, @color1 0%, @color2 100%);
@@ -12,7 +18,13 @@
 }
 
 .vert-gradient(@color1,@color2) {
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, @color1), color-stop(100% @color2));
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    color-stop(0%, @color1),
+    color-stop(100% @color2)
+  );
   background-image: -webkit-linear-gradient(top, @color1 0%, @color2 100%);
   background-image: -moz-linear-gradient(top, @color1 0%, @color2 100%);
   background-image: -ms-linear-gradient(top, @color1 0%, @color2 100%);
@@ -22,11 +34,11 @@
 
 /* ensure all blocks are full-width and clear of other floating content */
 .messages {
-
   //top, right, bottom, left
   padding: @vert-spacer @indent @vert-spacer @indent;
 
-  .block, .line {
+  .block,
+  .line {
     width: 100%;
     white-space: pre-wrap;
   }
@@ -34,8 +46,6 @@
   .block > .block {
     margin-left: @indent;
   }
-
-
 
   /*
   stdio divs indicate response from a specified command,
@@ -53,14 +63,13 @@
     }
 
     .cmd-inner {
-      font-size: smaller;
+      font-size: 0.9rem;
     }
   }
 
   .stdio + .stdio {
     margin-top: 0;
   }
-
 
   .ui.table {
     background: inherit !important;
@@ -81,22 +90,15 @@
 /* fixed-width font, space lines more closely to help visual layouts */
 
 .monospaced {
-  font-family:
-    source-code-pro,
-    Monaco,
-    "Bitstream Vera Sans Mono",
-    "Lucida Console",
-    Terminal,
-    monospace;
+  font-family: @monospaced-family;
 
-  line-height: 1.1;
-  font-size: smaller;
+  line-height: 1;
+  font-size: 0.9rem;
   white-space: pre-wrap;
 }
-
-
-
-
+.ansi {
+  white-space: inherit;
+}
 /* This is really here to ensure that ANSI stuff avoids massive padding and has rounded corners */
 
 .unparsed span {
@@ -123,7 +125,7 @@
   & > .title {
     color: yellow;
     padding: 2px;
-    border-radius: 5px;
+    border-radius: 2px;
     font-weight: 700;
   }
 
@@ -141,7 +143,6 @@
     /*background: rgba(64, 255, 128, 0.25);*/
   }
 }
-
 
 .map {
   text-align: center;
@@ -167,17 +168,10 @@
 
   /* map content: fixed-width lines with no spacing between */
   & > .lines {
-    line-height: 1.0;
+    line-height: 1;
     white-space: pre-wrap;
-    font-family:
-      Consolas,
-      Menlo,
-      Monaco,
-      "Bitstream Vera Sans Mono",
-      "Lucida Console",
-      Terminal,
-      monospace;
-    font-size: 12px;
+    font-family: @monospaced-family;
+    font-size: 0.9rem;
     margin-left: auto;
     margin-right: auto;
     display: inline-block;
@@ -197,7 +191,7 @@
   .commscontent {
     /* background: rgba(255, 255, 255, 0.2); */
     color: #efefef;
-    border-radius: 5px;
+    border-radius: 1px;
     padding: 0;
     display: inline-block;
   }
@@ -220,30 +214,31 @@
     display: inline-block;
     padding: 1px;
     font-weight: bold;
-    background-color: rgba(255, 255, 255, 0.5);
-    color: black;
+    // background-color: rgba(255, 255, 255, 0.5);
+    color: rgba(92, 201, 245, 0.8);
     /*border: 1px solid rgb(127,127,127);*/
-    border-radius: 5px;
+    // border-radius: 1px;
   }
 
   /* red icon for outbound messages */
   &.to {
-    .icon, .msg {
-      color: rgba(255, 96, 96, .9);
+    .icon,
+    .msg {
+      color: rgba(255, 96, 96, 0.9);
     }
-
   }
 
   /* green icon for inbound messages */
   &.from {
     .icon {
-      color: springgreen;
+      color: rgba(92, 201, 245, 0.8);
     }
   }
 
   /* coral bug icon  */
   &.bug {
-    .icon, .channel {
+    .icon,
+    .channel {
       color: coral;
     }
   }
@@ -277,9 +272,5 @@
 }
 
 .block span {
-  border-radius: 5px;
+  border-radius: 1px;
 }
-
-
-
-

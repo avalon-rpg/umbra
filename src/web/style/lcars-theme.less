@@ -1,9 +1,9 @@
 @indent: 2em;
-@half-indent: (@indent/2);
+@half-indent: (@indent / 2);
 @vert-spacer: 1em;
-@half-vert-spacer: (@vert-spacer/2);
-@curve-radius: 1em;
-@thick-width: 0.3em;
+@half-vert-spacer: (@vert-spacer / 2);
+@curve-radius: 0.2em;
+@thick-width: 0.1em;
 
 .messages {
   //       t            r       b            l
@@ -19,23 +19,22 @@
     margin: 0px;
     left: 0.125em;
   }
-
 }
 
 .stdio {
-  border-left: @thick-width solid rgb(79, 136, 67);
-  border-top: @thick-width solid rgb(79, 136, 67);
-  border-radius: @curve-radius;
+  border-left: @thick-width solid rgba(102, 56, 240, 0.8);
+  // border-top: @thick-width solid rgb(79, 136, 67);
+  // border-radius: @curve-radius;
   margin-left: -@half-indent;
-  padding-left: ( @half-indent - @thick-width );
-  margin-top: @thick-width;
-  margin-bottom: @thick-width;
+  padding-left: (@half-indent - @thick-width);
+  // margin-top: @thick-width;
+  // margin-bottom: @thick-width;
 
   .cmd {
-    border: @thick-width solid rgb(79, 136, 67);
-    border-radius: @curve-radius;
+    // border: @thick-width solid rgb(79, 136, 67);
+    // border-radius: @curve-radius;
     padding: 0 @thick-width 0 @thick-width;
-    top: -0.75em;
+    top: -1em;
     position: relative;
     right: 0;
   }

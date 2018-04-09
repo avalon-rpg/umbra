@@ -1,8 +1,16 @@
-@desktop:   ~"only screen and (min-width: 1024px)";
-@tablet:    ~"only screen and (min-width: 720px) and (max-width: 1023px)";
-@phone:   ~"only screen and (max-width: 719px)";
+@desktop: ~"only screen and (min-width: 1024px)";
+@tablet: ~"only screen and (min-width: 720px) and (max-width: 1023px)";
+@phone: ~"only screen and (max-width: 719px)";
 
-@import "museo-font.less";
+@display-family: proxima-nova, droid-sans, "Droid Sans", "SF UI Display",
+  "Avenir Next", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue",
+  Helvetica, Arial, "Lucida Grande", sans-serif;
+
+@monospaced-family: droid-sans-mono, "Droid Sans Mono", source-code-pro,
+  "Source Code Pro", Consolas, "Bitstream Vera Sans Mono", Monaco,
+  "Lucida Console", Terminal, monospace;
+
+//@import "museo-font.less";
 @import "shimmer.less";
 @import "ansi_up.less";
 @import "nanoscroller.less";
