@@ -24,7 +24,7 @@ ShadowClient.prototype.init = function(params) {
   let self = this;
   self.setMaxListeners(30);
 
-  self.host = "avalon-rpg.com";
+  self.host = "omertalaw.com";
   self.port = 23;
   if (params.game && params.game === "legends") {
     self.host = "legends.avalon-rpg.com";

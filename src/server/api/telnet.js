@@ -1,11 +1,9 @@
 var net = require("net");
 
-
 (function(global) {
   "use strict";
   var Telnet = function() {
-
-    if ( Telnet.prototype._singletonInstance ) {
+    if (Telnet.prototype._singletonInstance) {
       return Telnet.prototype._singletonInstance;
     }
     Telnet.prototype._singletonInstance = this;
@@ -18,7 +16,7 @@ var net = require("net");
 
     this.connect = function(onConnect) {
       console.log("--- API CONNECTING ---");
-      client = net.connect(23, "avalon-rpg.com",function(){
+      client = net.connect(23, "omertalaw.com", function() {
         isClosed = false;
         if (onConnect) onConnect();
       });
@@ -35,7 +33,9 @@ var net = require("net");
         isClosed = true;
         //self.connect();
       });
-      client.on("end", function() {console.log("- API END");});
+      client.on("end", function() {
+        console.log("- API END");
+      });
       client.write("###version 2\n");
       console.log("--- API Conected ---\n");
     };
@@ -58,12 +58,10 @@ var net = require("net");
     this.pause = function() {
       client.pause();
     };
-
   };
 
   global.telnet = new Telnet();
   telnet.connect();
-
-}(root));
+})(root);
 
 module.exports = telnet;
