@@ -56,18 +56,20 @@ AvParser.prototype.init = function(shadowclient) {
     if (lineBuffer.length > 0) {
       //console.log("flushing lines: ");
       //lineBuffer.forEach(function(line) { console.log(`  »»${line}««`);  });
-      let entry = { qual: "text", lines: lineBuffer };
-      let tags = [];
-      if (monospaced) {
-        tags.push("monospaced");
-      }
-      if (lineBuffer.length === 1) {
-        tags.push("oneliner");
-      }
-      if (tags.length > 0) {
-        entry.tags = tags;
-      }
-      blockStack.addEntry(entry);
+      lineBuffer.forEach(function(line) {
+        let entry = { qual: "line", line: line };
+        let tags = [];
+        if (monospaced) {
+          tags.push("monospaced");
+        }
+        if (lineBuffer.length === 1) {
+          tags.push("oneliner");
+        }
+        if (tags.length > 0) {
+          entry.tags = tags;
+        }
+        blockStack.addEntry(entry);
+      });
       monospaced = false;
       lineBuffer = [];
     }
