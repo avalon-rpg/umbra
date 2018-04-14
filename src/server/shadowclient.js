@@ -86,7 +86,7 @@ ShadowClient.prototype.init = function(params) {
             reason: "bad username"
           });
         } else if (line.startsWith("ERROR: ###ACK ERROR @ bad password")) {
-          console.log(self.username + " « " + line);
+          // console.log(self.username + " « " + line);
           self.loggedIn = false;
           self.loggingIn = false;
           self.badCredentials = true;
@@ -109,10 +109,10 @@ ShadowClient.prototype.init = function(params) {
 
   let onPrompt = function(prompt) {
     if (self.loggedIn) {
-      if (self.username === "gwahir") {
-        console.log(`${self.username} prompt: »»${prompt}««`);
+      if (prompt.trim() === "") {
+        prompt = "-";
       }
-      self.emit("prompt", prompt);
+      self.emit("prompt", prompt.trim());
     } else if (
       !self.badCredentials &&
       prompt.indexOf("What is the name of your character?") === 0
@@ -121,12 +121,12 @@ ShadowClient.prototype.init = function(params) {
       console.log("login prompt seen");
       let loginline;
       if (self.create) {
-        console.log(
-          "attempting to log in new user " +
-            self.username +
-            " with email " +
-            self.email
-        );
+        // console.log(
+        //   "attempting to log in new user " +
+        //     self.username +
+        //     " with email " +
+        //     self.email
+        // );
         loginline =
           "###ack create@ " +
           self.username +
@@ -164,9 +164,6 @@ ShadowClient.prototype.init = function(params) {
 
 ShadowClient.prototype.write = function(input) {
   if (this.connected) {
-    if (this.username === "gwahir") {
-      console.log(this.username + " » " + input);
-    }
     this.conn.write(input);
   } else {
     console.error("couldn't send msg to disconnected client: " + input);

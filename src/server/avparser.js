@@ -54,8 +54,10 @@ AvParser.prototype.init = function(shadowclient) {
 
   let flushLineBuffer = function() {
     if (lineBuffer.length > 0) {
-      //console.log("flushing lines: ");
-      //lineBuffer.forEach(function(line) { console.log(`  »»${line}««`);  });
+      // console.log("flushing lines: ");
+      // lineBuffer.forEach(function(line) {
+      //   console.log(`  »»${line}««`);
+      // });
       lineBuffer.forEach(function(line) {
         let entry = { qual: "line", line: line };
         let tags = [];
@@ -84,8 +86,10 @@ AvParser.prototype.init = function(shadowclient) {
     if (line.indexOf("   ") >= 0) {
       monospaced = true;
     }
-    //console.log(`        appending line: »»${line}««`);
-    lineBuffer.push(line);
+    if (line.trim().length > 0) {
+      // console.log(`        appending line: »»${line}««`);
+      lineBuffer.push(line);
+    }
   };
 
   let appendReplacableLine = function(line, id) {
@@ -107,9 +111,7 @@ AvParser.prototype.init = function(shadowclient) {
           block.ansiPrompt = ansiPrompt;
           const prompt = stripAnsi(ansiPrompt).trim();
           block.prompt = prompt;
-          if (shadowclient.username === "gwahir") {
-            console.log("clean prompt: [" + prompt + "]");
-          }
+          // console.log("clean prompt: [" + prompt + "]");
           let promptMatch = promptRegex.exec(prompt);
           if (promptMatch) {
             let promptVars = {
@@ -120,9 +122,7 @@ AvParser.prototype.init = function(shadowclient) {
               flags: promptMatch[5],
               visFlags: promptMatch[6]
             };
-            if (shadowclient.username === "gwahir") {
-              console.log("parsed prompt: " + JSON.stringify(promptVars));
-            }
+            // console.log("parsed prompt: " + JSON.stringify(promptVars));
             block.promptVars = promptVars;
           }
         }
